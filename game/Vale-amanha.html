@@ -1,0 +1,314 @@
+<!-- PRODUÇÃO EM: https://versaodeluxe.directorioforuns.com/h145-vinhadinho-amanha-game  -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Vale Amanhã</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Press Start 2P', monospace;
+  background:#d8d8d8;
+  color:#111;
+  overflow-x:hidden;
+}
+
+/* ===== EFEITO MONITOR ANTIGO ===== */
+.monitor-overlay{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9999;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.12),
+      rgba(0,0,0,0.12) 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0,0,0,0.18) 100%
+    );
+  animation:scanMove 10s linear infinite, flicker 3.2s infinite;
+}
+
+@keyframes scanMove{
+  from{background-position:0 0, center}
+  to{background-position:0 100%, center}
+}
+
+@keyframes flicker{
+  0%{opacity:.28}
+  8%{opacity:.38}
+  15%{opacity:.22}
+  30%{opacity:.35}
+  45%{opacity:.25}
+  60%{opacity:.4}
+  75%{opacity:.3}
+  100%{opacity:.34}
+}
+
+/* ===== CONTAINER ===== */
+main{
+  max-width:960px;
+  margin:0 auto;
+  padding:3rem 1.2rem 4rem;
+}
+
+/* ===== TÍTULO ===== */
+header{
+  text-align:center;
+  margin-bottom:3rem;
+}
+
+header h1{
+  font-size:16px;
+  text-transform:uppercase;
+  margin-bottom:.8rem;
+}
+
+header p{
+  font-size:10px;
+  opacity:.7;
+}
+
+/* ===== TIMELINE ===== */
+.timeline{
+  display:flex;
+  flex-direction:column;
+  gap:2rem;
+}
+
+/* ===== EVENTO ===== */
+.event{
+  background:#e6e6e6;
+  border:3px solid rgba(0,0,0,.15);
+  border-radius:6px;
+  padding:1rem;
+  display:grid;
+  grid-template-columns:160px 1fr;
+  gap:1rem;
+  opacity:0;
+  transform:translateY(14px);
+  animation:reveal .6s ease forwards;
+}
+
+@keyframes reveal{
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* ===== IMAGEM ===== */
+.event-img{
+  width:100%;
+  height:120px;
+  background:#cfcfcf;
+  background-size:cover;
+  background-position:center;
+  border:2px solid rgba(0,0,0,.2);
+  filter:grayscale(20%);
+}
+
+/* ===== TEXTO ===== */
+.event-info{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.event-date{
+  font-size:11px;
+  margin-bottom:.5rem;
+  opacity:.75;
+}
+
+.event-desc{
+  font-size:11px;
+  line-height:1.6;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:640px){
+  .event{ grid-template-columns:1fr; }
+  .event-img{ height:160px; }
+}
+</style>
+</head>
+
+<body>
+
+<main>
+  <header>
+    <h1>O Vale Amanhã</h1>
+    <p>Comunicados oficiais sobre o futuro da Federação</p>
+  </header>
+
+  <div class="monitor-overlay"></div>
+
+  <section class="timeline" id="timeline">
+    <div style="font-size:11px;opacity:.6;">Sincronizando registros do futuro…</div>
+  </section>
+</main>
+
+<script>
+const TSV_URL =
+'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk1rp-ttOEtOy1IQQBNRsg-fALCUuok8iKXxB1DQc7pXsDRchlvO6FU15CLAFcuudCEoNq-rSUl6sV/pub?gid=242254918&single=true&output=tsv';
+
+async function carregarEventos(){
+  const res = await fetch(TSV_URL);
+  const tsv = await res.text();
+
+  const linhas = tsv.trim().split('\n').slice(1);
+  const timeline = document.getElementById('timeline');
+  timeline.innerHTML = '';
+
+  linhas.forEach((linha, i)=>{
+    const cols = linha.split('\t');
+
+    // ✅ CORREÇÃO PRINCIPAL
+    const data = cols[0]?.trim();
+    const imagem = cols[cols.length - 1]?.trim();
+    const descricao = cols.slice(1, -1).join(' ').trim();
+
+    const div = document.createElement('div');
+    div.className = 'event';
+    div.style.animationDelay = `${i * 120}ms`;
+
+    div.innerHTML = `
+      <div class="event-img" style="background-image:url('${encodeURI(imagem || '')}')"></div>
+      <div class="event-info">
+        <div class="event-date">${data || 'FUTURO REGISTRADO'}</div>
+        <div class="event-desc">${descricao || ''}</div>
+      </div>
+    `;
+
+    timeline.appendChild(div);
+  });
+}
+
+carregarEventos();
+</script>
+  
+  
+  
+<script>
+(function () {
+  /* =======================
+     CSS DO BOTÃO (INJETADO)
+     ======================= */
+  const style = document.createElement('style');
+  style.textContent = `
+    #back-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent, #b86b3f);
+      color: #fff;
+      border: 2px solid rgba(0,0,0,0.08);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+      z-index: 7001;
+      cursor: pointer;
+      font-size: 22px;
+      transition: transform .12s ease, box-shadow .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #back-fab:active {
+      transform: translateY(1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+    }
+
+    #back-fab svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* =======================
+     BOTÃO (CRIADO VIA JS)
+     ======================= */
+  const btn = document.createElement('button');
+  btn.id = 'back-fab';
+  btn.setAttribute('aria-label', 'Voltar');
+  btn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"></path>
+      <path d="M12 19l-7-7 7-7"></path>
+    </svg>
+  `;
+  document.body.appendChild(btn);
+
+  /* =======================
+     LÓGICA DE VOLTAR
+     ======================= */
+  function voltar() {
+    // 1️⃣ Se blog overlay estiver aberto → fecha
+    const blogOverlay = document.getElementById('blog-overlay');
+    if (blogOverlay && blogOverlay.classList.contains('open')) {
+      if (typeof closeBlogOverlay === 'function') {
+        closeBlogOverlay();
+        return;
+      }
+    }
+
+    // 2️⃣ Se modal estiver aberto → fecha
+    const modal = document.getElementById('modal-missing');
+    if (modal && modal.classList.contains('open')) {
+      if (typeof closeModal === 'function') {
+        closeModal();
+        return;
+      }
+    }
+
+    // 3️⃣ Volta no histórico
+    if (window.history.length > 1) {
+      history.back();
+      return;
+    }
+
+    // 4️⃣ Fallback final
+    if (document.referrer) {
+      location.href = document.referrer;
+    } else {
+      location.href = '/';
+    }
+  }
+
+  /* =======================
+     EVENTOS
+     ======================= */
+  btn.addEventListener('click', voltar);
+
+  btn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      voltar();
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
