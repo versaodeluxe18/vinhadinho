@@ -1,0 +1,356 @@
+<!-- PRODUÇÃO EM:  https://versaodeluxe.directorioforuns.com/h147-vinhadinho-capital-game -->
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capital do Vale</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* ================= FUNDO ================= */
+.bg {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 1.2s ease;
+}
+
+.bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* ================= TOPO ================= */
+.header {
+  position: absolute;
+  top: 6vh;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  z-index: 10;
+}
+
+.title {
+  font-size: 28px;
+  letter-spacing: 0.14em;
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.6),
+    0 6px 14px rgba(0,0,0,0.8);
+}
+
+.subtitle {
+  margin-top: 12px;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: #c49b46;
+  text-shadow:
+    0 2px 6px rgba(0,0,0,0.7);
+}
+
+/* ================= BOTÃO ================= */
+.footer {
+  position: fixed;
+  left: 50%;
+  bottom: -140px;
+  transform: translateX(-50%);
+  animation: riseUp 1.2s ease forwards;
+  animation-delay: 6.2s;
+  z-index: 20;
+}
+
+@keyframes riseUp {
+  to { bottom: 42px; }
+}
+
+.city-button {
+  width: 360px;
+  height: 72px;
+  background: linear-gradient(180deg,#c99f3f,#b07e2e);
+  clip-path: polygon(10% 0%,90% 0%,100% 50%,90% 100%,10% 100%,0% 50%);
+  border: 4px solid rgba(0,0,0,0.18);
+  box-shadow: 0 14px 26px rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  white-space: nowrap;       /* NÃO QUEBRA LINHA */
+  text-align: center;
+
+  text-transform: uppercase;
+  font-size: 13px;
+  color: #0b0b0b;
+  letter-spacing: 0.08em;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.city-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 34px rgba(0,0,0,0.6);
+}
+
+/* ================= AVISO IN-GAME ================= */
+.notice {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s;
+  z-index: 30;
+}
+
+.notice.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.notice-box {
+  max-width: 520px;
+  padding: 1.2rem;
+  border: 3px solid rgba(255,255,255,0.08);
+  background: #0b0b0b;
+  color: #ddd;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.notice-box span {
+  color: #c49b46;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 600px) {
+  .title { font-size: 22px; }
+  .subtitle { font-size: 12px; }
+  .city-button {
+    width: 300px;
+    font-size: 12px;
+  }
+}
+</style>
+</head>
+
+<body><div class="bg" id="bg"></div>
+
+<!-- TOPO --><div class="header">
+  <div class="title" id="title"></div>
+  <div class="subtitle" id="subtitle"></div>
+</div>
+
+<!-- BOTÃO --><div class="footer">
+  <div class="city-button" id="cityBtn">
+    ACESSAR SISTEMA DA CIDADE
+  </div>
+</div>
+
+<!-- AVISO --><div class="notice" id="notice">
+  <div class="notice-box">
+    <span>SISTEMA TEMPORARIAMENTE INDISPONIVEL</span><br><br>
+    O painel de acesso à Capital encontra-se em manutenção.
+    Engenheiros e desenvolvedores da Federação do Vale já
+    estão trabalhando para restabelecer o sistema.<br><br>
+    Aguarde novas transmissões oficiais.
+  </div>
+</div>
+
+<script>
+/* ================= FUNDO POR HORÁRIO ================= */
+const IMAGENS = {
+  noite: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhkUXZx9Pex18zzBVWqys9oDzBieRxs_OBQ6GowEBWudITqSrYY9bg-GtF_X7ghqcjNAyiA17MGGfdeUBVvHcjiFdDK7feFF1fjTEBIL0GZM4xxIWwxsAggAcrZk0S3tL6B5_TgByx8kG4to9Gzgbk2LPc0rndBo_fzPciiCxLSjFx2p4G4d7v70awbawk/s1600/Gemini_Generated_Image_wvfenjwvfenjwvfe.png',
+  manha: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi7Vgt2Ju9dkCOgyTUTRDNf-6JJqCP1DrLmz5LkYk_o9S0ocnUSjqjnamsSMW54LNqSU73FBKNTsXOCSVoBWItWiibuAjeJXOGH4CT4LHMnQ7h7qM8zbp6MOOrk0qdQL8ZFmx1EN2oTMIktWqCvejZkxBvSNXw9yaFmMipSnp5Cp8Von4vioJiKTxyupYM/s1600/Gemini_Generated_Image_didoydidoydidoyd.png',
+  tarde: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj46Ax1oBUhtLhTa02xAz0SpLoUwLsH7R6mcU7FYThyphenhyphenrUZIpqZfNEFMmHPqm4THnO6o8qLSVXKHQEyRSVHq9FE0hN9IE8-utnp4I3Hoi0Xfq9GgGThnvp-d5jmCg690ICO5cEC0t4ZrlzZ0uI_cPBMs-fbnOirMA2wqmbIdVM8u7IJ_SxBx-zBAS28toME/s1600/Gemini_Generated_Image_lk70c3lk70c3lk70.png'
+};
+
+function setBg() {
+  const d = new Date();
+  const m = d.getHours() * 60 + d.getMinutes();
+  const bg = document.getElementById('bg');
+
+  if (m >= 1110 || m <= 360) bg.style.backgroundImage = `url(${IMAGENS.noite})`;
+  else if (m <= 900) bg.style.backgroundImage = `url(${IMAGENS.manha})`;
+  else bg.style.backgroundImage = `url(${IMAGENS.tarde})`;
+}
+setBg();
+
+/* ================= TEXTO LETRA POR LETRA ================= */
+function typeText(el, text, speed) {
+  let i = 0;
+  const iv = setInterval(() => {
+    el.textContent += text[i];
+    i++;
+    if (i >= text.length) clearInterval(iv);
+  }, speed);
+}
+
+typeText(document.getElementById('title'), 'FEDERAÇAO DO VALE', 180);
+
+setTimeout(() => {
+  typeText(
+    document.getElementById('subtitle'),
+    'CONECTANDO VOCÊ E A CAPITAL',
+    80
+  );
+}, 3200);
+
+/* ================= BOTÃO ================= */
+const btn = document.getElementById('cityBtn');
+const notice = document.getElementById('notice');
+
+btn.addEventListener('click', () => {
+  notice.classList.add('active');
+});
+
+notice.addEventListener('click', () => {
+  notice.classList.remove('active');
+});
+</script>
+
+  
+  
+  
+  
+  
+  
+  
+
+<script>
+(function () {
+  /* =======================
+     CSS DO BOTÃO (INJETADO)
+     ======================= */
+  const style = document.createElement('style');
+  style.textContent = `
+    #back-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent, #b86b3f);
+      color: #fff;
+      border: 2px solid rgba(0,0,0,0.08);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+      z-index: 7001;
+      cursor: pointer;
+      font-size: 22px;
+      transition: transform .12s ease, box-shadow .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #back-fab:active {
+      transform: translateY(1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+    }
+
+    #back-fab svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* =======================
+     BOTÃO (CRIADO VIA JS)
+     ======================= */
+  const btn = document.createElement('button');
+  btn.id = 'back-fab';
+  btn.setAttribute('aria-label', 'Voltar');
+  btn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"></path>
+      <path d="M12 19l-7-7 7-7"></path>
+    </svg>
+  `;
+  document.body.appendChild(btn);
+
+  /* =======================
+     LÓGICA DE VOLTAR
+     ======================= */
+  function voltar() {
+    // 1️⃣ Se blog overlay estiver aberto → fecha
+    const blogOverlay = document.getElementById('blog-overlay');
+    if (blogOverlay && blogOverlay.classList.contains('open')) {
+      if (typeof closeBlogOverlay === 'function') {
+        closeBlogOverlay();
+        return;
+      }
+    }
+
+    // 2️⃣ Se modal estiver aberto → fecha
+    const modal = document.getElementById('modal-missing');
+    if (modal && modal.classList.contains('open')) {
+      if (typeof closeModal === 'function') {
+        closeModal();
+        return;
+      }
+    }
+
+    // 3️⃣ Volta no histórico
+    if (window.history.length > 1) {
+      history.back();
+      return;
+    }
+
+    // 4️⃣ Fallback final
+    if (document.referrer) {
+      location.href = document.referrer;
+    } else {
+      location.href = '/';
+    }
+  }
+
+  /* =======================
+     EVENTOS
+     ======================= */
+  btn.addEventListener('click', voltar);
+
+  btn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      voltar();
+    }
+  });
+
+})();
+</script>
+
+  
+  
+</body>
+</html>
