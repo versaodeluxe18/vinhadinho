@@ -1,0 +1,2659 @@
+
+<!-- ATIVO EM: https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game -->
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CABANA</title>
+ <style>
+  /* === Reset & Global ============================================ */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: sans-serif;
+    background: black;
+  }
+
+  /* === Wrapper ================================================== */
+  #app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+   
+   
+   .live-cover123 {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+
+  background: url("https://i.servimg.com/u/f22/19/80/77/63/chatgp13.jpg") no-repeat center/cover;
+
+  flex-shrink: 0;
+}
+
+  /* === Fundo Principal ========================================== */
+  #background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("https://i.servimg.com/u/f22/19/80/77/63/chatgp11.jpg") no-repeat center center;
+    background-size: cover;
+    transform-origin: center center;
+    transition: transform 1s ease-in;
+    z-index: 1;
+  }
+
+  /* === Overlay Gradiente ======================================== */
+  #overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.3) 50%,
+      rgba(255,255,255,0) 100%
+    );
+    background-size: 100% 200%;
+    animation: overlayMove 4s ease-in-out infinite;
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .8s ease-in-out;
+    z-index: 2;
+  }
+  @keyframes overlayMove {
+    0%   { background-position: 0% 100%; }
+    50%  { background-position: 0% 0%;   }
+    100% { background-position: 0% 100%; }
+  }
+
+  /* === Login Container ========================================= */
+  #login-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    opacity: 1;
+    transition: transform .8s ease, opacity .8s ease;
+    z-index: 3;
+  }
+  #login-container.hidden {
+    opacity: 0;
+    transform: translate(-50%, -150%);
+    pointer-events: none;
+  }
+  #login-container img {
+    display: block;
+    margin: 0 auto 30px;
+    width: 50vw;
+    max-width: 300px;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
+  }
+
+  /* === Botão Google ============================================= */
+  .botao-chrome {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    width: 220px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: black;
+    background: linear-gradient(-45deg, #ff00ff, #00ffff, #ffff00);
+    background-size: 600% 600%;
+    animation: lava 8s ease infinite;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 3;
+  }
+
+  /* === Pós-login Overlay & Screen2 ============================= */
+  #post-login-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;  
+    opacity: 1;
+    transition: opacity 1.2s ease-in-out;
+    pointer-events: none;
+    z-index: 6;
+  }
+  #post-login-overlay.hidden {
+    opacity: 0;
+  }
+  #screen2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("https://i.servimg.com/u/f22/19/80/77/63/chatgp12.jpg") no-repeat center center;
+    background-size: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    pointer-events: none;
+    z-index: 5;
+  }
+  #screen2.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* === Lava Animation for Buttons =============================== */
+  @keyframes lava {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* === Botões Circulares Principais ============================== */
+  .action-btn {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+    background: linear-gradient(-45deg, #ff00ff, #00ffff, #ffff00);
+    background-size: 600% 600%;
+    animation: lava 8s ease infinite;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity .5s ease;
+    pointer-events: none;
+    z-index: 7;
+  }
+  .action-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #btn-cell   { top: 10%; left: 50%; transform: translateX(-50%); }
+  #btn-lock1  { top: 30%; left: 60%; transform: translateX(-50%); }
+  #btn-lock2  { top: 50%; left: 70%; transform: translateX(-50%); }
+
+  /* === Float Animation for Action Buttons ======================= */
+  @keyframes floatBtn {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(-10px); }
+  }
+  #btn-cell,
+  #btn-lock1,
+  #btn-lock2 {
+    animation:
+      floatBtn 3s ease-in-out infinite,
+      lava     8s ease infinite;
+  }
+
+  /* === Celular Overlay + Conteúdo =============================== */
+  #celular-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    z-index: 9;
+  }
+  #celular-content {
+    position: relative;
+    width: 90vw;
+    max-width: 400px;
+    height: 90vh;
+    background: url("https://i.servimg.com/u/f22/19/80/77/63/celula10.png") no-repeat center center;
+    background-size: contain;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #close-celular {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  /* === Grade de Ícones ========================================== */
+ #icon-grid {
+  position: absolute;
+  /* margens de 10% em cada lado para centralizar: */
+  top: 20%;
+  left: 20%;
+  /* ocupa 80% da largura e da altura do contêiner pai */
+  width: 60%;
+  height: 60%;
+  display: grid;
+  grid-template-rows: auto repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  border-radius: 12px;
+
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 11;
+}
+#icon-grid.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+#close-icon-grid {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 12;
+}
+  .icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  font-size: 14px;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.3s ease;
+}
+.icon-button:hover {
+  background: rgba(255, 255, 255, 1);
+}
+   
+   #icon-grid .grid-title {
+  /* ocupa todas as colunas */
+  grid-column: 1 / -1;
+  /* centraliza o texto */
+  text-align: center;
+  /* cor e tamanho */
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  /* dá um espacinho embaixo */
+  margin-bottom: 0.5rem;
+  /* se quiser adicionar sombra para contrastar */
+  text-shadow: 0 0 4px rgba(0,0,0,0.7);
+}
+  
+
+  /* === Geladeira Overlay ======================================== */
+  #geladeira-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    z-index: 10;
+  }
+  #geladeira-content {
+    position: relative;
+    width: 90vw;
+    max-width: 450px;
+    height: 90vh;
+    background: url("https://i.servimg.com/u/f22/19/80/77/63/gelade12.png") no-repeat center center;
+    background-size: auto 100%;
+  }
+  #geladeira-text {
+    position: relative;
+    top: 10%;
+    left: 5%;
+    width: 90%;
+    max-height: 80%;
+    padding: 1rem;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    font-size: 14px;
+    border-radius: 8px;
+    overflow-y: auto;
+  }
+  #close-geladeira {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  /* === Notificação de Curtida ==================================== */
+  #notif-overlay {
+    position: absolute;
+    width: 60%;
+    height: 60%;
+    top: 20%;
+    left: 20%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.8);
+    padding: 1rem;
+    border-radius: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+    z-index: 20;
+  }
+  #notif-overlay button#close-notif {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .gradient-wrapper {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin-bottom: 1rem;
+  }
+  .gradient-border {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #37B5FF 0deg,
+      #FE40BC 120deg,
+      #FDCF17 240deg,
+      #37B5FF 360deg
+    );
+    box-shadow: 0 0 20px rgba(255,255,255,0.3), 0 0 25px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: spin-border 4s linear infinite, border-glow 4s ease-in-out infinite;
+  }
+  .inner-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    animation: counter-rotate 4s linear infinite;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+  }
+  .inner-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  #notif-content {
+    color: #fff;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    max-width: 90%;
+    overflow-wrap: break-word;
+  }
+  @keyframes spin-border {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes border-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.3), 0 0 25px rgba(0,0,0,0.1); }
+    50%       { box-shadow: 0 0 40px rgba(255,255,255,0.6), 0 0 50px rgba(0,0,0,0.2); }
+  }
+  @keyframes counter-rotate {
+    to { transform: rotate(-360deg); }
+  }
+
+  /* === Emojis de coração flutuantes ============================= */
+  .heart-container {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 2rem;
+    height: 4rem;
+    pointer-events: none;
+  }
+  .heart {
+    position: absolute;
+    font-size: 1.5rem;
+    opacity: 0;
+    animation: float-up 3s ease-in infinite;
+  }
+  .heart:nth-child(1) { animation-delay: 0s;    left: 0;   }
+  .heart:nth-child(2) { animation-delay: 0.5s;  left: 10px;}
+  .heart:nth-child(3) { animation-delay: 1s;    left:-10px;}
+  @keyframes float-up {
+    0%   { transform: translateY(0)    scale(0.5); opacity: 1;   }
+    80%  { opacity: 0.6; }
+    100% { transform: translateY(-100px) scale(1) translateX(10px); opacity: 0; }
+  }
+
+  /* === Responsivo =============================================== */
+  @media (max-width: 400px) {
+  .live-modal123 {
+    width: 94vw;
+    left: 50%;
+    transform: translateX(-50%);
+    max-height: calc(100dvh - 16px);
+    height: auto;
+  }
+}
+    
+   
+   /* container absoluto cobrindo a geladeira */
+  #fruit-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 15;
+  }
+
+.fruit {
+  position: absolute;
+  font-size: 2rem;
+  will-change: top, opacity;
+
+  /* parte de baixo do contêiner: */
+  top: 100%;
+  
+  /* animação de subida relativa ao contêiner */
+  animation: float-up-fruit 10s linear infinite;
+  animation-fill-mode: backwards; /* garante top:100% durante o delay */
+}
+
+@keyframes float-up-fruit {
+  0%   { top: 100%;  opacity: 1; }
+  100% { top: -20%;  opacity: 0; }
+}
+
+/* === Labels para as áreas (cantos superiores) ================== */
+.area-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 10px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 6px;
+  z-index: 95;
+  font-size: 14px;
+  text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  pointer-events: none;
+}
+
+/* === Aviso na parte de baixo da segunda janela ================== */
+#second-warning {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90%;
+  background: rgba(255,255,255,0.9);
+  color: #000; 
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.7);
+  z-index: 96;
+  font-size: 18px;
+  display: none;
+  text-align: center;
+
+  /* animação suave */
+  animation: floatHighlight 1.6s ease-in-out infinite;
+}
+
+@keyframes floatHighlight {
+  0%   { transform: translateX(-50%) translateY(0); }
+  50%  { transform: translateX(-50%) translateY(-6px); }
+  100% { transform: translateX(-50%) translateY(0); }
+}
+
+
+/* === Estilo typing (texto do PC) ================================= */
+#pc-typing {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 40px;
+  color: #ffffff;
+  background: rgba(0,0,0,0);
+  z-index: 91;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid rgba(255,255,255,0.9);
+  padding-right: 6px;
+  letter-spacing: 1px;
+  display: none;
+}
+
+/* efeito de digitação via width (ch) */
+.pc-typing-run {
+  display: inline-block;
+  animation: typing 3s steps(32,end) 1 forwards, caret 0.7s step-end infinite;
+  max-width: 40ch;
+  box-sizing: content-box;
+}
+@keyframes typing {
+  from { width: 0ch; }
+  to   { width: 24ch; } /* ajusta conforme texto */
+}
+@keyframes caret {
+  50% { border-color: transparent; }
+  100% { border-color: rgba(255,255,255,0.9); }
+}
+
+/* pequena transição para o background quando dá zoom */
+.bg-zooming {
+  transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
+}
+
+/* pequena classe para destacar o modal ao vivo (sombra e borda) */
+.live-modal123 {
+  position: fixed;
+
+  width: 94vw;
+  max-width: 420px;
+
+  max-height: calc(100dvh - 24px);
+  height: auto;
+
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+
+  background: #000;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  z-index: 999;
+}
+
+/* fechar grande/grosso */
+.live-modal123 .close-btn123 {
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  width: 44px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+   
+   
+   .live-modal-ajuda123 {
+  background: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg6PhsW3RXEv-sP2SQ2XO1k1MZMALuVNBFn5vTvwkldOuWovO8DJHJaXK-BTjh_FgTnxtJFxnPCJpmIF6Jc8FlBku2ZITPwA8-5WFe7O7uUGr81rLZ5nkV7rfIuakxtl1l5TPzta1yCnkxp7GueRjQiM3wD0BgNcUcNPeyCFqSh0oHDIpE557b8iL44wz8/s1600/fundologopreto.jpg") 
+  no-repeat center/cover;
+}
+   
+   
+   .live-loading-ajuda123 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #141414;  /* escolha a cor do fundo */
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+
+/* ===== EFEITO MONITOR ANTIGO (CRT) ===== */
+.monitor-overlay{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.12),
+      rgba(0,0,0,0.12) 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0,0,0,0.18) 100%
+    );
+  animation: scanMove 10s linear infinite, flicker 3.2s infinite;
+}
+
+@keyframes scanMove{
+  from { background-position: 0 0, center; }
+  to   { background-position: 0 100%, center; }
+}
+
+@keyframes flicker{
+  0%{opacity:.28}
+  8%{opacity:.38}
+  15%{opacity:.22}
+  30%{opacity:.35}
+  45%{opacity:.25}
+  60%{opacity:.4}
+  75%{opacity:.3}
+  100%{opacity:.34}
+}
+
+   
+   
+
+  </style>
+</head>
+<body>
+  <div class="monitor-overlay"></div>
+  <div id="app">
+    <div id="background"></div>
+    <div id="overlay"></div>
+
+    <!-- Login -->
+    <div id="login-container" class="hidden">
+      <img src="https://i.servimg.com/u/f22/19/80/77/63/chatgp10.png" alt="Logo Vinhadinho" />
+      <button id="login-button" class="botao-chrome">ENTRAR COM O GOOGLE</button>
+    </div>
+
+    <!-- Pós-login -->
+    <div id="post-login-overlay" class="hidden"></div>
+    <div id="screen2"></div>
+
+    <!-- Botões principais -->
+    <button id="btn-cell"  class="action-btn">&#x1F514;</button>
+    <button id="btn-lock1" class="action-btn">&#x1F4F1;</button>
+    <button id="btn-lock2" class="action-btn">&#x1F9CA;</button>
+
+    <!-- Celular + Grid de Ícones -->
+    <div id="celular-overlay">
+      <div id="celular-content">
+        <button id="close-celular">&times;</button>
+
+        <!-- Overlay de Notificação de Curtida -->
+        <div id="notif-overlay">
+          <button id="close-notif">&times;</button>
+          <div class="gradient-wrapper">
+            <div class="gradient-border">
+              <div class="inner-circle">
+                <img id="notif-photo" src="" alt="Foto do usuário" />
+              </div>
+            </div>
+          </div>
+          <div id="notif-content">
+            <strong style="font-size:1.2rem; display:block; margin-bottom:0.5rem;">
+              TE CURTIU
+            </strong>
+            <p id="notif-text"></p>
+          </div>
+          <div class="heart-container">
+            <div class="heart">&#x2764;&#xFE0F;</div>
+            <div class="heart">&#x2764;&#xFE0F;</div>
+            <div class="heart">&#x2764;&#xFE0F;</div>
+          </div>
+        </div>
+
+        <div id="icon-grid">
+  <button id="close-icon-grid">&times;</button>
+  <!-- Título acima dos ícones -->
+  <div class="grid-title">APLICATIVOS</div>
+  <div class="icon-button">&#x1F512;</div>
+          <div class="icon-button">&#x1F512;</div>
+          <div class="icon-button">&#x1F512;</div>
+          <div class="icon-button">&#x1F512;</div>
+          <div class="icon-button">&#x1F512;</div>
+          <div class="icon-button">&#x1F512;</div>
+          <div class="icon-button">&#x1F512;</div>
+          <div class="icon-button">&#x1F512;</div>
+          <div class="icon-button">&#x1F512;</div>
+          <!-- ... outros ícones ... -->
+        </div>
+      </div>
+    </div>
+
+     <!-- Geladeira -->
+   <div id="geladeira-overlay">
+  <div id="geladeira-content">
+    <button id="close-geladeira">&times;</button>
+    <div id="geladeira-text"></div>
+
+    <div id="fruit-container"></div>
+  </div>
+</div>
+
+<!-- typing text element (for PC) --><div id="pc-typing"><span id="pc-typing-run" class="pc-typing-run">SEM SISTEMA OPERACIONAL</span></div>
+
+<!-- warning for second screen --><div id="second-warning">O computador de Vinhadinho está muito velho e apresenta problemas, os simpatizantes estão mobilizados para enviar um novo computador</div>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVx9oPZkhQzausoxKb5iLoYxBWyxjtWvc",
+      authDomain: "vinhado-edd3b.firebaseapp.com",
+      databaseURL: "https://vinhado-edd3b-default-rtdb.firebaseio.com",
+      projectId: "vinhado-edd3b",
+      storageBucket: "vinhado-edd3b.firebasestorage.app",
+      messagingSenderId: "686319490018",
+      appId: "1:686319490018:web:6ddafcdf61d4e830789fbb"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // ========== DOM Refs ==========
+    const loginContainer    = document.getElementById("login-container");
+    const loginButton       = document.getElementById("login-button");
+    const overlay           = document.getElementById("overlay");
+    const background        = document.getElementById("background");
+    const postLoginOverlay  = document.getElementById("post-login-overlay");
+    const screen2           = document.getElementById("screen2");
+    const btnCell           = document.getElementById("btn-cell");
+    const btnLock1          = document.getElementById("btn-lock1");
+    const btnLock2          = document.getElementById("btn-lock2");
+    const celularOverlay    = document.getElementById("celular-overlay");
+    const closeCelular      = document.getElementById("close-celular");
+    const iconGrid          = document.getElementById("icon-grid");
+    const closeIconGrid     = document.getElementById("close-icon-grid");
+    const geladeiraOverlay  = document.getElementById("geladeira-overlay");
+    const geladeiraText     = document.getElementById("geladeira-text");
+    const closeGeladeira    = document.getElementById("close-geladeira");
+
+    // Novas refs para notificação
+    const notifOverlay      = document.getElementById("notif-overlay");
+    const closeNotif        = document.getElementById("close-notif");
+    const notifPhoto        = document.getElementById("notif-photo");
+    const notifText         = document.getElementById("notif-text");
+
+    // refs criadas novas
+    const secondWarning     = document.getElementById("second-warning");
+    const pcTypingContainer = document.getElementById("pc-typing");
+    const pcTypingRun       = document.getElementById("pc-typing-run");
+
+    // ========== Funções de data para “curtida” ==========
+    function parseSaved(v) {
+      const [d,m,y,h] = v.split('/').map(Number);
+      return new Date(y, m-1, d, h);
+    }
+    function formatDate(date) {
+      const pad = n => n.toString().padStart(2,'0');
+      return `${pad(date.getDate())}/${pad(date.getMonth()+1)} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    // ========== Helper: controla visibilidade da seta (arrow-btn) ==========
+    function setArrowVisibility(show) {
+      // aplica imediatamente se existir
+      const el = document.getElementById('arrow-btn');
+      if (el) {
+        if (show) el.classList.add('visible');
+        else el.classList.remove('visible');
+        return;
+      }
+      // se ainda não existe, observa #app por inserção e aplica apenas uma vez
+      const app = document.getElementById('app');
+      if (!app) return;
+      const mo = new MutationObserver((mutations, observer) => {
+        const el2 = document.getElementById('arrow-btn');
+        if (el2) {
+          if (show) el2.classList.add('visible');
+          else el2.classList.remove('visible');
+          observer.disconnect();
+        }
+      });
+      mo.observe(app, { childList: true, subtree: true });
+    }
+
+    // ========== Login Google ==========
+    loginButton.addEventListener("click", () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(err => alert(err.message));
+    });
+
+    auth.onAuthStateChanged(user => {
+      if (user) iniciarAnimacoesPosLogin();
+      else    mostrarTelaLogin();
+    });
+
+    function mostrarTelaLogin() {
+      loginContainer.classList.remove("hidden");
+      overlay.style.display = "block";
+      requestAnimationFrame(() => overlay.style.opacity = "1");
+      postLoginOverlay.classList.add("hidden");
+      screen2.classList.remove("visible");
+      btnCell.classList.remove("visible");
+      btnLock1.classList.remove("visible");
+      btnLock2.classList.remove("visible");
+      iconGrid.classList.remove("visible");
+      background.style.transform = "scale(1)";
+
+      // garante que a seta não fique disponível sem login
+      setArrowVisibility(false);
+    }
+
+    function iniciarAnimacoesPosLogin() {
+      loginContainer.classList.add("hidden");
+      if (overlay.style.display === "block") {
+        overlay.style.opacity = "0";
+        setTimeout(() => overlay.style.display = "none", 800);
+      }
+      setTimeout(() => background.style.transform = "scale(1.5)", 800);
+      setTimeout(() => postLoginOverlay.classList.remove("hidden"), 1000);
+      setTimeout(() => screen2.classList.add("visible"), 2200);
+      setTimeout(() => postLoginOverlay.classList.add("hidden"), 2400);
+      setTimeout(() => {
+        btnCell.classList.add("visible");
+        btnLock1.classList.add("visible");
+        btnLock2.classList.add("visible");
+        // mostra a seta depois das outras animações (evita que o usuário veja/aperte antes)
+        setArrowVisibility(true);
+      }, 3000);
+    }
+
+    // ========== Handler btn-cell (Celular + Curtida) ==========
+    btnCell.addEventListener("click", () => {
+      celularOverlay.style.display = "flex";
+      const raw = localStorage.getItem("curtida");
+      if (!raw) return;
+      const last = localStorage.getItem("lastCurtidaShown");
+      if (last === raw) return;
+      let d;
+      try { d = parseSaved(raw); } catch { return; }
+      const user = auth.currentUser;
+      if (!user) return alert("Faça login para ver notificações.");
+      notifPhoto.src = user.photoURL;
+      notifText.textContent = `O usuário ${user.displayName} curtiu o seu blog Vinhadinho às ${formatDate(d)}.`;
+      notifOverlay.style.display = "flex";
+      localStorage.setItem("lastCurtidaShown", raw);
+    });
+
+    closeNotif.addEventListener("click", () => notifOverlay.style.display = "none");
+    notifOverlay.addEventListener("click", e => { if (e.target===notifOverlay) notifOverlay.style.display = "none"; });
+
+    closeCelular.addEventListener("click", () => {
+      celularOverlay.style.display = "none";
+      iconGrid.classList.remove("visible");
+      notifOverlay.style.display = "none";
+    });
+    celularOverlay.addEventListener("click", e => {
+      if (e.target===celularOverlay) {
+        celularOverlay.style.display = "none";
+        iconGrid.classList.remove("visible");
+        notifOverlay.style.display = "none";
+      }
+    });
+
+    // ========== Grid de Ícones ==========
+    btnLock1.addEventListener("click", () => {
+      celularOverlay.style.display = "flex";
+      iconGrid.classList.add("visible");
+    });
+    closeIconGrid.addEventListener("click", () => iconGrid.classList.remove("visible"));
+
+    // ========== Geladeira ==========
+    btnLock2.addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return alert("Você precisa fazer login primeiro.");
+      const uid = user.uid;
+      const key = `geladeira_${uid}`;
+      let data = null, rawg = localStorage.getItem(key);
+      if (rawg) {
+        try {
+          const c = JSON.parse(rawg);
+          if (Date.now() - c.timestamp <= 5*60*1000) data = c.data;
+        } catch {}
+      }
+      if (!data) {
+        try {
+          const snap = await firebase.database().ref(`users/${uid}/frutas`).once("value");
+          data = snap.val() || {};
+          localStorage.setItem(key, JSON.stringify({ timestamp:Date.now(), data }));
+        } catch {
+          return alert("Não foi possível carregar as frutas.");
+        }
+      }
+      renderGeladeira(data);
+      geladeiraOverlay.style.display = "flex";    // 1. exibe o overlay
+      startFruitAnimation(data);                   // 2. só então dispara a animação
+    });
+
+    function renderGeladeira(frutas) {
+      let html = "";
+      if (Array.isArray(frutas)) {
+        frutas.forEach((f,i) => html += `<p><strong>${i+1}.</strong> ${f.nome}: ${f.quantidade}</p>`);
+      } else {
+        for (const[k,f] of Object.entries(frutas)) {
+          if (f && typeof f==="object") html += `<p><strong>${k}:</strong> ${f.nome||""} — ${f.quantidade||""}</p>`;
+          else html += `<p><strong>${k}:</strong> ${f}</p>`;
+        }
+      }
+      geladeiraText.innerHTML = html||"<p>A geladeira de vinhadinho está completamente vazia.<br><br> Vinhadinho usa a geladeira para preservar os vegetais que ele coletou e declarado para federação. <br><br>A federação do vale fiscaliza e mantem uma lista pública do conteúdo da geladeira de todos os cidadãos<br><br> A fiscalização e controle existe para evitar que a misteriosa doença se espalhe pelos alimentos.<br><br>Depois da grande doença e a queda dos governos, essa ação é totalmente necessária e aceita por todos os cidadãos</p>";
+    }
+
+    function startFruitAnimation(frutas) {
+      const container = document.getElementById('fruit-container');
+      container.innerHTML = '';
+
+     // calcula quantas frutas de cada tipo
+    const mapping = {
+      banana:    { emoji: '\u{1F34C}', qty: 0 }, 
+      berinjela: { emoji: '\u{1F346}', qty: 0 }, 
+      cenoura:   { emoji: '\u{1F955}', qty: 0 }, 
+      pepino:    { emoji: '\u{1F952}', qty: 0 }, 
+      pessego:   { emoji: '\u{1F351}', qty: 0 }  
+    };
+      for (const [rawName, amount] of Object.entries(frutas)) {
+        const nomeNorm = rawName
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '');
+        if (mapping[nomeNorm]) {
+          mapping[nomeNorm].qty = Math.floor(amount / 10);
+        }
+      }
+
+      // Gera todas as frutas de uma vez
+      for (const { emoji, qty } of Object.values(mapping)) {
+        for (let i = 0; i < qty; i++) {
+          const span = document.createElement('span');
+          span.classList.add('fruit');
+          span.textContent = emoji;
+          // posição horizontal aleatória
+          span.style.left = (10 + Math.random() * 80) + '%';
+          span.style.animationDelay = (Math.random() * 10) + 's';
+          container.appendChild(span);
+        }
+      }
+    }
+
+    closeGeladeira.addEventListener("click", () => geladeiraOverlay.style.display="none");
+    geladeiraOverlay.addEventListener("click", e => { if(e.target===geladeiraOverlay) geladeiraOverlay.style.display="none"; });
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Botão pra direita, pagina 2 e camera -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ————— Injeção de estilos únicos (sufixo 123) —————
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeIn123 { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes popIn123  { from { transform: scale(0.9) } to { transform: scale(1) } }
+    @keyframes lava123   { 
+      0%   { background-position: 0 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0 50%; }
+    }
+
+    /* botão “VER AO VIVO” */
+    #live-btn123 {
+      position: absolute;
+      top: 20px; right: 20px;
+      padding: 8px 12px; border: none; 
+      font-weight: bold;
+      background: linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00);
+      background-size: 600% 600%;
+      animation: lava123 8s ease infinite;
+      cursor: pointer; z-index: 100;
+    }
+
+    /* modal AO VIVO (e AJUDAR tem a mesma aparência) */
+ .live-modal123 {
+  position: fixed;
+
+  width: 94vw;
+  max-width: 420px;
+
+  height: auto;
+  max-height: calc(100dvh - 24px);
+
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+
+ background: #000;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.55);
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  animation: fadeIn123 0.25s ease-out forwards;
+  z-index: 999;
+}
+    @media (max-width: 400px) {
+      .live-modal123 { left: calc(50% - 150px); width: 300px; height: 350px; }
+    }
+
+    .live-modal123 .title-bar123 {
+      background: linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00);
+      background-size: 600% 600%;
+      animation: lava123 8s ease infinite;
+      padding: 6px 12px; cursor: move;
+      display: flex; justify-content: space-between; align-items: center;
+      font-weight: bold;
+      position: relative;
+      z-index: 4;
+      height: 36px;
+    }
+    .live-modal123 .close-btn123 {
+      background: transparent; border: none; font-size: 18px; cursor: pointer;
+    }
+
+  .live-intro123 {
+  position: relative;
+  width: 100%;
+  padding: 14px;
+
+  background: rgba(0,0,0,0.75);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  color: #fff;
+  text-align: left;
+
+  z-index: 1;
+}
+
+
+.live-intro123 .start-btn123 {
+  width: 100%;
+  max-width: 260px;
+}
+
+
+    .live-intro123 .start-btn123 {
+      margin-top: 8px;
+      padding: 8px 16px; font-weight: bold;
+      border: none; border-radius: 4px;
+      background: #28a745; color: #000;
+      cursor: pointer;
+    }
+
+    .live-loading123 {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNZs1Gch1vTjoRoxn5nB4utWQXXf2Axi2h-GZS-M2-i29ExANxs3PbAKJ9zQVJ0BJm4J81IDhFeDRHSBqWPdw2fT2Y8BA9hJyXrenrV7EEGxnc9AAnftU66LZs9MmZJ8vNioM434uwRqSc6L4_9nrT-LRZNZ4-NA0mmCpZdGuicEfrFzYHTFucr3RApuc/s16000/Capa_geral_otimizado_3mb.gif") no-repeat center/cover;
+      z-index: 1;
+    }
+
+    .loading-text123 {
+      position: absolute;
+      bottom: 20px; left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: bold;
+      z-index: 2;
+    }
+
+  .live-overlay123 {
+
+  flex: 1 1 auto;
+  min-height: 0;
+
+  overflow-y: auto;
+  padding: 12px;
+
+  background: rgba(0,0,0,0.78);
+  color: #fff;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+
+
+
+@media (max-width: 768px) {
+  .title-bar123 {
+    cursor: default;
+    touch-action: pan-x;
+  }
+}
+
+    .progress-header123 {
+      margin-bottom: 12px; color: #fff; font-size: 0.9rem;
+    }
+    .progress-header123 .bar-bg123 {
+      width: 100%; background: rgba(255,255,255,0.2);
+      border-radius: 4px; overflow: hidden; height: 12px; margin-top: 4px;
+    }
+    .progress-header123 .bar-fill123 {
+      height: 100%; background: rgba(0,255,0,0.7);
+      width: 0%; transition: width 0.5s ease;
+    }
+
+    .live-overlay123 .entry123 {
+      margin-bottom: 8px; color: #fff; font-size: 0.9rem;
+    }
+    .live-overlay123 .entry123 .name123  { font-weight: bold; }
+    .live-overlay123 .entry123 .value123 { float: right; }
+  `;
+  document.head.appendChild(style);
+
+  // ————— Botão setinha e telas —————
+  const arrowBtn = document.createElement('button');
+  arrowBtn.id = 'arrow-btn';
+  arrowBtn.className = 'action-btn visible';
+  arrowBtn.innerHTML = '►';
+  Object.assign(arrowBtn.style, {
+    position: 'absolute',
+    top: '50%',
+    right: '20px',
+    transform: 'translateY(-50%)',
+    zIndex: '100',
+    transition: 'left .8s cubic-bezier(0.4,0,0.2,1), right .8s cubic-bezier(0.4,0,0.2,1)'
+  });
+  document.getElementById('app').appendChild(arrowBtn);
+
+  const firstScreen  = document.getElementById('screen2');
+  const secondScreen = document.createElement('div');
+  secondScreen.id = 'second-screen';
+  document.getElementById('app').appendChild(secondScreen);
+
+  // rótulos
+  const firstLabel = document.createElement('div');
+  firstLabel.className = 'area-label';
+  firstLabel.textContent = 'Sala de estar - Janela';
+  firstScreen.appendChild(firstLabel);
+
+  const secondLabel = document.createElement('div');
+  secondLabel.className = 'area-label';
+  secondLabel.textContent = 'Quarto de vinhadinho - Setup';
+  secondScreen.appendChild(secondLabel);
+
+  // estilos/transform iniciais
+  firstScreen.style.transition = 'transform 1s cubic-bezier(0.4,0,0.2,1), filter 1s cubic-bezier(0.4,0,0.2,1)';
+  firstScreen.style.filter     = 'blur(0px)';
+  firstScreen.style.transform  = 'translateX(0) skewX(0deg) scaleX(1)';
+
+  Object.assign(secondScreen.style, {
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    transform: 'translateX(100%) skewX(-15deg) scaleX(1.05)',
+    filter: 'blur(5px)',
+    transition: 'transform 1s cubic-bezier(0.4,0,0.2,1), filter 1s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease',
+    zIndex: '90',
+    visibility: 'hidden',
+    opacity: '0',
+    background: 'url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrw6F03JXkLmzyoVbF77aJJVrfTErmbWhAmiva6iZ-f4dL51BJpp5XtGvzBkXdD3iqF0Afu0eSUXE_ia2LwZ6stZx7FSUv5bS8VYq-nQcMs3855x6HxjRLU7gCxiWG3RhhrwGSHaqfWKZhs14gotzel4nSJWEI5cYL4iMWC7qVYGb1jaEGvleSnd12Jds/s1600/pcdedia.png") no-repeat center/cover'
+  });
+
+ // criar botões: live, pc, ajudar (Opção A)
+const liveBtn = document.createElement('button');
+liveBtn.id = 'live-btn123';
+liveBtn.className = 'action-btn';
+liveBtn.textContent = '\uD83D\uDCF9'; // ????
+liveBtn.style.right = '20px';
+liveBtn.style.position = 'absolute';
+liveBtn.style.display = 'none';
+liveBtn.style.zIndex = '100';
+liveBtn.classList.add('visible');
+liveBtn.style.animation = 'floatBtn 3s ease-in-out infinite, lava 8s ease infinite';
+document.getElementById('app').appendChild(liveBtn);
+
+const pcBtn = document.createElement('button');
+pcBtn.id = 'pc-power-btn';
+pcBtn.className = 'action-btn';
+pcBtn.textContent = '\uD83D\uDCBB'; // ????
+pcBtn.style.right = '20px';
+pcBtn.style.position = 'absolute';
+pcBtn.style.display = 'none';
+pcBtn.style.zIndex = '100';
+pcBtn.classList.add('visible');
+pcBtn.style.animation = 'floatBtn 3s ease-in-out infinite, lava 8s ease infinite';
+document.getElementById('app').appendChild(pcBtn);
+
+const ajudarBtn = document.createElement('button');
+ajudarBtn.id = 'ajudar-btn';
+ajudarBtn.className = 'action-btn';
+ajudarBtn.textContent = '\uD83E\uDD1D'; // ????
+ajudarBtn.style.right = '20px';
+ajudarBtn.style.position = 'absolute';
+ajudarBtn.style.display = 'none';
+ajudarBtn.style.zIndex = '100';
+ajudarBtn.classList.add('visible');
+ajudarBtn.style.animation = 'floatBtn 3s ease-in-out infinite, lava 8s ease infinite';
+document.getElementById('app').appendChild(ajudarBtn);
+
+
+  let onSecond = false;
+  let pcOn = false;
+  arrowBtn.addEventListener('click', () => {
+    if (!onSecond) {
+      firstScreen.style.transform    = 'translateX(-100%) skewX(15deg) scaleX(1.05)';
+      firstScreen.style.filter       = 'blur(5px)';
+      secondScreen.style.visibility  = 'visible';
+      secondScreen.style.opacity     = '1';
+      secondScreen.style.transform   = 'translateX(0) skewX(0deg) scaleX(1)';
+      secondScreen.style.filter      = 'blur(0px)';
+      arrowBtn.style.left            = '20px';
+      arrowBtn.style.right           = '';
+      arrowBtn.innerHTML             = '◄';
+      liveBtn.style.display          = 'block';
+      pcBtn.style.display            = 'block';
+      ajudarBtn.style.display        = 'block'; // mostra também o AJUDAR
+      requestAnimationFrame(()=> positionButtonsUnderLive());
+      secondWarning.style.display = 'block';
+      secondWarning.style.zIndex = 95;
+    } else {
+      firstScreen.style.transform    = 'translateX(0) skewX(0deg) scaleX(1)';
+      firstScreen.style.filter       = 'blur(0px)';
+      secondScreen.style.opacity     = '0';
+      setTimeout(() => { secondScreen.style.visibility = 'hidden'; }, 600);
+      secondScreen.style.transform   = 'translateX(100%) skewX(-15deg) scaleX(1.05)';
+      secondScreen.style.filter      = 'blur(5px)';
+      arrowBtn.style.right           = '20px';
+      arrowBtn.style.left            = '';
+      arrowBtn.innerHTML             = '►';
+      liveBtn.style.display          = 'none';
+      pcBtn.style.display            = 'none';
+      ajudarBtn.style.display        = 'none';
+      secondWarning.style.display = 'none';
+    }
+    onSecond = !onSecond;
+  });
+
+  function positionButtonsUnderLive() {
+    const liveRect = liveBtn.getBoundingClientRect();
+    if (!liveRect || liveRect.height === 0) {
+      pcBtn.style.top = '64px';
+      ajudarBtn.style.top = '104px';
+      return;
+    }
+    const pcTop = (liveRect.top + liveRect.height + 20);
+    pcBtn.style.top = pcTop + 'px';
+    // posiciona AJUDAR 20px abaixo do pcBtn
+    ajudarBtn.style.top = (pcTop + liveRect.height + 10) + 'px';
+  }
+  window.addEventListener('resize', positionButtonsUnderLive);
+  window.addEventListener('scroll', positionButtonsUnderLive);
+
+  // ————— Criação do modal AO VIVO (sem TSV) —————
+  // Nota: este modal mantém a aparência original, mas NÃO carrega a planilha TSV.
+  // A planilha agora é carregada pelo botão "AJUDAR".
+  async function createLiveModal123() {
+    if (document.querySelector('.live-modal123')) return;
+
+   const modal = document.createElement('div');
+modal.className = 'live-modal123';
+
+
+
+    const titleBar = document.createElement('div');
+    titleBar.className = 'title-bar123';
+    titleBar.innerHTML = `
+      <span>AO VIVO - CABANA DE VINHADINHO</span>
+      <button class="close-btn123" id="fechacamera">×</button>
+    `;
+    const closeBtn = titleBar.querySelector('.close-btn123');
+    closeBtn.style.fontSize = '28px';
+    closeBtn.style.fontWeight = '800';
+    closeBtn.style.width = '46px';
+    closeBtn.style.height = '38px';
+    closeBtn.style.borderRadius = '6px';
+    closeBtn.style.background = 'rgba(0,0,0,0.25)';
+    closeBtn.style.color = '#fff';
+    closeBtn.onclick = () => modal.remove();
+    modal.appendChild(titleBar);
+
+
+const cover = document.createElement('div');
+cover.className = 'live-cover123';
+modal.appendChild(cover);
+
+    let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+function startDrag(x, y) {
+  const rect = modal.getBoundingClientRect();
+  offsetX = x - rect.left;
+  offsetY = y - rect.top;
+  isDragging = true;
+}
+
+function moveDrag(x, y) {
+  if (!isDragging) return;
+
+  const maxX = window.innerWidth - modal.offsetWidth;
+  const maxY = window.innerHeight - modal.offsetHeight;
+
+  let left = x - offsetX;
+  let top  = y - offsetY;
+
+  left = Math.max(0, Math.min(left, maxX));
+  top  = Math.max(0, Math.min(top, maxY));
+
+  modal.style.left = left + 'px';
+  modal.style.top  = top + 'px';
+  modal.style.transform = 'none';
+}
+
+function stopDrag() {
+  isDragging = false;
+}
+
+/* 🖱️ Mouse (desktop) */
+titleBar.addEventListener('mousedown', e => {
+  startDrag(e.clientX, e.clientY);
+});
+
+document.addEventListener('mousemove', e => {
+  moveDrag(e.clientX, e.clientY);
+});
+
+document.addEventListener('mouseup', stopDrag);
+
+/* 📱 Touch (CELULAR) */
+titleBar.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  startDrag(t.clientX, t.clientY);
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  const t = e.touches[0];
+  moveDrag(t.clientX, t.clientY);
+}, { passive: true });
+
+document.addEventListener('touchend', stopDrag);
+
+
+    const intro = document.createElement('div');
+    intro.className = 'live-intro123';
+    intro.innerHTML = `
+      <div>CÂMERA DA FEDERAÇÃO NA CABANA DE VINHADINHO</div>
+      <button class="start-btn123">VER TRANSMISSÃO</button>
+    `;
+    modal.appendChild(intro);
+    document.body.appendChild(modal);
+
+    // A ação do "VER TRANSMISSÃO" mostra o GIF e uma mensagem — sem carregar TSV.
+    intro.querySelector('.start-btn123').onclick = async () => {
+      intro.style.display = 'none';
+modal.style.height = 'auto';
+modal.style.maxHeight = 'calc(100dvh - 24px)';
+      const loading = document.createElement('div');
+      loading.className = 'live-loading123';
+      loading.innerHTML = `<div class="loading-text123">CARREGANDO TRANSMISSÃO</div>`;
+      modal.appendChild(loading);
+
+      // simula pequeno delay só para manter sensação de carregamento (igual antes)
+      setTimeout(() => {
+        const txt = loading.querySelector('.loading-text123');
+        if (txt) txt.remove();
+        // mantém o GIF visível enquanto aberto
+      }, 1800);
+    };
+  }
+
+  liveBtn.addEventListener('click', createLiveModal123);
+
+  // ————— Criação do modal AJUDAR (carrega TSV) —————
+  // Abre uma janela idêntica visualmente, mas aqui carregamos e exibimos a planilha TSV.
+  async function createAjudaModal123() {
+    if (document.querySelector('.live-modal123')) return; // evita múltiplos modais ao mesmo tempo
+
+    const modal = document.createElement('div');
+modal.className = 'live-modal123 live-modal-ajuda123';
+modal.style.background = 'url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi7H8DIyBBTRJdW6XHMoZ4O6Qf63LMcS9BXPw8HN04byeSLS49xS6Nm0Al3FqSZuc3oyYv8PoUtRKSCVSuQg02N8K2jxpGuMWP479lzCDPgrEL3FGhtUz6wPWpRA8TXmJjx4mWBMSw_q51it3ogiLfSw0CmdHhItRqIY8zAsbMvAlfCvEGVJSxKjc3M2i4/s600/ChatGPT%20Image%20Nov%2029,%202025,%2008_10_25%20AM.png") no-repeat center/cover';
+
+
+    const titleBar = document.createElement('div');
+    titleBar.className = 'title-bar123';
+    titleBar.innerHTML = `
+      <span>AJUDAR - TODOS PELOS HIBRIDOS</span>
+      <button class="close-btn123" id="fechacamera-ajuda">×</button>
+    `;
+    const closeBtn = titleBar.querySelector('.close-btn123');
+    closeBtn.style.fontSize = '28px';
+    closeBtn.style.fontWeight = '800';
+    closeBtn.style.width = '46px';
+    closeBtn.style.height = '38px';
+    closeBtn.style.borderRadius = '6px';
+    closeBtn.style.background = 'rgba(0,0,0,0.25)';
+    closeBtn.style.color = '#fff';
+    closeBtn.onclick = () => modal.remove();
+    modal.appendChild(titleBar);
+
+    let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+function startDrag(x, y) {
+  const rect = modal.getBoundingClientRect();
+  offsetX = x - rect.left;
+  offsetY = y - rect.top;
+  isDragging = true;
+}
+
+function moveDrag(x, y) {
+  if (!isDragging) return;
+
+  const maxX = window.innerWidth - modal.offsetWidth;
+  const maxY = window.innerHeight - modal.offsetHeight;
+
+  let left = x - offsetX;
+  let top  = y - offsetY;
+
+  left = Math.max(0, Math.min(left, maxX));
+  top  = Math.max(0, Math.min(top, maxY));
+
+  modal.style.left = left + 'px';
+  modal.style.top  = top + 'px';
+  modal.style.transform = 'none';
+}
+
+function stopDrag() {
+  isDragging = false;
+}
+
+/* 🖱️ Mouse (desktop) */
+titleBar.addEventListener('mousedown', e => {
+  startDrag(e.clientX, e.clientY);
+});
+
+document.addEventListener('mousemove', e => {
+  moveDrag(e.clientX, e.clientY);
+});
+
+document.addEventListener('mouseup', stopDrag);
+
+/* 📱 Touch (CELULAR) */
+titleBar.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  startDrag(t.clientX, t.clientY);
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  const t = e.touches[0];
+  moveDrag(t.clientX, t.clientY);
+}, { passive: true });
+
+document.addEventListener('touchend', stopDrag);
+
+
+    // area intro (temos a mesma interface: botão "VER TRANSMISSÃO" que imediatamente
+    // carregará a planilha quando pressionado)
+    const intro = document.createElement('div');
+    intro.className = 'live-intro123';
+   intro.innerHTML = `
+    <div style="max-width:300px; text-align:left; margin:0 auto 12px 0; display:block;">
+      Você pode ajudar o Vinhadinho ativando os anúncios da federação. Eles serão exibidos enquanto você joga. <br><br> Quando atingir o valor mínimo acumulado, você poderá fazer uma doação para contribuir com a meta do Vinhadinho. <br><br> Quando a meta for alcançada toda a comunidade ganha um novo modo de jogo
+    </div>
+
+   
+
+    <div style="display:flex; gap:8px;">
+  <button class="start-btn123">ACOMPANHAR META</button>
+  <button class="start-btn123" id="doaranuncio">AJUDAR</button>
+</div>
+`;
+
+
+    modal.appendChild(intro);
+    document.body.appendChild(modal);
+
+    intro.querySelector('.start-btn123').onclick = async () => {
+      intro.style.display = 'none';
+modal.style.height = 'auto';
+modal.style.maxHeight = 'calc(100dvh - 24px)';
+    const loading = document.createElement('div');
+loading.className = 'live-loading-ajuda123';
+loading.textContent = " ";
+modal.appendChild(loading);
+
+
+      // carrega TSV exatamente como era feito originalmente
+      try {
+        const resp = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQk1rp-ttOEtOy1IQQBNRsg-fALCUuok8iKXxB1DQc7pXsDRchlvO6FU15CLAFcuudCEoNq-rSUl6sV/pub?gid=1958865555&single=true&output=tsv');
+        const tsv  = await resp.text();
+
+        // parse rows (mesma lógica)
+        const rows = tsv.trim().split('\n').slice(1).map(r => {
+          const [dateStr, name, msg, value] = r.split('\t');
+          const [d, m, y] = (dateStr || '').split('/');
+          const num = parseFloat(
+            (value || '')
+              .replace(/[^0-9,]/g, '')
+              .replace(',', '.')
+          ) || 0;
+          // tenta montar uma data coerente; se falhar, usa epoch 0 para ordenar depois
+          let dateObj = new Date(0);
+          if (d && m && y) dateObj = new Date(+y, +m-1, +d);
+          return { date: dateObj, name: name||'', msg: msg||'', value: value||'', num };
+        }).sort((a,b) => b.date - a.date);
+
+        // PLACAR DE META
+        const goal = 1500;
+        const total = rows.reduce((sum, e) => sum + e.num, 0);
+        const overlay = document.createElement('div');
+        overlay.className = 'live-overlay123';
+        modal.appendChild(overlay);
+
+        const header = document.createElement('div');
+        header.className = 'progress-header123';
+        header.innerHTML = `
+          (VAKINHA PRO PC DE VINHADINHO)-- META: R$ 1.500,00 - ARRECADADO: R$ ${total.toFixed(2).replace('.',',')}
+          <div class="bar-bg123"><div class="bar-fill123"></div></div>
+        `;
+        overlay.appendChild(header);
+        const fill = header.querySelector('.bar-fill123');
+        const pct = Math.min(100, (total / goal) * 100);
+        fill.style.width = pct + '%';
+
+        // LISTA DE ENTRADAS
+        for (const { name, msg, value } of rows) {
+          const e = document.createElement('div');
+          e.className = 'entry123';
+          e.innerHTML = `
+            <span class="name123">${name}</span>
+            <span class="value123">${value}</span><br>
+            <small>${msg}</small>
+          `;
+          overlay.appendChild(e);
+        }
+      } catch (err) {
+        // se falhar, mostra mensagem simples dentro do modal
+        const overlay = document.createElement('div');
+        overlay.className = 'live-overlay123';
+        overlay.innerHTML = `<div style="color:#fff">Não foi possível carregar as informações. Verifique a URL da planilha ou a conexão.</div>`;
+        modal.appendChild(overlay);
+      } finally {
+        // remove o texto de loading (mantemos o GIF)
+        const loading = modal.querySelector('.live-loading-ajuda123');
+if (loading) loading.remove();
+      }
+    };
+  }
+
+  // associar ao botão AJUDAR
+  ajudarBtn.addEventListener('click', createAjudaModal123);
+
+  // =========================
+  // Função: LIGAR/DESLIGAR PC (zoom + typing)
+  // =========================
+  function togglePcPower() {
+    const second = document.getElementById('second-screen');
+    const bg = document.getElementById('background');
+    const typing = document.getElementById('pc-typing');
+    const target = (second && second.style.visibility !== 'hidden' && second.style.opacity !== '0') ? second : bg;
+
+    if (!target) return;
+
+    pcOn = !pcOn;
+
+    target.style.transition = 'transform 0.8s cubic-bezier(.2,.8,.2,1)';
+
+    if (pcOn) {
+      target.style.transform = 'scale(5)';
+      typing.style.display = 'block';
+      void pcTypingRun.offsetWidth;
+      pcTypingRun.classList.remove('pc-typing-run');
+      void pcTypingRun.offsetWidth;
+      pcTypingRun.classList.add('pc-typing-run');
+    } else {
+      target.style.transform = 'scale(1)';
+      pcTypingRun.classList.remove('pc-typing-run');
+      setTimeout(() => { typing.style.display = 'none'; }, 350);
+    }
+  }
+
+  pcBtn.addEventListener('click', () => {
+    togglePcPower();
+  });
+
+  // loop para posicionar quando visível
+  function ensureButtonsVisibilityLoop() {
+    if (liveBtn.style.display !== 'none' && pcBtn.style.display !== 'none') {
+      positionButtonsUnderLive();
+    }
+    requestAnimationFrame(ensureButtonsVisibilityLoop);
+  }
+  ensureButtonsVisibilityLoop();
+
+  // move secondWarning para dentro da secondScreen (mesma lógica anterior)
+  try {
+    const secondWarningElem = document.getElementById('second-warning');
+    if (secondWarningElem && secondScreen) {
+      if (secondWarningElem.parentElement !== secondScreen) {
+        secondWarningElem.parentElement && secondWarningElem.parentElement.removeChild(secondWarningElem);
+        secondScreen.appendChild(secondWarningElem);
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+<!-- retorno visual dos botões da camera e ligar o pc -->
+<script>
+(function() {
+
+  /* ============================
+     CSS injetado dinamicamente
+     ============================ */
+  const css = `
+    .vinha-ativo {
+      background: #FFD700 !important;      /* amarelo escudo */
+      border: 1px solid #000 !important;   /* borda fina (não altera tamanho) */
+      outline: 3px solid #000 !important;  /* borda externa grossa SEM alterar tamanho */
+      outline-offset: 0px !important;      /* grudado no botão */
+      color: #000 !important;
+    }
+  `;
+  const style = document.createElement("style");
+  style.appendChild(document.createTextNode(css));
+  document.head.appendChild(style);
+
+  /* ============================
+     Referências dos botões
+     ============================ */
+  const btnCamera = () => document.getElementById("live-btn123");
+  const btnPC     = () => document.getElementById("pc-power-btn");
+  const btnAjuda  = () => document.getElementById("ajudar-btn");
+
+  /* ============================
+     Alterna classe .vinha-ativo
+     ============================ */
+  function toggleAtivo(btn) {
+    if (!btn) return;
+    btn.classList.toggle("vinha-ativo");
+  }
+
+  /* ============================
+     Clique no botão da câmera
+     ============================ */
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("#live-btn123");
+    if (el) toggleAtivo(el);
+  });
+
+  /* ============================
+     Clique no botão LIGAR O PC
+     ============================ */
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("#pc-power-btn");
+    if (el) toggleAtivo(el);
+  });
+
+  /* ============================
+     Clique no botão AJUDAR
+     ============================ */
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("#ajudar-btn");
+    if (el) toggleAtivo(el);
+  });
+
+  /* ============================
+     Clique no botão fechacamera
+     => remove feedback da câmera
+     ============================ */
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("#fechacamera");
+    if (el) {
+      const cam = btnCamera();
+      if (cam) cam.classList.remove("vinha-ativo");
+    }
+  });
+
+  /* ============================
+     Clique no botão fechacamera-ajuda
+     => remove feedback do AJUDAR
+     ============================ */
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("#fechacamera-ajuda");
+    if (el) {
+      const aj = btnAjuda();
+      if (aj) aj.classList.remove("vinha-ativo");
+    }
+  });
+
+  /* ============================
+     Clique no arrow-btn
+     => remove feedback do PC
+     ============================ */
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("#arrow-btn");
+    if (el) {
+      const pc = btnPC();
+      if (pc) pc.classList.remove("vinha-ativo");
+    }
+  });
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+<!-- atribui funcao ao botao ajudar e localstorage -->
+<script>
+(function () {
+  const STORAGE_KEY = 'statusanuncio';
+  const BUTTON_SELECTOR = '#doaranuncio'; // botão dentro do modal (AJUDAR)
+  
+  /* ============================
+     Helpers de localStorage
+     ============================ */
+  function getStatus() {
+    try {
+      const v = localStorage.getItem(STORAGE_KEY);
+      return v === 's' ? 's' : 'n';
+    } catch (e) {
+      return 'n';
+    }
+  }
+
+  function setStatus(val) {
+    try {
+      localStorage.setItem(STORAGE_KEY, val === 's' ? 's' : 'n');
+      // atualiza visuais sempre que salvar
+      updateButtonVisuals();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /* ============================
+     Atualiza texto/estilo do botão #doaranuncio (APENAS este)
+     ============================ */
+  function updateButtonVisuals() {
+    const status = getStatus();
+    const modalBtn = document.querySelector(BUTTON_SELECTOR);
+    if (!modalBtn) return; // se ainda não existe, nada a fazer
+
+    if (status === 's') {
+      modalBtn.textContent = 'CANCELAR SUA AJUDA';
+      modalBtn.style.background = '#cc0000'; // vermelho escudo
+      modalBtn.style.color = '#fff';
+      modalBtn.style.animation = 'none';
+      modalBtn.style.border = '1px solid rgba(0,0,0,0.2)';
+    } else {
+      modalBtn.textContent = 'AJUDAR';
+      modalBtn.style.background = 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)';
+      modalBtn.style.backgroundSize = '600% 600%';
+      // tenta restaurar a animação caso exista (usa o nome que você já usa: lava123)
+      modalBtn.style.animation = 'lava123 8s ease infinite';
+      modalBtn.style.color = '#000';
+      modalBtn.style.border = 'none';
+    }
+  }
+
+  /* ============================
+     Modal (criação/remoção)
+     ============================ */
+  function removeModal() {
+    const existing = document.querySelector('._anuncio_modal_overlay');
+    if (existing) existing.remove();
+    document.removeEventListener('keydown', _handleKeyDown);
+  }
+
+  function _handleKeyDown(e) {
+    if (e.key === 'Escape') removeModal();
+  }
+
+  function showModal(options = {}) {
+    removeModal();
+
+    const overlay = document.createElement('div');
+    overlay.className = '_anuncio_modal_overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.background = 'rgba(0,0,0,0.75)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '99999';
+
+    const box = document.createElement('div');
+    box.className = '_anuncio_modal';
+    box.style.maxWidth = '420px';
+    box.style.width = 'calc(100% - 40px)';
+    box.style.background = 'rgba(20,20,20,0.95)';
+    box.style.color = '#fff';
+    box.style.padding = '18px';
+    box.style.borderRadius = '10px';
+    box.style.boxShadow = '0 8px 30px rgba(0,0,0,0.5)';
+    box.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial';
+    box.style.textAlign = 'left';
+
+    const p = document.createElement('p');
+    p.style.margin = '0 0 14px 0';
+    p.style.lineHeight = '1.4';
+    p.style.fontSize = '15px';
+    p.textContent = options.message || '';
+    box.appendChild(p);
+
+    const actions = document.createElement('div');
+    actions.className = '_anuncio_actions';
+    actions.style.display = 'flex';
+    actions.style.gap = '10px';
+    actions.style.justifyContent = 'flex-end';
+    actions.style.flexWrap = 'wrap';
+
+    const okBtn = document.createElement('button');
+    okBtn.type = 'button';
+    okBtn.className = '_anuncio_btn _anuncio_btn_ok';
+    okBtn.textContent = 'OK';
+    okBtn.style.cursor = 'pointer';
+    okBtn.style.border = 'none';
+    okBtn.style.padding = '8px 12px';
+    okBtn.style.borderRadius = '8px';
+    okBtn.style.fontSize = '14px';
+    okBtn.style.background = 'transparent';
+    okBtn.style.border = '1px solid rgba(255,255,255,0.15)';
+    okBtn.style.color = '#fff';
+
+    okBtn.addEventListener('click', () => {
+      removeModal();
+      if (typeof options.onClose === 'function') options.onClose();
+    });
+
+    const primaryBtn = document.createElement('button');
+    primaryBtn.type = 'button';
+    primaryBtn.className = '_anuncio_btn _anuncio_btn_toggle';
+    if (options.primaryId) primaryBtn.id = options.primaryId; // permite definir #doaranuncio
+    primaryBtn.textContent = options.primaryLabel || '';
+    primaryBtn.style.cursor = 'pointer';
+    primaryBtn.style.border = 'none';
+    primaryBtn.style.padding = '8px 12px';
+    primaryBtn.style.borderRadius = '8px';
+    primaryBtn.style.fontSize = '14px';
+    primaryBtn.style.background = '#e6a100';
+    primaryBtn.style.color = '#111';
+
+    primaryBtn.addEventListener('click', () => {
+      if (typeof options.primaryAction === 'function') options.primaryAction();
+    });
+
+    actions.appendChild(okBtn);
+    actions.appendChild(primaryBtn);
+    box.appendChild(actions);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    // após inserir, atualiza visual do botão (se for #doaranuncio)
+    updateButtonVisuals();
+
+    overlay.addEventListener('click', (ev) => {
+      if (ev.target === overlay) {
+        removeModal();
+        if (typeof options.onClose === 'function') options.onClose();
+      }
+    });
+
+    okBtn.focus();
+    document.addEventListener('keydown', _handleKeyDown);
+  }
+
+  function showQuickMessage(text) {
+    showModal({
+      message: text,
+      primaryLabel: 'Fechar',
+      primaryAction: function () {
+        removeModal();
+      }
+    });
+  }
+
+  /* ============================
+     Lógica do clique (separada para reuso)
+     ============================ */
+  function onDoarAnuncioClick(e) {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    const status = getStatus();
+
+    if (status === 's') {
+      showModal({
+        message:
+          'Atualmente os anúncios já estão ativos e devem aparecer conforme você joga entre os modos de jogo, dessa forma vinhadinho receberá a sua ajuda.',
+        primaryLabel: 'Desativar anúncios',
+        primaryAction: function () {
+          const ok = setStatus('n');
+          removeModal();
+          if (ok) {
+            showQuickMessage(
+              'Os anúncios foram desativados. A nossa comunidade não conta mais com a sua ajuda, infelizmente você abandonou a nossa causa.'
+            );
+          } else {
+            showQuickMessage(
+              'Não foi possível salvar sua preferência (localStorage indisponível).'
+            );
+          }
+        }
+      });
+    } else {
+      showModal({
+        message:
+          'Atualmente os anúncios da federação estão desativados isso significa que você não está ajudando vinhadinho a alcaçar a meta.',
+        primaryLabel: 'Ativar anúncios',
+        primaryAction: function () {
+          const ok = setStatus('s');
+          removeModal();
+          if (ok) {
+            showQuickMessage(
+              'Obrigado!!! Os anúncios foram ativados e vinhadinho vai receber a sua ajuda conforme os anúncios forem exibidos durante o jogo. Os anuncios são escolhidos por uma empresa tercerizada, portanto não forneça informações pessoais ao interagir com a publicidade'
+            );
+          } else {
+            showQuickMessage(
+              'Não foi possível salvar sua preferência (localStorage indisponível).'
+            );
+          }
+        }
+      });
+    }
+  }
+
+  /* ============================
+     Event delegation (escuta clicks no botão modal quando existir)
+     ============================ */
+  function delegatedHandler(e) {
+    const btn = e.target.closest && e.target.closest(BUTTON_SELECTOR);
+    if (!btn) return;
+    onDoarAnuncioClick(e);
+  }
+
+  /* ============================
+     Observador para detectar criação de #doaranuncio
+     ============================ */
+  const mo = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
+        if (!(node instanceof Element)) continue;
+        if (node.matches && node.matches(BUTTON_SELECTOR)) {
+          updateButtonVisuals();
+        } else {
+          const found = node.querySelector && node.querySelector(BUTTON_SELECTOR);
+          if (found) updateButtonVisuals();
+        }
+      }
+    }
+  });
+
+  /* ============================
+     Inicialização
+     ============================ */
+  function init() {
+    document.addEventListener('click', delegatedHandler);
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    // atualiza visual inicial caso o botão já exista
+    updateButtonVisuals();
+
+    // liga listener direto (se o botão já estiver no DOM)
+    const directBtn = document.querySelector(BUTTON_SELECTOR);
+    if (directBtn && !directBtn._anuncio_listener_installed) {
+      directBtn.addEventListener('click', onDoarAnuncioClick);
+      directBtn._anuncio_listener_installed = true;
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // export para debug
+  window._anuncio = {
+    getStatus,
+    setStatus,
+    showModal,
+    removeModal,
+  };
+
+  // desconecta observer ao sair da página
+  window.addEventListener('beforeunload', () => {
+    try { mo.disconnect(); } catch (e) {}
+  });
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- mostra anuncios -->
+<script>
+(function(){
+  // --- CONFIG ---
+  const STORAGE_KEY = "statusanuncio";        // localStorage key a checar
+  const LINKS = [
+    "https://www.effectivegatecpm.com/tspi4smg?key=f8f32f613fd70fd476bc75fe66a43146",
+    "https://www.effectivegatecpm.com/tspi4smg?key=f8f32f613fd70fd476bc75fe66a43146",
+    "https://www.effectivegatecpm.com/tspi4smg?key=f8f32f613fd70fd476bc75fe66a43146"
+  ];
+  const IFRAME_LOAD_TIMEOUT = 2500; // ms para mostrar fallback se iframe não carregar
+  const MIN_DELAY = 30 * 1000;      // 30s
+  const MAX_DELAY = 2 * 60 * 1000;  // 2min
+
+  // --- Globals para evitar múltiplas instâncias/timers ---
+  if (!window._anuncioManager) window._anuncioManager = {};
+  const mgr = window._anuncioManager;
+
+  // limpa qualquer timer anterior (caso o script seja reinjetado)
+  if (mgr.timerId) { clearTimeout(mgr.timerId); mgr.timerId = null; }
+  if (mgr.currentRoot && document.body.contains(mgr.currentRoot)) {
+    try { mgr.currentRoot.remove(); } catch (e) {}
+    mgr.currentRoot = null;
+  }
+
+  // --- util helpers ---
+  function randDelay() {
+    return Math.floor(MIN_DELAY + Math.random() * (MAX_DELAY - MIN_DELAY));
+  }
+  function pickLink() {
+    return LINKS[Math.floor(Math.random() * LINKS.length)];
+  }
+  function canShow() {
+    try {
+      return localStorage.getItem(STORAGE_KEY) === "s";
+    } catch (e) {
+      console.warn("Erro ao acessar localStorage:", e);
+      return false;
+    }
+  }
+
+  // --- cria e exibe anúncio (retorna objeto com método close) ---
+  function createAdInstance(selectedLink) {
+    // evita múltiplos roots
+    if (document.getElementById("anuncio-toast-root")) return null;
+
+    // --- injeta CSS via JS ---
+    const existingStyle = document.getElementById("anuncio-dynamic-style");
+    if (!existingStyle) {
+      const css = `
+      .anuncio-toast {
+        position: fixed;
+        left: 20px;
+        bottom: 20px;
+        width: 30vw;
+        height: 30vh;
+        max-width: 560px;
+        min-width: 220px;
+        min-height: 160px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+        color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+        overflow: hidden;
+        z-index: 2147483646;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(120%);
+        opacity: 0;
+        transition: transform 420ms cubic-bezier(.2,.9,.25,1), opacity 320ms ease, width 300ms ease, height 300ms ease, left 300ms ease, right 300ms ease, top 300ms ease, bottom 300ms ease, border-radius 200ms ease;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        backdrop-filter: blur(6px) saturate(1.05);
+        -webkit-backdrop-filter: blur(6px) saturate(1.05);
+        border: 1px solid rgba(255,255,255,0.04);
+        background-color: rgba(8,8,10,0.75);
+        -webkit-font-smoothing:antialiased;
+      }
+      .anuncio-toast.show { transform: translateY(0); opacity: 1; }
+      .anuncio-header {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 10px;
+        gap: 8px;
+        background: linear-gradient(90deg, rgba(0,0,0,0.25), rgba(0,0,0,0.12));
+        flex: 0 0 40px;
+      }
+      .anuncio-controls { display:flex; gap:6px; align-items:center; }
+      .anuncio-btn {
+        background: transparent;
+        border: none;
+        color: #fff;
+        padding: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+      .anuncio-btn:hover { background: rgba(255,255,255,0.04); }
+      .anuncio-body {
+        flex: 1 1 auto;
+        display:flex;
+        align-items:stretch;
+        justify-content:stretch;
+        padding:0;
+        text-align:center;
+        line-height:1.2;
+        position: relative;
+        min-height: 0;
+      }
+      .anuncio-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+        background: #0b0b0c;
+      }
+      .anuncio-fallback {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.6));
+        color: #fff;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+      .anuncio-fallback.show { display: flex; }
+      .anuncio-fallback a, .anuncio-fallback button {
+        background: rgba(255,255,255,0.06);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 8px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .anuncio-toast.maximized {
+        left: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+      }
+      .anuncio-toast.bounce { animation: anuncio-bounce 480ms cubic-bezier(.2,.9,.25,1); }
+      @keyframes anuncio-bounce {
+        0% { transform: translateY(110%); }
+        60% { transform: translateY(-6%); }
+        100% { transform: translateY(0); }
+      }
+      @media (max-width:520px) {
+        .anuncio-toast { width:84vw; height:28vh; left:8vw; right:auto; bottom:18px; }
+        .anuncio-toast.maximized { height:100vh; width:100vw; }
+      }
+      `;
+      const styleEl = document.createElement("style");
+      styleEl.id = "anuncio-dynamic-style";
+      styleEl.appendChild(document.createTextNode(css));
+      document.head.appendChild(styleEl);
+    }
+
+    // --- monta elemento DOM ---
+    const root = document.createElement("div");
+    root.id = "anuncio-toast-root";
+    root.className = "anuncio-toast";
+    root.setAttribute("role", "dialog");
+    root.setAttribute("aria-label", "Notificação de anúncio");
+    root.innerHTML = `
+      <div class="anuncio-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden style="opacity:.95"><path d="M3 12h3l3 9V3L6 12H3z" fill="currentColor"></path></svg>
+          <strong style="font-size:0.95rem">Anúncio</strong>
+        </div>
+        <div class="anuncio-controls">
+          <button class="anuncio-btn" id="anuncio-max" aria-label="Maximizar">◻</button>
+          <button class="anuncio-btn" id="anuncio-close" aria-label="Fechar">✕</button>
+        </div>
+      </div>
+      <div class="anuncio-body">
+        <iframe class="anuncio-iframe" id="anuncio-iframe" src="${selectedLink}" frameborder="0" allowfullscreen></iframe>
+        <div class="anuncio-fallback" id="anuncio-fallback" aria-hidden="true">
+          <div>Conteúdo indisponível nesta janela.</div>
+          <div style="display:flex;gap:8px;">
+            <a id="anuncio-open" target="_blank" rel="noopener noreferrer" href="${selectedLink}">Abrir em nova aba</a>
+            <button id="anuncio-retry">Tentar novamente</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(root);
+    mgr.currentRoot = root; // referencia global
+
+    // --- referências UI ---
+    const btnClose = root.querySelector("#anuncio-close");
+    const btnMax = root.querySelector("#anuncio-max");
+    const iframe = root.querySelector("#anuncio-iframe");
+    const fallback = root.querySelector("#anuncio-fallback");
+    const openLink = root.querySelector("#anuncio-open");
+    const retryBtn = root.querySelector("#anuncio-retry");
+
+    // --- mostra com animação tipo "chegada" ---
+    requestAnimationFrame(() => {
+      root.classList.add("show");
+      root.classList.add("bounce");
+      setTimeout(()=> root.classList.remove("bounce"), 520);
+    });
+
+   
+    // --- maximizar / restaurar ---
+let isMax = false;
+
+btnMax.addEventListener("click", () => {
+  isMax = !isMax;
+
+  if (isMax) {
+    root.classList.add("maximized");
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    // ícone ???? (maximizar)
+    btnMax.textContent = "\u{1F5D7}";
+  } else {
+    root.classList.remove("maximized");
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+
+    // ícone ◻ (restaurar)
+    btnMax.textContent = "\u25FB";
+
+    root.style.transition =
+      "width 300ms ease, height 300ms ease, left 300ms ease, bottom 300ms ease, top 300ms ease, right 300ms ease";
+  }
+});
+
+    // --- fallback (quando iframe não carregar / bloqueado por X-Frame-Options) ---
+    let loaded = false;
+    function onLoad() {
+      loaded = true;
+      fallback.classList.remove("show");
+      fallback.setAttribute("aria-hidden", "true");
+    }
+    iframe.addEventListener("load", onLoad);
+
+    const localFallbackTimer = setTimeout(() => {
+      if (!loaded) {
+        fallback.classList.add("show");
+        fallback.setAttribute("aria-hidden", "false");
+      }
+    }, IFRAME_LOAD_TIMEOUT);
+
+    retryBtn.addEventListener("click", () => {
+      try {
+        fallback.classList.remove("show");
+        fallback.setAttribute("aria-hidden", "true");
+        // força reload com cache-buster
+        iframe.src = selectedLink + (selectedLink.indexOf('?') === -1 ? '?' : '&') + 'cb=' + Date.now();
+        loaded = false;
+        clearTimeout(window._anuncioRetryTimer);
+        window._anuncioRetryTimer = setTimeout(() => {
+          if (!loaded) {
+            fallback.classList.add("show");
+            fallback.setAttribute("aria-hidden", "false");
+          }
+        }, IFRAME_LOAD_TIMEOUT);
+      } catch (e) {
+        console.warn(e);
+      }
+    });
+
+    // --- abrir em nova aba (já tem href) ---
+    openLink.addEventListener("click", () => {
+      // nada extra necessário; href já aponta para selectedLink
+    });
+
+    // --- fechar (remove e agenda próximo) ---
+    let removed = false;
+    function closeAndSchedule() {
+      if (removed) return;
+      removed = true;
+      try {
+        root.classList.remove("show");
+        setTimeout(()=> {
+          try { root.remove(); } catch(e){}
+          if (mgr.currentRoot === root) mgr.currentRoot = null;
+        }, 360);
+      } catch(e){}
+      // limpeza de listeners/timers
+      iframe.removeEventListener("load", onLoad);
+      clearTimeout(localFallbackTimer);
+
+      // restaura scroll se maximizado
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+
+      // agenda novo anúncio (apenas se localStorage ainda permitir)
+      scheduleNext();
+    }
+
+    btnClose.addEventListener("click", closeAndSchedule);
+
+    // fechar com ESC
+    function onKey(e) {
+      if (e.key === "Escape") {
+        closeAndSchedule();
+      }
+    }
+    document.addEventListener("keydown", onKey);
+
+    // cleanup quando remove do DOM
+    const obs = new MutationObserver(() => {
+      if (!document.body.contains(root)) {
+        document.removeEventListener("keydown", onKey);
+        iframe.removeEventListener("load", onLoad);
+        obs.disconnect();
+      }
+    });
+    obs.observe(document.body, { childList: true });
+
+    // retorna handle
+    return {
+      close: closeAndSchedule,
+      root
+    };
+  }
+
+  // --- Agenda exibição do próximo anúncio considerando localStorage ---
+  function scheduleNext() {
+    // cancela timer anterior se houver
+    if (mgr.timerId) { clearTimeout(mgr.timerId); mgr.timerId = null; }
+
+    // escolhe delay aleatório
+    const delay = randDelay();
+    mgr.timerId = setTimeout(() => {
+      mgr.timerId = null;
+      try {
+        if (!canShow()) {
+          // se foi desabilitado, não agendar novamente; mas podemos tentar de novo
+          // com outro delay só se desejar — aqui escolhemos não reapresentar até que a página seja recarregada
+          return;
+        }
+        // antes de criar, assegura que não existe outro root
+        if (document.getElementById("anuncio-toast-root")) return;
+        const selectedLink = pickLink();
+        createAdInstance(selectedLink);
+      } catch (e) {
+        console.warn("Erro ao tentar mostrar anúncio:", e);
+      }
+    }, delay);
+  }
+
+  // --- Inicialização: somente agenda se localStorage permitir ---
+  try {
+    if (!canShow()) {
+      // não mostra nada
+      return;
+    }
+  } catch (e) {
+    // se houver erro no acesso, aborta
+    return;
+  }
+
+  // agendar primeiro anúncio com delay aleatório
+  scheduleNext();
+
+  // --- expor util no window para debug (opcional) ---
+  window._anuncioManager = mgr;
+  window._anuncioManager.scheduleNext = scheduleNext;
+  window._anuncioManager.cancel = () => {
+    if (mgr.timerId) { clearTimeout(mgr.timerId); mgr.timerId = null; }
+    if (mgr.currentRoot && document.body.contains(mgr.currentRoot)) {
+      try { mgr.currentRoot.remove(); } catch(e) {}
+      mgr.currentRoot = null;
+    }
+  };
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- BOTÃO DE SAIR -->
+<script>
+(function () {
+
+  /* ===== KEYFRAMES DA LAVA (INJETADOS LOCALMENTE) ===== */
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes lavaExit {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* ===== BOTÃO ===== */
+  const exitBtn = document.createElement('button');
+  exitBtn.innerHTML = '✖';
+  exitBtn.title = 'Sair';
+
+  Object.assign(exitBtn.style, {
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '20px',
+    fontWeight: 'bold',
+    color: '#000',
+
+    /* === LAVA === */
+    background: 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)',
+    backgroundSize: '600% 600%',
+    animation: 'lavaExit 8s ease infinite',
+
+    /* === SOMBRA PADRÃO DO JOGO === */
+    boxShadow: '0 4px 10px rgba(0,0,0,0.35)',
+    transition: 'transform .2s, box-shadow .2s',
+    zIndex: 9999
+  });
+
+  exitBtn.onmouseenter = () => {
+    exitBtn.style.transform = 'translateY(-2px)';
+    exitBtn.style.boxShadow = '0 6px 14px rgba(0,0,0,0.45)';
+  };
+  exitBtn.onmouseleave = () => {
+    exitBtn.style.transform = 'translateY(0)';
+    exitBtn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.35)';
+  };
+
+  document.body.appendChild(exitBtn);
+
+  /* ===== OVERLAY ===== */
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style, {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(0,0,0,0.6)',
+    display: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000
+  });
+
+  /* ===== MODAL ===== */
+  const modal = document.createElement('div');
+  Object.assign(modal.style, {
+    background: 'rgba(255,255,255,0.9)',
+    borderRadius: '16px',
+    padding: '20px',
+    maxWidth: '360px',
+    boxShadow: '0 0 40px rgba(0,0,0,0.8)',
+    textAlign: 'center'
+  });
+
+  modal.innerHTML = `
+    <p style="margin-bottom:20px">
+      Deseja se desconectar do drone da cabana e retornar ao portal da Federação do Vale?
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button id="exit-yes">SIM</button>
+      <button id="exit-no">NÃO</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  /* ===== BOTÕES DO MODAL (LAVA EMBUTIDA) ===== */
+  modal.querySelectorAll('button').forEach(btn => {
+    Object.assign(btn.style, {
+      padding: '10px 18px',
+      border: 'none',
+      borderRadius: '50px',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      color: '#000',
+      background: 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)',
+      backgroundSize: '600% 600%',
+      animation: 'lavaExit 8s ease infinite',
+      boxShadow: '0 4px 10px rgba(0,0,0,0.35)',
+      transition: 'transform .2s, box-shadow .2s'
+    });
+
+    btn.onmouseenter = () => {
+      btn.style.transform = 'translateY(-2px)';
+      btn.style.boxShadow = '0 6px 14px rgba(0,0,0,0.45)';
+    };
+    btn.onmouseleave = () => {
+      btn.style.transform = 'translateY(0)';
+      btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.35)';
+    };
+  });
+
+  /* ===== AÇÕES ===== */
+  exitBtn.onclick = () => overlay.style.display = 'flex';
+  modal.querySelector('#exit-no').onclick = () => overlay.style.display = 'none';
+  modal.querySelector('#exit-yes').onclick = () => {
+    location.href = 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game';
+  };
+
+})();
+</script>
+
+
+
+</body>
+</html>
