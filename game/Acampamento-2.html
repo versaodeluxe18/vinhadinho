@@ -1,0 +1,1982 @@
+<!-- PRODUÇÃO EM: https://versaodeluxe.directorioforuns.com/h142-vinhado-acampamento-2-game -->
+
+
+<!-- botao comunidade -->
+<script>
+(function () {
+  const FIREBASE_COMPAT_URLS = [
+    'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js',
+    'https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js'
+  ];
+
+  const FALLBACK_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCVx9oPZkhQzausoxKb5iLoYxBWyxjtWvc",
+    authDomain: "vinhado-edd3b.firebaseapp.com",
+    databaseURL: "https://vinhado-edd3b-default-rtdb.firebaseio.com",
+    projectId: "vinhado-edd3b",
+    storageBucket: "vinhado-edd3b.firebasestorage.app",
+    messagingSenderId: "686319490018",
+    appId: "1:686319490018:web:6ddafcdf61d4e830789fbb"
+  };
+
+  function loadScriptUrl(url, timeout = 10000) {
+    return new Promise((resolve, reject) => {
+      const already = Array.from(document.getElementsByTagName('script')).find(
+        (s) => s.src && s.src.indexOf(url) !== -1
+      );
+      if (already) return resolve();
+
+      const s = document.createElement('script');
+      s.src = url;
+      s.async = true;
+
+      let done = false;
+      const t = setTimeout(() => {
+        if (done) return;
+        done = true;
+        reject(new Error('timeout loading ' + url));
+      }, timeout);
+
+      s.onload = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(t);
+        resolve();
+      };
+
+      s.onerror = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(t);
+        reject(new Error('error loading ' + url));
+      };
+
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensureFirebaseCompat() {
+    if (window._vinhaFirebaseInited) return window._vinhaFirebaseInited;
+
+    try {
+      if (!window.firebase) {
+        for (const url of FIREBASE_COMPAT_URLS) {
+          await loadScriptUrl(url);
+        }
+      }
+    } catch (err) {
+      console.error('Erro carregando Firebase compat:', err);
+      return null;
+    }
+
+    try {
+      if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0) {
+        const app = window.firebase.app();
+        const auth = window.firebase.auth();
+        const db = window.firebase.database();
+        window._vinhaFirebaseInited = { app, auth, db };
+        return window._vinhaFirebaseInited;
+      } else if (window.firebase) {
+        const app = window.firebase.initializeApp(FALLBACK_FIREBASE_CONFIG);
+        const auth = window.firebase.auth();
+        const db = window.firebase.database();
+        window._vinhaFirebaseInited = { app, auth, db };
+        return window._vinhaFirebaseInited;
+      } else {
+        console.error('window.firebase indisponível.');
+        return null;
+      }
+    } catch (err) {
+      console.error('Erro inicializando Firebase:', err);
+      return null;
+    }
+  }
+
+  async function bootstrapChat() {
+    const fb = await ensureFirebaseCompat();
+    if (!fb) {
+      console.error('Não foi possível inicializar Firebase. Veja console.');
+      return;
+    }
+
+    const { auth, db } = fb;
+
+    const style = document.createElement('style');
+    style.textContent = `
+.vinha-float { position: fixed; right:20px; bottom:20px; z-index:10000; }
+.lava-float-btn { width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00);background-size:600% 600%;animation:8s lava infinite;color:#000;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35); }
+@keyframes lava {0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+.chat-window { position: fixed; left: calc(50% - 475px); top: 90px; width: 950px; height: 320px; z-index:10000; background: radial-gradient(circle at center, rgba(5,5,20,1) 0%, rgba(8,8,35,1) 100%); color:#fff;border-radius:8px;border:2px solid rgba(255,255,255,0.04);box-shadow:0 8px 40px rgba(0,0,0,0.6); display:flex; flex-direction:column; overflow:hidden; min-width:320px; }
+.title-bar { background: linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00); padding:8px 12px; display:flex;align-items:center;justify-content:space-between; cursor:move; user-select:none; color:#000; font-weight:700; flex:0 0 48px; }
+.title-bar button{ background:transparent;border:none;font-size:18px;cursor:pointer;padding:4px 8px; }
+.splash { flex:1; display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px; gap:12px; }
+.loading-dots { display:flex; gap:8px; }
+.loading-dots span { width:18px; height:18px; border-radius:50%; animation:dotFlash 1s infinite ease-in-out; }
+.loading-dots span:nth-child(1){background:#ff00ff;animation-delay:0s;} .loading-dots span:nth-child(2){background:#00ffff;animation-delay:0.2s;} .loading-dots span:nth-child(3){background:#ffff00;animation-delay:0.4s;}
+@keyframes dotFlash { 0%,100%{opacity:0.25;transform:scale(1)}50%{opacity:1;transform:scale(1.3)} }
+.actions { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:12px; }
+.chat-action-btn { padding:10px 20px; border:none; border-radius:8px; font-size:1rem; cursor:pointer; background: linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00); background-size:600% 600%; animation:lava 8s ease infinite; color:#000; box-shadow:0 4px 8px rgba(0,0,0,0.2); font-weight: 800; }
+.vinha-chat-wrap { display:flex; flex-direction:column; flex:1 1 auto; min-height:0; padding:12px; box-sizing:border-box; }
+#vinha-top { display:flex; justify-content:space-between; align-items:center; padding:4px 0 8px 0; }
+#vinha-messages { flex:1 1 auto; overflow:auto; padding:8px; border-radius:6px; background:rgba(255,255,255,0.02); box-sizing:border-box; min-height:0; }
+.vinha-row { margin-bottom:8px; font-size:0.95rem; color:#fff; word-break:break-word; }
+.vinha-row .meta { opacity:.75; font-size:0.85rem; margin-bottom:4px; }
+.input-row { display:flex; gap:8px; padding-top:10px; flex:0 0 auto; }
+.input-row input { flex:1; padding:10px; border-radius:8px; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.08); outline:none; min-width:0; }
+.input-row button { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; background:linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00); color:#000;font-weight:700; }
+.chat-window.minimized { height:40px !important; overflow:visible !important; }
+.chat-window.minimized .splash, .chat-window.minimized .actions, .chat-window.minimized .vinha-chat-wrap, .chat-window.minimized .tutorial-wrap { display:none !important; }
+.tutorial-wrap { display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
+.tutorial-top { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; gap:8px; }
+iframe.tutorial-iframe { width:100%; height:100%; border:none; display:block; flex:1 1 auto; min-height:0; }
+.login-bubble {
+  position: fixed;
+  z-index:10001;
+  max-width:260px;
+  background: linear-gradient(180deg,#ffffff, #f2f2f2);
+  color:#000;
+  border-radius:10px;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+  padding:12px;
+  font-size:14px;
+  line-height:1.2;
+  transform-origin: bottom right;
+}
+.login-bubble .row { margin-top:8px; display:flex; gap:8px; justify-content:flex-end; }
+.login-bubble button { padding:6px 10px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+.login-bubble .confirm { background:linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00); color:#000; }
+.login-bubble .cancel { background:transparent; border:1px solid rgba(0,0,0,.08); color:#000; }
+    `;
+
+    document.head.appendChild(style);
+
+    const floatWrap = document.createElement('div');
+    floatWrap.className = 'vinha-float';
+    const btn = document.createElement('button');
+    btn.className = 'lava-float-btn';
+    btn.innerText = '\u{1F4AC}';
+    floatWrap.appendChild(btn);
+    document.body.appendChild(floatWrap);
+
+    let chatWin = null;
+    let myUid = null;
+    let onlinePollInterval = null; // used for presence polling interval id
+    let msgsRef = null;
+    let presenceRef = null;
+    let messagesListenerAttached = false;
+    let currentLoginBubble = null;
+
+    // showLoginPrompt: cria um balão próximo ao botão flutuante e retorna Promise<boolean>
+    function showLoginPrompt() {
+      return new Promise((resolve) => {
+        // se já existe, não duplicar
+        if (currentLoginBubble) return;
+
+        const bubble = document.createElement('div');
+        bubble.className = 'login-bubble';
+        bubble.innerHTML = `<div>É necessário conectar sua conta Google para usar o <strong>Chat dos Simpatizantes</strong>.</div>
+          <div class="row">
+            <button class="cancel">Não</button>
+            <button class="confirm">Sim</button>
+          </div>`;
+
+        document.body.appendChild(bubble);
+        currentLoginBubble = bubble;
+
+        // posicionar próximo ao botão
+        const btnRect = btn.getBoundingClientRect();
+        const gap = 10;
+        // tentamos posicionar acima e à esquerda do botão
+        const left = Math.max(8, btnRect.left - 260 + btnRect.width / 2);
+        const top = Math.max(8, btnRect.top - bubble.offsetHeight - gap);
+        // se top muito alto (na prática quando bubble.offsetHeight é 0 ao criar), recalcular depois de append
+        bubble.style.left = (left) + 'px';
+        bubble.style.top = (btnRect.top - 120 > 8 ? (btnRect.top - 120) : (btnRect.top - 120)) + 'px';
+
+        // reposition properly after render
+        requestAnimationFrame(() => {
+          const rect = bubble.getBoundingClientRect();
+          let bx = btnRect.right - rect.width; // alinhar à direita do botão
+          if (bx < 8) bx = 8;
+          let by = btnRect.top - rect.height - 10;
+          if (by < 8) by = btnRect.top + btnRect.height + 10; // se não couber acima, posiciona abaixo
+          bubble.style.left = bx + 'px';
+          bubble.style.top = by + 'px';
+        });
+
+        function cleanup() {
+          try { bubble.remove(); } catch (e) {}
+          if (currentLoginBubble === bubble) currentLoginBubble = null;
+        }
+
+        bubble.querySelector('.cancel').addEventListener('click', () => {
+          cleanup();
+          resolve(false);
+        }, { once: true });
+
+        bubble.querySelector('.confirm').addEventListener('click', () => {
+          cleanup();
+          resolve(true);
+        }, { once: true });
+
+        // fechar se clicar fora
+        function onDocClick(e) {
+          if (!bubble.contains(e.target) && !btn.contains(e.target)) {
+            cleanup();
+            document.removeEventListener('pointerdown', onDocClick);
+            resolve(false);
+          }
+        }
+        document.addEventListener('pointerdown', onDocClick);
+      });
+    }
+
+    // Alterado: agora o botão flutuante minimiza/maximiza em vez de destruir a janela.
+    btn.addEventListener('click', async () => {
+      if (!chatWin) {
+        // usuário quer abrir: devemos garantir autenticação antes de criar a janela
+        // createWindow chama ensureAuth, mas aqui queremos antecipar a verificação pra mostrar o balão já ao clicar
+        createWindow();
+        return;
+      }
+      // Se existir e estiver minimizada -> maximizar
+      if (chatWin.classList.contains('minimized')) {
+        chatWin.classList.remove('minimized');
+        try { chatWin.style.zIndex = 10000; } catch (e) {}
+      } else {
+        // existir e não minimizada -> minimizar
+        chatWin.classList.add('minimized');
+      }
+    });
+
+    // ensureAuth atualizado: se não estiver autenticado, pede confirmação via balão e inicia signInWithPopup se confirmar.
+    function ensureAuth() {
+      return new Promise((resolve) => {
+        if (auth.currentUser) return resolve(auth.currentUser);
+
+        // se já existir um balão aberto, não criar outro — aguardar escolha
+        showLoginPrompt().then(async (doLogin) => {
+          if (!doLogin) {
+            // usuário escolheu não logar
+            return resolve(null);
+          }
+
+          // usuário escolheu sim -> tentar abrir popup Google
+          try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            // solicitar scopes se quiser, por exemplo: provider.addScope('profile');
+            const result = await auth.signInWithPopup(provider);
+            // result.user contém usuário
+            resolve(result.user || auth.currentUser);
+          } catch (err) {
+            console.warn('Erro ao tentar signInWithPopup:', err);
+            // Se falhar, não forçar login; informar via console e resolver null
+            resolve(null);
+          }
+        });
+      });
+    }
+
+    const myMessageKeys = new Set();
+
+    async function sendMessageRaw(text) {
+      const ref = db.ref('chats/public');
+      const node = ref.push();
+      const payload = {
+        text: String(text || '').slice(0, 1000),
+        uid: myUid,
+        displayName:
+          (auth.currentUser && auth.currentUser.displayName) ||
+          ('Jogador_' + String(myUid).slice(0, 5)),
+        ts: Date.now()
+      };
+      await node.set(payload).catch((err) => console.error('Erro gravando mensagem:', err));
+      myMessageKeys.add(node.key);
+    }
+
+    async function removeAllMyMessagesGlobal() {
+      if (!myUid) return;
+      try {
+        const ref = db.ref('chats/public');
+        const snap = await ref.once('value');
+        const v = snap.val() || {};
+        const jobs = [];
+        for (const k of Object.keys(v)) {
+          const m = v[k];
+          if (m && m.uid === myUid) jobs.push(ref.child(k).remove().catch((e) => console.warn('erro remoção', k, e)));
+        }
+        await Promise.all(jobs);
+        console.log('Removidas', jobs.length, 'mensagens do uid', myUid);
+      } catch (e) {
+        console.error('Erro removendo mensagens do usuário:', e);
+      }
+    }
+
+    async function pollPresenceOnce(onlineEl) {
+      try {
+        const snap = await db.ref('presence').once('value');
+        const v = snap.val() || {};
+        onlineEl.textContent = `${Object.keys(v).length} online`;
+      } catch (e) {
+        console.warn('pollPresenceOnce erro', e);
+      }
+    }
+
+    function attachMessagesListener(messagesEl) {
+      if (messagesListenerAttached) return;
+      msgsRef = db.ref('chats/public').limitToLast(300);
+
+      msgsRef.on('child_added', (snap) => {
+        const m = snap.val();
+        if (!m) return;
+        const row = document.createElement('div');
+        row.className = 'vinha-row';
+        const when = timeAgo(new Date(m.ts || Date.now()));
+        row.innerHTML = `<div class="meta"><strong>${escapeHtml(m.displayName || 'anon')}</strong> • <small style="opacity:.7">${when}</small></div><div>${escapeHtml(m.text)}</div>
+`;
+        messagesEl.appendChild(row);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      });
+
+      msgsRef.on('child_removed', async () => {
+        await reloadMessagesTo(messagesEl);
+      });
+
+      messagesListenerAttached = true;
+    }
+
+    function detachMessagesListener() {
+      try {
+        if (msgsRef) msgsRef.off();
+      } catch (e) {}
+      messagesListenerAttached = false;
+    }
+
+    async function reloadMessagesTo(container) {
+      container.innerHTML = '';
+      const snap = await db.ref('chats/public').limitToLast(300).once('value');
+      const v = snap.val() || {};
+      const arr = Object.entries(v)
+        .map(([k, m]) => ({ k, m }))
+        .sort((a, b) => (a.m.ts || 0) - (b.m.ts || 0));
+
+      for (const it of arr) {
+        const m = it.m;
+        const row = document.createElement('div');
+        row.className = 'vinha-row';
+        const when = timeAgo(new Date(m.ts || Date.now()));
+        row.innerHTML = `<div class="meta"><strong>${escapeHtml(m.displayName || 'anon')}</strong> • <small style="opacity:.7">${when}</small></div><div>${escapeHtml(m.text)}</div>
+`;
+        container.appendChild(row);
+      }
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function createWindow() {
+      if (chatWin) return;
+
+      // garantimos autenticação antes de abrir a janela
+      const user = await ensureAuth();
+      if (!user) {
+        // usuário não autenticou / recusou -> não abrir janela
+        return;
+      }
+
+      myUid = user.uid;
+      chatWin = document.createElement('div');
+      chatWin.className = 'chat-window';
+      chatWin.innerHTML = `<div class="title-bar">
+  <div style="display:flex;gap:12px;align-items:center"><div>COMUNIDADE</div></div>
+  <div>
+    <button class="minimize-btn" title="Minimizar">—</button>
+    <button class="close-btn" title="Fechar">×</button>
+  </div>
+</div><div class="splash" id="vinha-splash">
+  <img src="https://i.servimg.com/u/f22/19/80/77/63/emblem11.png" alt="Federação" style="width:110px;">
+  <div style="text-align:center">Você está acessando a Federação do Vale</div>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div><div class="actions" id="vinha-actions" style="display:none;">
+  <button class="chat-action-btn" id="action-chat-btn">CHAT DOS SIMPATIZANTES</button>
+  <button class="chat-action-btn" id="action-tut-btn">INSTRUÇÕES DO ACAMPAMENTO</button>
+</div><div class="vinha-chat-wrap" id="vinha-chat-wrap" style="display:none;"></div><div class="tutorial-wrap" id="vinha-tutorial-wrap" style="display:none;">
+  <div class="tutorial-top">
+    <div style="font-weight:700;color:#000;background:linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00);padding:6px 10px;border-radius:8px">Tutorial</div>
+    <div>
+      <button id="tutorial-back" class="chat-action-btn" style="padding:6px 10px">Voltar</button>
+    </div>
+  </div>
+  <iframe class="tutorial-iframe" id="tutorial-iframe" src="https://versaodeluxe.directorioforuns.com/h135-vinhadinho-adaptativo-game#tutorial"></iframe>
+</div>
+`;
+
+      document.body.appendChild(chatWin);
+
+      const titleBar = chatWin.querySelector('.title-bar');
+      const btnClose = chatWin.querySelector('.close-btn');
+      const btnMin = chatWin.querySelector('.minimize-btn');
+      const splash = chatWin.querySelector('#vinha-splash');
+      const actions = chatWin.querySelector('#vinha-actions');
+      const actionChatBtn = chatWin.querySelector('#action-chat-btn');
+      const actionTutBtn = chatWin.querySelector('#action-tut-btn');
+      const chatWrap = chatWin.querySelector('#vinha-chat-wrap');
+      const tutWrap = chatWin.querySelector('#vinha-tutorial-wrap');
+      const tutorialBack = chatWin.querySelector('#tutorial-back');
+
+      try {
+        presenceRef = db.ref(`presence/${myUid}`);
+        presenceRef.set({
+          displayName:
+            (auth.currentUser && auth.currentUser.displayName) ||
+            ('Jogador_' + String(myUid).slice(0, 5)),
+          lastSeen: Date.now()
+        });
+        presenceRef.onDisconnect().remove();
+      } catch (e) {
+        console.warn('presence set err', e);
+      }
+
+      const presenceInterval = setInterval(() => {
+        try {
+          presenceRef && presenceRef.update({ lastSeen: Date.now() }).catch(() => {});
+        } catch (e) {}
+      }, 20000);
+
+      let pollInterval = null;
+
+      setTimeout(() => {
+        if (!chatWin) return;
+        splash.style.display = 'none';
+        actions.style.display = 'flex';
+      }, 900);
+
+      actionChatBtn.addEventListener('click', async () => {
+        actions.style.display = 'none';
+        chatWrap.style.display = 'flex';
+
+        if (!chatWrap.dataset.ready) {
+          chatWrap.innerHTML = `<div id="vinha-top">
+  <strong>Sala Pública</strong>
+  <small id="vinha-online" style="opacity:.8">— online</small>
+</div><div id="vinha-messages"></div><div class="input-row">
+  <input id="vinha-input" placeholder="Escreva uma mensagem..." />
+  <button id="vinha-send">Enviar</button>
+</div>
+`;
+          chatWrap.dataset.ready = '1';
+
+          const messagesEl = chatWrap.querySelector('#vinha-messages');
+          const inputEl = chatWrap.querySelector('#vinha-input');
+          const sendBtn = chatWrap.querySelector('#vinha-send');
+          const onlineEl = chatWrap.querySelector('#vinha-online');
+
+          attachMessagesListener(messagesEl);
+
+          await pollPresenceOnce(onlineEl);
+          onlinePollInterval = setInterval(() => pollPresenceOnce(onlineEl), 60 * 1000);
+
+          sendBtn.addEventListener('click', async () => {
+            const text = (inputEl.value || '').trim();
+            if (!text) return;
+            await sendMessageRaw(text);
+            inputEl.value = '';
+          });
+
+          inputEl.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              const text = (inputEl.value || '').trim();
+              if (text) {
+                await sendMessageRaw(text);
+                inputEl.value = '';
+              }
+            }
+          });
+        }
+      });
+
+      actionTutBtn.addEventListener('click', () => {
+        actions.style.display = 'none';
+        chatWrap.style.display = 'none';
+        tutWrap.style.display = 'flex';
+      });
+
+      tutorialBack.addEventListener('click', () => {
+        tutWrap.style.display = 'none';
+        actions.style.display = 'flex';
+      });
+
+      btnMin.addEventListener('click', () => {
+        chatWin.classList.toggle('minimized');
+      });
+
+      btnClose.addEventListener('click', async () => {
+        try {
+          presenceRef && presenceRef.remove().catch(() => {});
+        } catch (e) {}
+        try {
+          clearInterval(presenceInterval);
+        } catch (e) {}
+        try {
+          clearInterval(onlinePollInterval);
+        } catch (e) {}
+
+        detachMessagesListener();
+        await removeAllMyMessagesGlobal();
+
+        try {
+          chatWin.remove();
+        } catch (e) {}
+
+        chatWin = null;
+      });
+
+      titleBar.style.touchAction = 'none';
+      let dragging = false,
+        startX = 0,
+        startY = 0,
+        startLeft = 0,
+        startTop = 0,
+        pointerId = null;
+
+      titleBar.addEventListener('pointerdown', (ev) => {
+        if (ev.target.closest('button')) return;
+        ev.preventDefault();
+        titleBar.setPointerCapture(ev.pointerId);
+        dragging = true;
+        pointerId = ev.pointerId;
+        const r = chatWin.getBoundingClientRect();
+        startX = ev.clientX;
+        startY = ev.clientY;
+        startLeft = r.left;
+        startTop = r.top;
+        chatWin.style.left = r.left + 'px';
+        chatWin.style.top = r.top + 'px';
+        chatWin.style.transform = 'none';
+      });
+
+      titleBar.addEventListener('pointermove', (ev) => {
+        if (!dragging || ev.pointerId !== pointerId) return;
+        ev.preventDefault();
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        chatWin.style.left = startLeft + dx + 'px';
+        chatWin.style.top = startTop + dy + 'px';
+      });
+
+      titleBar.addEventListener('pointerup', (ev) => {
+        if (ev.pointerId !== pointerId) return;
+        dragging = false;
+        pointerId = null;
+        try {
+          titleBar.releasePointerCapture(ev.pointerId);
+        } catch (e) {}
+      });
+
+      titleBar.addEventListener('pointercancel', () => {
+        dragging = false;
+        pointerId = null;
+      });
+    }
+
+    function destroyWindow(alsoRemoveMessages = false) {
+      if (!chatWin) return;
+      try {
+        detachMessagesListener();
+      } catch (e) {}
+      try {
+        clearInterval(onlinePollInterval);
+      } catch (e) {}
+      if (alsoRemoveMessages && myUid) removeAllMyMessagesGlobal().catch(() => {});
+      try {
+        chatWin.remove();
+      } catch (e) {}
+      chatWin = null;
+    }
+
+    function escapeHtml(s) {
+      return String(s || '')
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '&quot;');
+    }
+
+    function timeAgo(date) {
+      const s = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (s < 10) return 'agora';
+      if (s < 60) return s + 's';
+      if (s < 3600) return Math.floor(s / 60) + 'm';
+      if (s < 86400) return Math.floor(s / 3600) + 'h';
+      return Math.floor(s / 86400) + 'd';
+    }
+
+  }
+
+  bootstrapChat().catch((e) => console.error('bootstrapChat erro', e));
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+<!-- bot -->
+<script>
+(function(){
+  const THIS_VERSION = 'vinha-bot@20251117:v2';
+
+  // se já estiver esta mesma versão instalada -> não reinstala
+  if (window._vinhaBotVinhadinhoInstalled === THIS_VERSION) {
+    console.log('vinha-bot: mesma versão já em execução — nada a fazer.');
+    return;
+  }
+  // marca versão atual (permite substituir versões antigas)
+  window._vinhaBotVinhadinhoInstalled = THIS_VERSION;
+  console.log('vinha-bot: inicializando instância — versão', THIS_VERSION);
+
+  // === CONFIGURAÇÃO: Perguntas específicas (respostas aleatórias) ===
+  const PERGUNTAS_ESPECIFICAS = {
+    "qual seu nome": ["Eu sou o Vinhadinho!", "Me chamam de Vinhadinho ????"],
+    "como funciona isso": [ "Funciona através de scripts ocultos e um pouco de mágica ????", "Tem um motorzinho secreto alimentado por café e vontade." ],
+    "que horas sao": ["Não sei as horas exatas, mas sei que você é incrível ????"],
+    
+  };
+
+  // Avisos periódicos
+  const AVISO_PRIMEIRO_DELAY = 10000;
+  const AVISO_INTERVAL_MS   = 3 * 60 * 1000;
+  const AVISO_PRIMEIRO = "Os desenvolvedores ou personagens NUNCA vão pedir por suas informações pessoais, email ou qualquer tipo de identificação, fique atento!";
+  const AVISOS_RANDOM = [
+    "Você pode denunciar jogadores por mal comportamento",
+    "Siga as regras e não compartilhe suas informações pessoais",
+    "Preserve seus dados pessoais"
+  ];
+
+  // === estado interno ===
+  const pendingTimers = new Set();
+  window._vinhaAvisoScheduled = window._vinhaAvisoScheduled || false;
+  window._vinhaAvisoTimers = window._vinhaAvisoTimers || { timeoutId: null, intervalId: null, attachedEl: null };
+  window._vinhaCurrentAvisoEl = window._vinhaCurrentAvisoEl || null;
+  window._vinhaRecentOut = window._vinhaRecentOut || []; // buffer de envios locais (texto normalizado, ts)
+
+  // utilidades
+  const NOW = () => Date.now();
+  const normalize = s => String(s||'').trim().replace(/\s+/g,' ').toLowerCase();
+  function stripAccents(str) { return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  const normalizeForMatch = s => stripAccents(normalize(s));
+  function escapeHtml(s){ return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>'); }
+  function pickRandomFromCandidate(candidate) {
+    if (Array.isArray(candidate)) {
+      if (candidate.length === 0) return "";
+      return candidate[Math.floor(Math.random()*candidate.length)];
+    }
+    if (typeof candidate === 'string') return candidate;
+    return String(candidate || '');
+  }
+
+  // estilo dos avisos (apenas uma vez)
+  (function ensureAvisoStyle(){
+    if (document.getElementById('__vinha-aviso-style')) return;
+    const style = document.createElement('style');
+    style.id = '__vinha-aviso-style';
+    style.textContent = `
+      .vinha-row.vinha-aviso {
+        background: rgba(139,0,0,0.03);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin: 8px 0;
+        transition: transform .14s ease, box-shadow .14s ease, background .14s ease, opacity .12s ease;
+        cursor: default;
+        display: block;
+      }
+      .vinha-row.vinha-aviso .meta strong { color: #8B0000; }
+      .vinha-row.vinha-aviso > div:last-child { color: #8B0000; font-weight:600; }
+      .vinha-row.vinha-aviso:hover,
+      .vinha-row.vinha-aviso:focus {
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        background: rgba(139,0,0,0.06);
+        outline: none;
+        cursor: pointer;
+      }
+      .vinha-aviso--enter { opacity: 0; transform: translateY(6px) scale(.995); }
+      .vinha-aviso--enter.vinha-aviso--enter-active { opacity: 1; transform: translateY(0) scale(1); transition: opacity .18s ease, transform .18s ease; }
+      .vinha-aviso--exit { opacity: 1; }
+      .vinha-aviso--exit.vinha-aviso--exit-active { opacity: 0; transform: translateY(6px) scale(.995); transition: opacity .16s ease, transform .16s ease; }
+      .vinha-row.vinha-bot { background: transparent; }
+    `;
+    document.head.appendChild(style);
+  })();
+
+  // =======================
+  // Funções de interação
+  // =======================
+
+  // lê valor de input / contenteditable / role=textbox
+  function readInputValue(el){
+    if (!el) return '';
+    try {
+      if ('value' in el && typeof el.value === 'string') return el._lastSentValue || el.value || '';
+      if (el.isContentEditable) return (el.innerText || el.textContent || '').trim();
+      const role = el.getAttribute && el.getAttribute('role');
+      if (role === 'textbox' || role === 'search') return (el.textContent || '').trim();
+      return (el.textContent || el.value || '').trim();
+    } catch(e){ return ''; }
+  }
+
+  // substitui/amplia findChatElements + attachCapturers
+  function findChatElements(){
+    let messages = document.getElementById('vinha-messages')
+               || document.querySelector('.vinha-chat-wrap #vinha-messages')
+               || document.querySelector('#vinha-messages')
+               || document.querySelector('.vinha-chat-wrap')
+               || document.querySelector('.chat-messages')
+               || document.querySelector('.messages')
+               || document.querySelector('.msgs')
+               || document.querySelector('.chat-window .messages')
+               || document.querySelector('.chat-window')
+               || document.querySelector('[data-chat-messages]')
+               || document.querySelector('.conversation')
+               || (document.querySelector('.vinha-row') && document.querySelector('.vinha-row').parentElement);
+
+    let input = document.getElementById('vinha-input')
+             || document.querySelector('.input-row input')
+             || document.querySelector('.vinha-chat-wrap input[placeholder]')
+             || document.querySelector('input[placeholder*="mensagem"]')
+             || document.querySelector('input[type="text"]')
+             || document.querySelector('[contenteditable="true"]')
+             || document.querySelector('[role="textbox"]');
+
+    let send = document.getElementById('vinha-send')
+          || document.querySelector('.input-row button')
+          || document.querySelector('.vinha-chat-wrap button')
+          || document.querySelector('button[id*="send"]')
+          || document.querySelector('button[type="button"]')
+          || document.querySelector('[data-send]')
+          || document.querySelector('.send-button')
+          || document.querySelector('[aria-label*="enviar"], [aria-label*="Enviar"], [title*="Enviar"]');
+
+    if (messages && messages.classList && messages.classList.contains('vinha-chat-wrap')) {
+      const nested = messages.querySelector('#vinha-messages') || messages.querySelector('[id$="messages"]');
+      if (nested) messages = nested;
+    }
+
+    return { messagesEl: messages, inputEl: input, sendBtn: send };
+  }
+
+  function attachCapturers(inputEl, sendBtn){
+    if (!inputEl && !sendBtn) return;
+    try {
+      if (inputEl && inputEl.__vinhaCapturersAttached) {
+        if (sendBtn && !sendBtn.__vinhaSendHooked) {
+          sendBtn.addEventListener('click', onSendClick);
+          sendBtn.__vinhaSendHooked = true;
+        }
+        return;
+      }
+    } catch(e){}
+
+    function onSendClick(){
+      setTimeout(()=> {
+        try {
+          const raw = readInputValue(inputEl);
+          const txt = String(raw||'').trim();
+          if (!txt) {
+            console.log('vinha-bot: send clicado, texto vazio');
+            return;
+          }
+          console.log('vinha-bot: capturado send ->', txt);
+          window._vinhaRecentOut.push({ textNorm: normalizeForMatch(txt), ts: NOW() });
+          // opcional: limitar buffer
+          if (window._vinhaRecentOut.length > 40) window._vinhaRecentOut.shift();
+        } catch(e){ console.warn('vinha-bot capture click erro', e); }
+      }, 0);
+    }
+
+    function onKeyDown(e){
+      if (e.key === 'Enter') {
+        setTimeout(()=> {
+          try {
+            const txt = readInputValue(inputEl);
+            if (!txt) return;
+            console.log('vinha-bot: capturado Enter ->', txt);
+            window._vinhaRecentOut.push({ textNorm: normalizeForMatch(txt), ts: NOW() });
+            if (window._vinhaRecentOut.length > 40) window._vinhaRecentOut.shift();
+          } catch(err){ console.warn('vinha-bot capture enter erro', err); }
+        }, 0);
+      }
+    }
+
+    if (sendBtn && !sendBtn.__vinhaSendHooked) {
+      sendBtn.addEventListener('click', onSendClick);
+      sendBtn.__vinhaSendHooked = true;
+    }
+
+    if (inputEl) {
+      try {
+        if (inputEl.isContentEditable) {
+          inputEl.addEventListener('input', ()=>{});
+          inputEl.addEventListener('keydown', onKeyDown);
+        } else {
+          inputEl.addEventListener('keydown', onKeyDown);
+          try {
+            const proto = Object.getPrototypeOf(inputEl);
+            const desc = Object.getOwnPropertyDescriptor(proto, 'value');
+            if (desc && desc.set && !inputEl.__vinhaPatched) {
+              const originalSet = desc.set;
+              const originalGet = desc.get;
+              Object.defineProperty(inputEl, 'value', {
+                get: function(){ return originalGet.call(this); },
+                set: function(v){
+                  try { this._lastSentValue = v; } catch(e){}
+                  return originalSet.call(this, v);
+                }
+              });
+              inputEl.__vinhaPatched = true;
+              console.log('vinha-bot: patched input.value para captura rápida (compat).');
+            }
+          } catch(e){}
+        }
+      } catch(e){ console.warn('vinha-bot: erro ao anexar capturers no input', e); }
+    } else {
+      // fallback leva o clique do send para leitura do último nó de mensagens
+      if (sendBtn && !sendBtn.__vinhaSendHooked) {
+        sendBtn.addEventListener('click', ()=> {
+          setTimeout(()=> {
+            const m = findChatElements().messagesEl;
+            if (!m) return;
+            const last = Array.from(m.children).reverse().find(n => n instanceof HTMLElement && !n.dataset.vinhaLocal);
+            const txt = last ? (last.textContent || '').trim() : '';
+            if (txt) {
+              console.log('vinha-bot (fallback): capturado message DOM ->', txt);
+              window._vinhaRecentOut.push({ textNorm: normalizeForMatch(txt), ts: NOW() });
+              if (window._vinhaRecentOut.length > 40) window._vinhaRecentOut.shift();
+            }
+          }, 50);
+        }, { passive: true });
+      }
+    }
+
+    if (inputEl) inputEl.__vinhaCapturersAttached = true;
+  }
+
+  // observer das mensagens (para processar mensagens que aparecem no chat)
+  function attachMessageObserver(messagesEl){
+    if (!messagesEl) return;
+    if (messagesEl.__vinhaObserver) return messagesEl.__vinhaObserver;
+
+    const processed = new WeakSet();
+    const obs = new MutationObserver((mutations)=> {
+      for (const m of mutations) {
+        for (const node of Array.from(m.addedNodes || [])) {
+          if (!(node instanceof HTMLElement)) continue;
+          if (node.dataset && node.dataset.vinhaLocal) continue;
+          if (processed.has(node)) continue;
+          processed.add(node);
+
+          let author = '';
+          let text = '';
+
+          const meta = node.querySelector && node.querySelector('.meta');
+          if (meta) {
+            const strong = meta.querySelector && meta.querySelector('strong');
+            author = strong ? strong.textContent.trim() : '';
+            const textDiv = node.querySelector(':scope > div:nth-child(2)') || node.querySelector('div:last-child');
+            text = textDiv ? textDiv.textContent.trim() : (node.textContent || '').trim();
+          } else {
+            text = (node.textContent || '').trim();
+          }
+
+          if (!text) continue;
+          processIncomingMessage(node, text, author, messagesEl);
+        }
+      }
+    });
+
+    obs.observe(messagesEl, { childList: true });
+    messagesEl.__vinhaObserver = obs;
+    console.log('vinha-bot: observer de mensagens anexado');
+    return obs;
+  }
+
+  // processamento de mensagem: apenas PERGUNTAS_ESPECIFICAS -> responde
+  function processIncomingMessage(node, text, author, messagesEl){
+    try {
+      const textNorm = normalizeForMatch(text);
+      // evita responder se a mesma mensagem foi originada localmente (checa buffer de envios recentes)
+      // -- se o usuário digitou e enviou, o buffer terá o texto; isso impede respostas ao próprio usuário
+      const now = NOW();
+      // limpa itens antigos do buffer (>10s)
+      window._vinhaRecentOut = (window._vinhaRecentOut || []).filter(it => (now - (it.ts||0)) < 11000);
+
+      // Busca correspondência nas perguntas específicas
+      const specificKeys = Object.keys(PERGUNTAS_ESPECIFICAS);
+      for (const rawKey of specificKeys) {
+        if (!Object.prototype.hasOwnProperty.call(PERGUNTAS_ESPECIFICAS, rawKey)) continue;
+        const keyNorm = normalizeForMatch(rawKey);
+        if (!keyNorm) continue;
+        if (textNorm.includes(keyNorm)) {
+          // se usuário foi quem digitou (buffer) -> não responde (evita loop)
+          const wasUser = window._vinhaRecentOut.some(it => it.textNorm && textNorm.includes(it.textNorm));
+          if (wasUser) {
+            console.log('vinha-bot: correspondência encontrada, mas a mensagem veio do próprio usuário -> ignorando.');
+            return;
+          }
+
+          const candidate = PERGUNTAS_ESPECIFICAS[rawKey];
+          const resposta = pickRandomFromCandidate(candidate);
+          if (resposta) {
+            const delay = 800 + Math.floor(Math.random()*1800);
+            scheduleReply(messagesEl, resposta, delay);
+            console.log('vinha-bot: matched pergunta específica ->', rawKey, 'resposta escolhida:', resposta);
+          } else {
+            console.log('vinha-bot: matched pergunta específica mas sem resposta configurada ->', rawKey);
+          }
+          if (node.dataset) node.dataset.vinhaBotReplied = '1';
+          return;
+        }
+      }
+
+      // se nenhum match -> não responde (sem fallback)
+      return;
+    } catch(e){ console.warn('vinha-bot processIncomingMessage erro', e); }
+  }
+
+  function scheduleReply(messagesEl, replyText, delayMs){
+    try {
+      const timerId = setTimeout(()=> {
+        try {
+          appendLocalBotMessage(messagesEl, replyText);
+        } finally {
+          pendingTimers.delete(timerId);
+          console.log('vinha-bot: timer concluído, pendentes agora =', pendingTimers.size);
+        }
+      }, delayMs);
+      pendingTimers.add(timerId);
+      console.log('vinha-bot: reply agendada em', delayMs, 'ms ->', replyText, ' pendentes=', pendingTimers.size);
+    } catch(e){ console.warn('vinha-bot scheduleReply erro', e); }
+  }
+
+  function appendLocalBotMessage(container, texto){
+    try {
+      if (!container) {
+        console.warn('vinha-bot: appendLocalBotMessage sem container');
+        return;
+      }
+      const linha = document.createElement('div');
+      linha.className = 'vinha-row vinha-bot';
+      linha.dataset.vinhaLocal = '1';
+      const quando = 'agora';
+      linha.innerHTML = `<div class="meta"><strong>Vinhadinho</strong> • <small style="opacity:.7">${quando}</small></div><div>${escapeHtml(texto)}</div>`;
+      container.appendChild(linha);
+      try { container.scrollTop = container.scrollHeight; } catch(e){}
+      console.log('vinha-bot: Vinhadinho postou ->', texto);
+    } catch(e){ console.warn('vinha-bot append erro', e); }
+  }
+
+  // avisos periódicos
+  function fadeOutAndRemove(el){
+    try {
+      if (!el || !el.parentElement) { try{ el && el.remove(); }catch(_){}; return; }
+      el.classList.add('vinha-aviso--exit');
+      void el.offsetWidth;
+      el.classList.add('vinha-aviso--exit-active');
+      setTimeout(()=> {
+        try { el.remove(); } catch(_) {}
+      }, 180);
+    } catch(e){ try{ el.remove(); }catch(_){} }
+  }
+
+  function appendAvisoMessage(container, texto){
+    try {
+      if (!container) {
+        console.warn('vinha-bot: appendAvisoMessage -> container inválido');
+        return false;
+      }
+
+      try {
+        if (window._vinhaCurrentAvisoEl && window._vinhaCurrentAvisoEl.parentElement) {
+          fadeOutAndRemove(window._vinhaCurrentAvisoEl);
+          window._vinhaCurrentAvisoEl = null;
+        } else {
+          const antigos = container.querySelectorAll && container.querySelectorAll('.vinha-row.vinha-aviso');
+          if (antigos && antigos.length) {
+            antigos.forEach(n => { try{ n.remove(); }catch(_){} });
+          }
+        }
+      } catch(e){ console.warn('vinha-bot: erro ao remover aviso anterior', e); }
+
+      const linha = document.createElement('div');
+      linha.className = 'vinha-row vinha-aviso vinha-aviso--enter';
+      linha.dataset.vinhaAviso = '1';
+      linha.setAttribute('tabindex','0');
+      linha.setAttribute('role','button');
+      const quando = 'agora';
+      linha.innerHTML = `<div class="meta"><strong>Aviso</strong> • <small style="opacity:.7">${quando}</small></div><div>${escapeHtml(texto)}</div>`;
+
+      linha.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        try { fadeOutAndRemove(linha); } catch(e){ try{ linha.remove(); }catch(_){} }
+        if (window._vinhaCurrentAvisoEl === linha) window._vinhaCurrentAvisoEl = null;
+        console.log('vinha-bot: aviso fechado pelo usuário.');
+      });
+      linha.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          try { fadeOutAndRemove(linha); } catch(e){ try{ linha.remove(); }catch(_){} }
+          if (window._vinhaCurrentAvisoEl === linha) window._vinhaCurrentAvisoEl = null;
+          console.log('vinha-bot: aviso fechado pelo usuário (teclado).');
+        }
+      });
+
+      try {
+        container.appendChild(linha);
+      } catch(e) {
+        try { container.insertAdjacentHTML('beforeend', linha.outerHTML); } catch(_) { console.error('vinha-bot: falha ao inserir aviso (DOM)'); return false; }
+      }
+
+      requestAnimationFrame(()=> {
+        try {
+          linha.classList.add('vinha-aviso--enter-active');
+          setTimeout(()=> {
+            linha.classList.remove('vinha-aviso--enter', 'vinha-aviso--enter-active');
+          }, 220);
+        } catch(_) {}
+      });
+
+      try { container.scrollTop = container.scrollHeight; } catch(_) {}
+      try { container.parentElement && (container.parentElement.scrollTop = container.parentElement.scrollHeight); } catch(_) {}
+
+      window._vinhaCurrentAvisoEl = linha;
+      console.log('vinha-bot: aviso inserido ->', texto);
+      return true;
+    } catch(e){ console.error('vinha-bot: appendAvisoMessage erro', e); return false; }
+  }
+
+  function clearAvisoTimers(){
+    if (window._vinhaAvisoTimers.timeoutId) {
+      clearTimeout(window._vinhaAvisoTimers.timeoutId);
+      window._vinhaAvisoTimers.timeoutId = null;
+    }
+    if (window._vinhaAvisoTimers.intervalId) {
+      clearInterval(window._vinhaAvisoTimers.intervalId);
+      window._vinhaAvisoTimers.intervalId = null;
+    }
+    window._vinhaAvisoTimers.attachedEl = null;
+    window._vinhaAvisoScheduled = false;
+    try {
+      if (window._vinhaCurrentAvisoEl) {
+        fadeOutAndRemove(window._vinhaCurrentAvisoEl);
+        window._vinhaCurrentAvisoEl = null;
+      }
+    } catch(e){}
+    console.log('vinha-bot: timers de aviso limpos.');
+  }
+
+  function scheduleWarningsFor(messagesEl){
+    if (!messagesEl) { console.warn('vinha-bot: scheduleWarningsFor sem messagesEl'); return; }
+    if (window._vinhaAvisoScheduled) {
+      window._vinhaAvisoTimers.attachedEl = window._vinhaAvisoTimers.attachedEl || messagesEl;
+      return;
+    }
+    clearAvisoTimers();
+    window._vinhaAvisoTimers.attachedEl = messagesEl;
+    window._vinhaAvisoScheduled = true;
+    console.log('vinha-bot: agendando primeiro aviso em', AVISO_PRIMEIRO_DELAY, 'ms');
+    window._vinhaAvisoTimers.timeoutId = setTimeout(()=> {
+      try {
+        appendAvisoMessage(messagesEl, AVISO_PRIMEIRO);
+      } catch(e){ console.error('vinha-bot: erro postando aviso primeiro', e); }
+      window._vinhaAvisoTimers.intervalId = setInterval(()=> {
+        try {
+          const rand = AVISOS_RANDOM[Math.floor(Math.random()*AVISOS_RANDOM.length)];
+          appendAvisoMessage(window._vinhaAvisoTimers.attachedEl || messagesEl, rand);
+        } catch(e){ console.error('vinha-bot: erro no aviso interval', e); }
+      }, AVISO_INTERVAL_MS);
+    }, AVISO_PRIMEIRO_DELAY);
+  }
+
+  // procura elementos e anexa observer/capturers continuamente
+  function continuousAttach(){
+    const { messagesEl, inputEl, sendBtn } = findChatElements();
+    if (messagesEl) {
+      if (!messagesEl.__vinhaAttachedAt || (NOW() - messagesEl.__vinhaAttachedAt) > 1000) {
+        messagesEl.__vinhaAttachedAt = NOW();
+        console.log('vinha-bot: anexando ao chat. input:', !!inputEl, 'send:', !!sendBtn);
+        attachCapturers(inputEl, sendBtn);
+        attachMessageObserver(messagesEl);
+        scheduleWarningsFor(messagesEl);
+      }
+    } else {
+      if (window._vinhaAvisoTimers.attachedEl) {
+        console.log('vinha-bot: container de mensagens não encontrado — limpando timers de aviso.');
+        clearAvisoTimers();
+      }
+    }
+    setTimeout(continuousAttach, 1000);
+  }
+
+  // tenta hook em botões flutuantes (se existirem)
+  function hookFloatButton(){
+    const btn = document.querySelector('.lava-float-btn') || document.querySelector('.vinha-float button');
+    if (!btn) return;
+    if (btn.__vinhaHooked) return;
+    btn.addEventListener('click', ()=> {
+      console.log('vinha-bot: botão flutuante clicado — tentarei anexar em seguida');
+      setTimeout(()=> continuousAttach(), 300);
+    });
+    btn.__vinhaHooked = true;
+  }
+
+  const bodyObs = new MutationObserver(()=> hookFloatButton());
+  bodyObs.observe(document.body, { childList: true, subtree: true });
+
+  // inicia
+  continuousAttach();
+  hookFloatButton();
+
+  // debug / util exposto
+  window._vinhaForceAviso = function(texto){
+    try {
+      const t = texto || ('[TESTE] ' + AVISO_PRIMEIRO);
+      const target = window._vinhaAvisoTimers.attachedEl || findChatElements().messagesEl;
+      if (!target) {
+        console.warn('vinha-bot: nenhum container encontrado para forçar aviso. Veja o console para detalhes.');
+        return false;
+      }
+      appendAvisoMessage(target, t);
+      return true;
+    } catch(e){ console.error('vinha-bot: erro em _vinhaForceAviso', e); return false; }
+  };
+
+  window.addEventListener('beforeunload', ()=> {
+    try { clearAvisoTimers(); } catch(e){}
+    try { pendingTimers.forEach(id=>clearTimeout(id)); pendingTimers.clear(); } catch(e){}
+  });
+
+  console.log('vinha-bot: sistema ativo — RESPONDERÁ APENAS PERGUNTAS_ESPECIFICAS.');
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<!--botão de som-->
+<script>
+(function(){
+
+  // ============================
+  // URLs
+  // ============================
+  const MUSIC_URL      = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/arquivos/musica4.mp3';
+  const CLICK_URL      = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/main/arquivos/btn.mp3';
+  const LAISER_URL     = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/arquivos/laiser.mp3';
+  const SECONDARY_URL  = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/main/arquivos/cura.mp3';
+
+  // estado
+  let audioEnabled   = false;
+  let lazyLoaded     = false;
+  let bgAudio        = null;
+  let clickAudio     = null;
+  let laiserAudio    = null;
+  let secondaryAudio = null;
+
+  // ============================
+  // CSS do botão
+  // ============================
+  const css = `
+    /* botão de som */
+    #sound-toggle{
+      position: fixed !important;
+      right: 90px !important;
+      bottom: 20px !important;
+      z-index: 2147483647 !important;
+      width: 36px;
+      height: 36px;
+      display:flex !important;
+      align-items:center;
+      justify-content:center;
+      border:none;
+      padding:0;
+      cursor:pointer;
+      transition: transform .14s, box-shadow .14s, filter .12s;
+      outline:none;
+      -webkit-tap-highlight-color: transparent;
+      pointer-events:auto !important;
+      overflow: visible;
+      background: linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00);
+      background-size:600% 600%;
+      animation: lava 8s infinite;
+      color: #000;
+      border-radius: 50%;
+      box-shadow:0 6px 18px rgba(0,0,0,.35);
+      filter: grayscale(100%) brightness(0.95);
+      font-size:20px;
+      line-height:1;
+    }
+
+    #sound-toggle.vinha-sound-on{
+      filter: none !important;
+      transform: translateY(-2px);
+      box-shadow:0 10px 28px rgba(0,0,0,0.28);
+    }
+
+    #sound-toggle.vinha-sound-off{
+      filter: grayscale(100%) brightness(0.92) !important;
+      transform: none !important;
+      box-shadow:0 4px 10px rgba(0,0,0,0.18) !important;
+    }
+
+    #sound-toggle.vinha-sound-on::before{
+      content: none !important;
+      display: none !important;
+    }
+
+    @keyframes lava {
+      0%   { background-position: 0 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0 50%; }
+    }
+
+    #sound-toggle:focus {
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.06),
+                  0 0 0 6px rgba(45,179,255,0.10) !important;
+    }
+
+    #sound-toggle .icon {
+      display:inline-block;
+      transform:translateY(1px);
+    }
+  `;
+
+  // aplica CSS
+  const styleEl = document.createElement('style');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  // ============================
+  // cria botão
+  // ============================
+  const btn = document.createElement('button');
+  btn.id = 'sound-toggle';
+  btn.type = 'button';
+  btn.setAttribute('aria-label','Ativar/desativar sons');
+  btn.setAttribute('title','Sons: desativados');
+  btn.setAttribute('aria-pressed','false');
+  btn.classList.add('vinha-sound-off');
+
+  const EMOJI_MUSICA = '\u{1F3B6}';
+  btn.innerHTML = `<span class="icon" aria-hidden="true">${EMOJI_MUSICA}</span>`;
+
+  btn.style.opacity = '1';
+  btn.style.visibility = 'visible';
+  btn.style.display = 'flex';
+  btn.style.pointerEvents = 'auto';
+
+  document.body.appendChild(btn);
+
+  // ============================
+  // Lazy load dos áudios
+  // ============================
+  function lazyLoadAudios() {
+    if (lazyLoaded) return Promise.resolve();
+    lazyLoaded = true;
+
+    bgAudio = new Audio(MUSIC_URL);
+    bgAudio.loop = true;
+    bgAudio.preload = 'auto';
+    bgAudio.volume = 0.5;
+
+    clickAudio = new Audio(CLICK_URL);
+    clickAudio.preload = 'auto';
+    clickAudio.volume = 1.0;
+
+    laiserAudio = new Audio(LAISER_URL);
+    laiserAudio.preload = 'auto';
+    laiserAudio.volume = 1.0;
+
+    secondaryAudio = new Audio(SECONDARY_URL);
+    secondaryAudio.preload = 'auto';
+    secondaryAudio.volume = 1.0;
+
+    try {
+      bgAudio.load();
+      clickAudio.load();
+      laiserAudio.load();
+      secondaryAudio.load();
+    } catch(e){}
+
+    return new Promise(resolve => {
+      let done = false;
+      const finish = () => {
+        if (!done) {
+          done = true;
+          resolve();
+        }
+      };
+
+      if (!bgAudio) return finish();
+
+      bgAudio.addEventListener('canplay', finish, { once: true });
+
+      setTimeout(finish, 3000);
+    });
+  }
+
+  // ============================
+  // sons
+  // ============================
+  function playClickIfEnabled() {
+    if (!audioEnabled || !clickAudio) return;
+    try {
+      clickAudio.currentTime = 0;
+      const p = clickAudio.play();
+      if (p && p.catch) p.catch(()=>{});
+    } catch(e){}
+  }
+
+  function playLaiserIfEnabled() {
+    if (!audioEnabled || !laiserAudio) return;
+    try {
+      laiserAudio.currentTime = 0;
+      const p = laiserAudio.play();
+      if (p && p.catch) p.catch(()=>{});
+    } catch(e){}
+  }
+
+  function playSecondaryIfEnabled() {
+    if (!audioEnabled || !secondaryAudio) return;
+    try {
+      secondaryAudio.currentTime = 0;
+      const p = secondaryAudio.play();
+      if (p && p.catch) p.catch(()=>{});
+    } catch(e){}
+  }
+
+  // ============================
+  // visual
+  // ============================
+  function refreshVisuals() {
+    if (audioEnabled) {
+      btn.classList.remove('vinha-sound-off');
+      btn.classList.add('vinha-sound-on');
+      btn.setAttribute('aria-pressed','true');
+      btn.setAttribute('title','Sons: ativados');
+    } else {
+      btn.classList.remove('vinha-sound-on');
+      btn.classList.add('vinha-sound-off');
+      btn.setAttribute('aria-pressed','false');
+      btn.setAttribute('title','Sons: desativados');
+    }
+  }
+
+  // ============================
+  // habilitar/desabilitar som
+  // ============================
+  async function setEnabled(enabled) {
+    audioEnabled = !!enabled;
+
+    try {
+      localStorage.setItem('vinha_audio_enabled', audioEnabled ? '1' : '0');
+    } catch(e){}
+
+    refreshVisuals();
+
+    if (audioEnabled) {
+      await lazyLoadAudios();
+      try {
+        if (bgAudio) {
+          bgAudio.currentTime = 0;
+          const p = bgAudio.play();
+          if (p && p.catch) p.catch(()=>{});
+        }
+      } catch(e) {
+        console.warn('vinha-audio: erro ao tocar bgAudio', e);
+      }
+
+    } else {
+      try {
+        if (bgAudio) {
+          bgAudio.pause();
+          try{ bgAudio.currentTime = 0; }catch{}
+        }
+      } catch(e){}
+    }
+  }
+
+  // restaura preferência
+  try {
+    const stored = localStorage.getItem('vinha_audio_enabled');
+    if (stored === '1') audioEnabled = true;
+  } catch(e){}
+
+  refreshVisuals();
+
+  // ============================
+  // clique no botão principal
+  // ============================
+  btn.addEventListener('click', async () => {
+    const willEnable = !audioEnabled;
+    await setEnabled(willEnable);
+    if (audioEnabled) playClickIfEnabled();
+  });
+
+  // ============================
+  // hooks nos elementos do jogo
+  // ============================
+  function addClickHook(el) {
+    if (!el || el.__vinha_hooked) return;
+    el.addEventListener('click', () => {
+      if (audioEnabled && !lazyLoaded) lazyLoadAudios();
+      playClickIfEnabled();
+    });
+    el.__vinha_hooked = true;
+  }
+
+  function addLaiserHook(el) {
+    if (!el || el.__vinha_laiser_hooked) return;
+    el.addEventListener('click', () => {
+      if (audioEnabled && !lazyLoaded) lazyLoadAudios();
+      playLaiserIfEnabled();
+    });
+    el.__vinha_laiser_hooked = true;
+  }
+
+  function addSecondaryHook(el) {
+    if (!el || el.__vinha_secondary_hooked) return;
+    el.addEventListener('click', () => {
+      if (audioEnabled && !lazyLoaded) lazyLoadAudios();
+      // OBS: este hook toca o som no clique — MAS a integração principal com a cura
+      // usa o wrapper do callEmergency para tocar após sucesso.
+      // Mantive aqui para compatibilidade com botões que devem tocar imediato.
+      playSecondaryIfEnabled();
+    });
+    el.__vinha_secondary_hooked = true;
+  }
+
+  function attachGameHooks() {
+    const ids = [
+      'toggle-menu','toggle-profile','vinha-send','lava-float-btn',
+      'roboL-options','closeBtn','payBtn','menu', 'emergency-btn',
+    ];
+
+    ids.forEach(id => addClickHook(document.getElementById(id)));
+
+    document.querySelectorAll('.lava-float-btn').forEach(addClickHook);
+    document.querySelectorAll('.vinha-float button').forEach(addClickHook);
+
+    // adições solicitadas
+    document.querySelectorAll('.laser-btn').forEach(addClickHook);
+
+    const laiserBtn = document.getElementById('raiolaiser');
+if (laiserBtn) addLaiserHook(laiserBtn);
+
+
+    // novo: gatilho para btn-secondary (procura por id ou por classe)
+    addSecondaryHook(document.getElementById('cura-button'));
+
+    document.querySelectorAll('#vinha-send, #lava-float-btn, #roboL-options').forEach(addClickHook);
+  }
+
+  attachGameHooks();
+
+  const hookObserver = new MutationObserver(attachGameHooks);
+  hookObserver.observe(document.body, { childList: true, subtree: true });
+
+  // ============================
+  // INTEGRAÇÃO COM O HOOK DE CURA (callEmergency)
+  // - Quando callEmergency resolver true -> toca cura (secondaryAudio)
+  // - Também despacha evento customizado 'vinha:cura'
+  // ============================
+  (function integrateWithCureHook(){
+    // se já exposto, aplica imediatamente
+    function tryWrap() {
+      try {
+        const root = window._vinhaEmergencyButtonV3;
+        if (root && typeof root.callEmergency === 'function' && !root.__vinha_cure_wrapped) {
+          const orig = root.callEmergency;
+          root.callEmergency = async function(...args) {
+            // executa original
+            let ok = false;
+            try {
+              const res = orig.apply(this, args);
+              // res pode ser Promise ou valor direto
+              ok = (res && typeof res.then === 'function') ? await res : await Promise.resolve(res);
+            } catch (e) {
+              // erro na chamada original: continuar e retornar false
+              ok = false;
+              console.error('vinha-audio: erro ao chamar callEmergency original', e);
+            }
+
+            // se sucesso, garante lazy load e toca audio de cura
+            if (ok) {
+              try {
+                if (audioEnabled && !lazyLoaded) await lazyLoadAudios();
+                // tocar somente se áudio está ativado e secondaryAudio disponível
+                if (audioEnabled) playSecondaryIfEnabled();
+              } catch (e) {
+                console.warn('vinha-audio: falha ao tocar cura after callEmergency', e);
+              }
+
+              // despacha evento para outros scripts
+              try {
+                const evt = new CustomEvent('vinha:cura', { detail: { timestamp: Date.now() } });
+                window.dispatchEvent(evt);
+              } catch (e) {
+                // fallback: atribuir flag breve
+                try { window.__vinha_last_cura = Date.now(); } catch(e){}
+              }
+            }
+
+            return ok;
+          };
+          root.__vinha_cure_wrapped = true;
+          // exposicao adicional para debug
+          console.info('vinha-audio: integrado ao callEmergency');
+          return true;
+        }
+      } catch(e){}
+      return false;
+    }
+
+    if (!tryWrap()) {
+      // tenta periodicamente por alguns segundos até encontrar o hook
+      let tries = 0;
+      const iv = setInterval(() => {
+        tries++;
+        if (tryWrap() || tries > 60) {
+          clearInterval(iv);
+        }
+      }, 250);
+    }
+  })();
+
+  // util de debug
+  window._vinhaAudio = {
+    isEnabled : () => audioEnabled,
+    enable    : () => setEnabled(true),
+    disable   : () => setEnabled(false),
+    _reload   : () => {
+      lazyLoaded = false;
+      if (bgAudio){
+        try{ bgAudio.pause(); }catch{}
+      }
+      bgAudio = null;
+      clickAudio = null;
+      laiserAudio = null;
+      secondaryAudio = null;
+    }
+  };
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--drone de cura-->
+<script>
+(function(){
+  if (window._vinhaEmergencyButtonInstalled_v3) return;
+  window._vinhaEmergencyButtonInstalled_v3 = true;
+
+  // === estilos ===
+  const s = document.createElement('style');
+  s.textContent = `
+    .emergency-btn {
+      position: fixed;
+      bottom: 150px;      
+      left: 20px;         
+      z-index: 2147483646;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      backdrop-filter: blur(2px);
+      min-width: 56px;
+      min-height: 48px;
+    }
+    .emergency-btn img { width: 40px; height: 36px; object-fit: contain; pointer-events:none; display:block; }
+    .emergency-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center; z-index: 2147483647;
+    }
+    .emergency-modal {
+      width: 360px; max-width: calc(100% - 32px);
+      background: #fff; border-radius: 12px; padding: 16px;
+      text-align: center; box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
+    .emergency-modal h3 { margin: 6px 0 8px; }
+    .emergency-modal .modal-img { width:120px; height:80px; object-fit:contain; display:block; margin:6px auto; }
+    .emergency-modal p { font-weight:700; margin:10px 0; }
+    .emergency-modal .actions { display:flex; gap:10px; justify-content:center; margin-top:12px; }
+    .emergency-modal .btn-primary { background: linear-gradient(135deg,#20c997,#28a745); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:800; }
+    .emergency-modal .btn-secondary { background:transparent; border:1px solid #ddd; padding:8px 12px; border-radius:10px; cursor:pointer; }
+
+    /* OVERLAY DE CURA — mais forte */
+    .cure-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index:2147483648;
+      /* verde mais forte e mais opaco */
+      background: radial-gradient(circle at center, rgba(70,220,110,0.70), rgba(40,180,90,0.50) 35%, rgba(0,0,0,0) 70%);
+      animation: cure-fade 2600ms ease forwards;
+    }
+    @keyframes cure-fade {
+      0% { opacity:0; transform: scale(0.98); }
+      10% { opacity:1; transform: scale(1); }
+      90% { opacity:1; transform: scale(1.01); }
+      100% { opacity:0; transform: scale(1.02); }
+    }
+
+    .em-spiral {
+      position: fixed;
+      pointer-events: none;
+      z-index: 2147483649;
+      will-change: transform, opacity;
+      user-select: none;
+      font-size: 26px;
+      opacity: 0;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+  `;
+  document.head.appendChild(s);
+
+  // === criar botão ===
+  const btn = document.createElement('button');
+  btn.className = 'emergency-btn';
+  btn.title = 'Robô de Emergência';
+  btn.innerHTML = `<img src="https://i.servimg.com/u/f22/19/80/77/63/drorec10.png" alt="robo">`;
+  document.body.appendChild(btn);
+
+  // === modal factory ===
+  function createModal() {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'emergency-modal-backdrop';
+    const modal = document.createElement('div');
+    modal.className = 'emergency-modal';
+    modal.innerHTML = `
+      <h3>ROBO DE EMERGÊNCIA</h3>
+      <img class="modal-img" src="https://i.servimg.com/u/f22/19/80/77/63/drorec10.png" alt="robo">
+      <p>Pague <strong>10 ACUÉ</strong> para curar Vinhadinho até <strong>100 HP</strong></p>
+      <div class="actions">
+  <button class="btn-primary" id="cura-button">CHAMAR SOCORRO</button>
+  <button class="btn-secondary">CANCELAR</button>
+</div>
+    `;
+    backdrop.appendChild(modal);
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.remove(); });
+    modal.querySelector('.btn-secondary').addEventListener('click', () => backdrop.remove());
+    return { backdrop, modal };
+  }
+
+  // === utilitários ===
+  function quickMsg(txt) {
+    if (typeof showMessage === 'function') {
+      try { showMessage(txt); return; } catch(e) {}
+    }
+    const el = document.createElement('div');
+    Object.assign(el.style, {
+      position:'fixed', top:'44px', left:'50%', transform:'translateX(-50%)',
+      background:'rgba(0,0,0,0.7)', color:'#fff', padding:'8px 14px', borderRadius:'999px', zIndex:2147483655, fontWeight:700
+    });
+    el.textContent = txt;
+    document.body.appendChild(el);
+    setTimeout(()=> el.remove(), 2200);
+  }
+
+  function findProtagonist() {
+    try {
+      const arrs = [typeof characters !== 'undefined' ? characters : null, window.characters, globalThis.characters];
+      for (const arr of arrs) {
+        if (Array.isArray(arr)) {
+          const p = arr.find(c => c && String((c.spec||c.espec||c.name||'')).toLowerCase() === 'protagonista');
+          if (p) return p;
+        }
+      }
+    } catch(e){}
+    return null;
+  }
+
+  // === animação em espiral saindo da parte inferior e subindo ATÉ ~70% do topo ===
+  function playSpiralEmojis() {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    // emoji code points
+    const emojiCodePoints = [
+      0x1F489, 
+      0x1F3E5, 
+      0x1F48A, 
+      0x1FA7A, 
+      0x1FA79, 
+      0x1F33F  
+    ];
+
+    const count = 18;
+    for (let i = 0; i < count; i++) {
+      const cp = emojiCodePoints[Math.floor(Math.random() * emojiCodePoints.length)];
+      const el = document.createElement('div');
+      el.className = 'em-spiral';
+      el.textContent = String.fromCodePoint(cp);
+
+      const size = 18 + Math.floor(Math.random() * 36);
+      el.style.fontSize = size + 'px';
+      el.style.left = '0px';
+      el.style.top  = '0px';
+      el.style.position = 'fixed';
+      el.style.transformOrigin = 'center center';
+      document.body.appendChild(el);
+
+      // animação params
+      const delay = Math.random() * 250;
+      const lifetime = 1400 + Math.floor(Math.random() * 1600); // ms
+      const startTime = performance.now() + delay;
+      const spiralTurns = 1.2 + Math.random() * 2.8; // voltas
+      const radialMax = 40 + Math.random() * 260; // quão longe vai do centro
+      const spinDir = Math.random() < 0.5 ? 1 : -1;
+      const rotationOffset = Math.random() * Math.PI * 2;
+
+      function frame(now) {
+        const t = (now - startTime) / lifetime; // 0..1
+        if (t >= 1) { el.remove(); return; }
+        // easing (easeOutQuad)
+        const eased = 1 - Math.pow(1 - Math.min(Math.max(t, 0), 1), 2);
+
+        // ângulo (gira enquanto se expande)
+        const angle = spinDir * (2 * Math.PI) * (spiralTurns * eased) + rotationOffset;
+        const radius = radialMax * eased;
+
+        // posição polar -> cartesiana
+        const x = radius * Math.cos(angle);
+        const y = radius * Math.sin(angle);
+
+        // escala e rotação extra para 'expandir' e 'girar'
+        const scale = 0.6 + 0.9 * eased;      // cresce a partir de 0.6 até ~1.5
+        const rot = angle * 0.6;              // leve rotação do próprio emoji
+
+        // aplica transform (centraliza o elemento no ponto calculado)
+        el.style.transform = `translate(${centerX + x - size/2}px, ${centerY + y - size/2}px) rotate(${rot}rad) scale(${scale})`;
+
+        // controlar opacidade (fade in/out)
+        if (t < 0.12) el.style.opacity = String(t / 0.12);
+        else if (t > 0.78) el.style.opacity = String(Math.max(0, (1 - t) / 0.22));
+        else el.style.opacity = '1';
+
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+  }
+
+  function playCureAnimation() {
+    // overlay central com pulso + animação em espiral no centro
+    const overlay = document.createElement('div');
+    overlay.className = 'cure-overlay';
+    // tornamos pointer-events none para não bloquear a UI
+    overlay.style.pointerEvents = 'none';
+    document.body.appendChild(overlay);
+
+    // adiciona um elemento central que cresce/rotaciona suavemente
+    const centerEffect = document.createElement('div');
+    Object.assign(centerEffect.style, {
+      position: 'fixed',
+      left: `${window.innerWidth / 2}px`,
+      top: `${window.innerHeight / 2}px`,
+      width: '24px',
+      height: '24px',
+      borderRadius: '50%',
+      transform: 'translate(-50%, -50%) scale(0.6)',
+      background: 'rgba(255,255,255,0.10)',
+      boxShadow: '0 0 40px rgba(70,220,110,0.85), 0 0 120px rgba(40,180,90,0.45)',
+      zIndex: 2147483650,
+      pointerEvents: 'none'
+    });
+    document.body.appendChild(centerEffect);
+
+    // animação CSS via JS (expande e some)
+    centerEffect.animate([
+      { transform: 'translate(-50%, -50%) scale(0.6)', opacity: 0.0 },
+      { transform: 'translate(-50%, -50%) scale(1.6) rotate(10deg)', opacity: 0.95 },
+      { transform: 'translate(-50%, -50%) scale(2.2) rotate(30deg)', opacity: 0.0 }
+    ], {
+      duration: 2400,
+      easing: 'cubic-bezier(.2,.9,.2,1)'
+    });
+
+    // toca a espiral no centro
+    playSpiralEmojis();
+
+    // remove elementos depois do tempo
+    setTimeout(() => {
+      try { overlay.remove(); } catch (e) {}
+      try { centerEffect.remove(); } catch (e) {}
+    }, 2600);
+  }
+
+
+
+
+  // === ação do botão: pagar e curar ===
+  async function callEmergency() {
+    try {
+      const prot = findProtagonist();
+      if (!prot) { quickMsg('Protagonista não encontrado.'); return false; }
+
+      const currentHp = Number(prot.hp);
+      if (!Number.isFinite(currentHp)) { quickMsg('HP inválido.'); return false; }
+      if (currentHp <= 0) { quickMsg('Não é possível curar personagens com 0 de vida.'); return false; }
+      if (currentHp >= 100) { quickMsg('HP já está em 100.'); return false; }
+
+      const coins = (typeof inventory !== 'undefined' && inventory && Number.isFinite(inventory.coin)) ? inventory.coin : 0;
+      if (coins < 10) { quickMsg('ACUÉ insuficiente (precisa de 10).'); return false; }
+
+      try {
+        if (typeof inventory !== 'undefined') {
+          inventory.coin = Math.max(0, inventory.coin - 10);
+          if (typeof updateInv === 'function') updateInv();
+        }
+      } catch(e){}
+
+      try {
+        prot.hp = 100;
+        if (typeof updateList === 'function') updateList();
+      } catch(e){}
+
+      try { window.charactersChanged = true; } catch(e){}
+
+      playCureAnimation();
+      quickMsg('VINHADINHO RECUPERANDO — HP ajustado para 100.');
+      return true;
+    } catch (err) {
+      console.error('callEmergency error', err);
+      quickMsg('Falha ao chamar socorro.');
+      return false;
+    }
+  }
+
+  // === fluxo do modal ===
+  btn.addEventListener('click', () => {
+    const { backdrop, modal } = createModal();
+    document.body.appendChild(backdrop);
+    const primary = modal.querySelector('.btn-primary');
+    primary.addEventListener('click', async () => {
+      try { backdrop.remove(); } catch(e){}
+      const ok = await callEmergency();
+      if (!ok) quickMsg('Operação cancelada.');
+    }, { once: true });
+  });
+
+  // === visibilidade do botão ===
+  function refreshButtonVisibility() {
+    const prot = findProtagonist();
+    if (!prot) { btn.style.display = 'none'; return; }
+    const hp = Number(prot.hp);
+    if (!Number.isFinite(hp)) { btn.style.display = 'none'; return; }
+    // mostrar somente se 0 < hp < 100
+    if (hp < 100 && hp > 0) btn.style.display = 'inline-flex';
+    else btn.style.display = 'none';
+  }
+
+  refreshButtonVisibility();
+  const watcher = setInterval(refreshButtonVisibility, 500);
+
+  // expor para debug
+  window._vinhaEmergencyButtonV3 = { btn, refresh: refreshButtonVisibility, stop: ()=> clearInterval(watcher), callEmergency };
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+<!-- botao de sair -->
+<script>
+(function () {
+  const exitBtn = document.createElement('button');
+  exitBtn.className = 'lava-float-btn';
+  exitBtn.innerHTML = '✖';
+  exitBtn.title = 'Sair';
+
+  /* === POSIÇÃO IGUAL AOS OUTROS === */
+  Object.assign(exitBtn.style, {
+    position: 'fixed',
+    bottom: '20px',
+    right: '150px',
+    zIndex: 9999
+  });
+
+  document.body.appendChild(exitBtn);
+
+  /* ===== MODAL ===== */
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style, {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(0,0,0,0.6)',
+    display: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000
+  });
+
+  const modal = document.createElement('div');
+  modal.className = 'janela-transparente';
+  modal.style.maxWidth = '360px';
+
+  modal.innerHTML = `
+    <p style="margin-bottom:20px">
+      Deseja se desconectar do drone do acampamento e retornar ao portal da Federação do Vale?
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button id="exit-yes" class="lava-btn">SIM</button>
+      <button id="exit-no" class="lava-btn">NÃO</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  exitBtn.onclick = () => overlay.style.display = 'flex';
+  overlay.querySelector('#exit-no').onclick = () => overlay.style.display = 'none';
+  overlay.querySelector('#exit-yes').onclick = () => {
+    location.href =
+      'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game';
+  };
+})();
+</script>
