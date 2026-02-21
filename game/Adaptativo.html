@@ -1,0 +1,462 @@
+<!-- PRODUÇÃO EM: https://versaodeluxe.directorioforuns.com/h135-vinhadinho-adaptativo-game  -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Injeção do Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>ADAPTATIVO</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+    body {
+      /* mesmo estilo de cor e gradiente do overlay */
+      background: radial-gradient(
+        circle at center,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(10, 10, 30, 1) 100%
+      );
+      /* para garantir que não haja barra de rolagem */
+      overflow: hidden;
+    }
+    /* Exemplo de conteúdo centralizado */
+    .content {
+      display: flex;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: sans-serif;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="content">
+    <p>Clique nos links abaixo para testar:</p>
+    <p style="margin-left:16px;">
+      <a href="#tutorial" style="color:#4fc3f7;">#tutorial</a> |
+      <a href="#forum" style="color:#4fc3f7;">#forum</a>
+    </p>
+  </div>
+
+  
+  
+  
+  
+  
+  <!-- SCRIPT #1: TUTORIAL -->
+ <script>
+  (function() {
+    function showTutorial() {
+      if (window.location.hash !== '#tutorial' || document.getElementById('tutorial-overlay'))
+        return;
+
+      // injeta CSS para esconder scrollbar do overlay
+      const style = document.createElement('style');
+      style.textContent = `
+        #tutorial-overlay { -ms-overflow-style: none; scrollbar-width: none; }
+        #tutorial-overlay::-webkit-scrollbar { display: none; }
+      `;
+      document.head.appendChild(style);
+
+      // trava o scroll do body
+      document.body.style.overflow = 'hidden';
+
+      // cria o overlay
+      const overlay = document.createElement('div');
+      overlay.id = 'tutorial-overlay';
+      Object.assign(overlay.style, {
+        position: 'fixed',
+        inset: '0',
+        background: 'radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(10,10,30,1) 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '40px',
+        boxSizing: 'border-box',
+        zIndex: '9999',
+        color: '#fff',
+        overflowY: 'auto'
+      });
+      document.body.appendChild(overlay);
+
+      // caixa branca semi-transparente
+      const box = document.createElement('div');
+      Object.assign(box.style, {
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        padding: '30px',
+        maxWidth: '800px',
+        width: '100%',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+        position: 'relative'
+      });
+      overlay.appendChild(box);
+
+      // header
+      box.innerHTML = `
+        <div style="text-align:center; margin-bottom:24px;">
+          <img src="https://i.servimg.com/u/f22/19/80/77/63/emblem11.png"
+               style="width:100px; margin-bottom:16px;">
+          <h2 style="margin:0; font-size:1.75rem; font-weight:600; font-family:'Inter',sans-serif;">
+            TUTORIAL DO ACAMPAMENTO
+          </h2>
+          <p style="opacity:0.8; margin-top:8px; font-family:'Inter',sans-serif;">
+            Aprenda a jogar e acompanhe vinhadinho!
+          </p>
+        </div>
+      `;
+
+      // grid principal
+      const grid = document.createElement('div');
+      Object.assign(grid.style, {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gap: '18px'
+      });
+      box.appendChild(grid);
+
+      // helper para cards
+      function addCard(to, { iconHTML, img, title, text }) {
+        const card = document.createElement('div');
+        Object.assign(card.style, {
+          background: 'rgba(255,255,255,0.15)',
+          borderRadius: '12px',
+          padding: '16px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          fontFamily: 'Inter,sans-serif'
+        });
+
+        if (img) {
+          const i = document.createElement('img');
+          i.src = img;
+          i.style.width = '48px';
+          i.style.marginBottom = '12px';
+          card.appendChild(i);
+        } else {
+          const i = document.createElement('div');
+          i.innerHTML = iconHTML;
+          i.style.fontSize = '36px';
+          i.style.marginBottom = '12px';
+          card.appendChild(i);
+        }
+
+        const t = document.createElement('strong');
+        t.textContent = title;
+        t.style.display = 'block';
+        t.style.marginBottom = '8px';
+        t.style.fontSize = '1rem';
+        card.appendChild(t);
+
+        const p = document.createElement('p');
+        p.textContent = text;
+        p.style.fontSize = '0.9rem';
+        p.style.lineHeight = '1.4';
+        p.style.opacity = '0.9';
+        card.appendChild(p);
+
+        to.appendChild(card);
+      }
+
+      // cards principais
+      const principais = [
+        { iconHTML: '&#x1F5B1;&#xFE0F;', title: 'Mover-se', text: 'Clique e arraste para mover o mapa.' },
+        { iconHTML: '&#x1F5B2;&#xFE0F;', title: 'Zoom',            text: 'Role ou pince a tela' },
+        { iconHTML: '&#x1F9FA;', title: 'Vegetais', text: 'Vegetais são recursos coletado por personagens pelo mapa' },
+        { iconHTML: '&#x1F333;', title: 'Árvores',          text: 'Coleta árvores para construir cabanas.' },
+        { iconHTML: '&#x1F4B0;', title: 'Moedas',           text: 'ACUÉ é a moeda da federação do vale' },
+        { img: 'https://i.servimg.com/u/f22/19/80/77/63/chatgp13.png', title: 'Invocar Casa', text: 'Custa 10 árvores pra chamar um personagem' },
+        { img: 'https://i.servimg.com/u/f22/19/80/77/63/chatgp12.png', title: 'Cultivo',      text: 'Inicie plantio com 5 vegetais.' },
+        { iconHTML: '&#x1F4AC;', title: 'Fórum & Ajuda',     text: 'Converse com jogadores e personagens' },
+          { img: 'https://i.servimg.com/u/f22/19/80/77/63/drone_10.png', title: 'Drone de coleta',      text: 'Escolha qual item coletar' },
+          { img: 'https://i.servimg.com/u/f22/19/80/77/63/drorec10.png', title: 'Drone de cura',      text: 'Cure todo o HP de vinhadinho' },
+          { img: 'https://i.servimg.com/u/f22/19/80/77/63/dronel10.png', title: 'Drone atirador',      text: 'Elimina todos os inimigos' }
+      ];
+      principais.forEach(item => addCard(grid, item));
+
+      // seção Classes
+      const secTitle = document.createElement('h3');
+      secTitle.textContent = 'Classes';
+      secTitle.style = 'margin-top:32px; font-family:Inter,sans-serif; font-size:1.25rem; text-align:center;';
+      box.appendChild(secTitle);
+
+      const gridClasses = document.createElement('div');
+      Object.assign(gridClasses.style, {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+        gap: '16px',
+        marginTop: '16px'
+      });
+      box.appendChild(gridClasses);
+
+      const classes = [
+        { iconHTML: '&#x1F9D1;&#x200D;&#x1F33E;', title: 'Coletor',     text: 'Armazena vegetais coletados para uso posterior.' },
+        { iconHTML: '&#x1F575;&#xFE0F;',          title: 'Explorador',  text: 'Revela novos mapas ao consumir os vegetais.' },
+        { iconHTML: '&#x1F6E1;&#xFE0F;',          title: 'Guarda',      text: 'Consome vegetais para ganhar +1 HP e defende de inimigos.' },
+          { iconHTML: '&#x1F4B5;',                 title: 'Vendedor',    text: 'Vende vegetais por 1 ACUÉ cada.' },
+        { iconHTML: '&#x1F396;&#xFE0F;',         title: 'Protagonista',text: 'Se sofrer ferimento fatal é game over' },
+        { iconHTML: '&#x2694;&#xFE0F;',          title: 'Inimigo',     text: 'Atacam personagens no acampamento.' }
+      ];
+      classes.forEach(item => addCard(gridClasses, item));
+    }
+
+    // Executa on load e on hashchange
+    showTutorial();
+    window.addEventListener('hashchange', showTutorial);
+  })();
+</script>
+
+
+    
+    
+    
+    
+    
+    
+  <!-- SCRIPT #2: FÓRUM -->
+  <script>
+    (function() {
+      function showForumInfo() {
+        // Se o tutorial estiver aberto, bloqueia abertura do fórum
+        if (document.getElementById('tutorial-overlay')) return;
+        if (window.location.hash !== '#forum' || document.getElementById('forum-overlay'))
+          return;
+
+        // injeta CSS
+        const style = document.createElement('style');
+        style.textContent = `
+          #forum-overlay { -ms-overflow-style: none; scrollbar-width: none; }
+          #forum-overlay::-webkit-scrollbar { display: none; }
+
+          @keyframes lava {
+            0%{background-position:0% 50%}
+            50%{background-position:100% 50%}
+            100%{background-position:0% 50%}
+          }
+
+          #forum-overlay .box {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border-radius:16px;
+            padding:32px;
+            max-width:520px;
+            width:90%;
+            box-shadow:0 12px 32px rgba(0,0,0,0.4);
+            position: relative;
+            color:#fff;
+            font-family:Inter,sans-serif;
+            text-align:left;
+          }
+
+          #forum-overlay .close-btn {
+            position:absolute; top:16px; right:16px;
+            background:transparent; border:none;
+            font-size:28px; color:#fff; cursor:pointer;
+          }
+
+          .logo-single {
+            text-align: center;
+            margin-bottom: 24px;
+          }
+          .logo-single img {
+            max-width: 150px;
+            height: auto;
+            display: inline-block;
+          }
+
+          #forum-overlay p {
+            margin:16px 0 0;
+            font-size:0.95rem;
+            line-height:1.5;
+            opacity:0.9;
+          }
+          #forum-overlay p + p {
+            opacity:0.8;
+            font-size:0.9rem;
+          }
+
+          #forum-overlay button.continue-btn {
+            background: linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00);
+            background-size:600% 600%;
+            animation:lava 8s ease infinite;
+            padding:10px 20px;
+            cursor:pointer;
+            font-family:Inter,sans-serif;
+            font-weight:600;
+            color:#111;
+            border:none;
+            border-radius:12px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.3);
+            margin:24px auto 0 auto;
+            display:block;
+          }
+          #forum-overlay button.continue-btn:hover { opacity:0.9; }
+        `;
+        document.head.appendChild(style);
+
+        // trava scroll do fundo
+        document.body.style.overflow = 'hidden';
+
+        // cria overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'forum-overlay';
+        Object.assign(overlay.style, {
+          position: 'fixed',
+          inset: '0',
+          background: 'radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(10,10,30,1) 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          boxSizing: 'border-box',
+          zIndex: '9999',
+          overflowY: 'auto'
+        });
+        document.body.appendChild(overlay);
+
+        // box central
+        const box = document.createElement('div');
+        box.className = 'box';
+        overlay.appendChild(box);
+
+        // botão fechar
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'close-btn';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.addEventListener('click', () => {
+          overlay.remove();
+          document.body.style.overflow = '';
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        });
+        box.appendChild(closeBtn);
+
+        // logo única
+        const logoContainer = document.createElement('div');
+        logoContainer.className = 'logo-single';
+        const img = document.createElement('img');
+        img.src = 'https://i.servimg.com/u/f77/17/59/76/81/zzzzlo11.png';
+        logoContainer.appendChild(img);
+        box.appendChild(logoContainer);
+
+        // textos
+        const intro = document.createElement('p');
+        intro.textContent = 'Você está prestes a acessar o fórum da Versão Deluxe — um espaço reservado aos não-híbridos que compartilham ideias, experiências e planos sobre o universo de Vinhadinho.';
+        box.appendChild(intro);
+
+        const rules = document.createElement('p');
+        rules.innerHTML = '<strong>Regras importantes:</strong><br>• Mantenha o respeito entre todos.<br>• Não divulgue links de terceiros ou propaganda.<br>• Foco no tema do tópico.';
+        box.appendChild(rules);
+
+        // botão continuar
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'continue-btn';
+        btn.textContent = 'CONTINUAR';
+        btn.addEventListener('click', () => {
+          window.location.href = 'https://versaodeluxe.directorioforuns.com/f13-vinhadinho';
+        });
+        box.appendChild(btn);
+      }
+
+      // Executa on load e on hashchange
+      showForumInfo();
+      window.addEventListener('hashchange', showForumInfo);
+    })();
+  </script>
+    
+    
+    
+    
+    
+  <!-- SCRIPT #doarcesta -->
+<script>
+(function() {
+  function handleDonateHash() {
+    // Só continua se o hash for #doarcesta e se ainda não tiver sido processado
+    if (!window.location.hash.startsWith('#doarcesta') || sessionStorage.getItem('doarcesta-processed'))
+      return;
+
+    // Marca como processado para não entrar em loop
+    sessionStorage.setItem('doarcesta-processed', '1');
+
+    // Extrai o valor numérico do hash (removendo #doarcesta e a letra 'w' substituindo por vírgula)
+    const hash = window.location.hash.substring(1); // Remove o '#'
+    const regex = /^doarcesta(\d+)w(\d+)$/; // Regex para pegar números antes e depois de 'w'
+    const match = hash.match(regex);
+
+    if (match) {
+      // Concatena os números e coloca a vírgula no lugar de 'w'
+      const value = match[1] + ',' + match[2];
+
+      // Salva no localStorage
+      localStorage.setItem('doarcesta', value);
+
+      // Redireciona para o link de doação
+      window.location.href = 'https://donate.stripe.com/test_eVqdRbdvPczUg39d4n9IQ01';
+    } else {
+      console.error('Hash não corresponde ao formato esperado.');
+    }
+  }
+
+  // Executa agora (se já estiver "#doarcesta")
+  handleDonateHash();
+
+  // E sempre que o hash mudar
+  window.addEventListener('hashchange', handleDonateHash);
+})();
+</script>
+
+    
+    
+    
+    
+    <!-- SCRIPT #finalizardoarcesta  continuação da doação-->
+<script>
+(function() {
+  function handleFinalizeDonateHash() {
+    // Só continua se o hash for #finalizardoarcesta e se ainda não tiver sido processado
+    if (!window.location.hash.startsWith('#finalizardoarcesta') || sessionStorage.getItem('finalizardoarcesta-processed'))
+      return;
+
+    // Marca como processado para não entrar em loop
+    sessionStorage.setItem('finalizardoarcesta-processed', '1');
+
+    // Acessa o valor do localStorage
+    const value = localStorage.getItem('doarcesta');
+
+    if (value) {
+      // Substitui a vírgula por 'w' no valor
+      const formattedValue = value.replace(',', 'w');
+
+      // Cria o link com base no valor do localStorage
+      const link = 'https://www.googscript.com/#' + formattedValue;
+
+      // Abre o link na mesma janela
+      window.location.href = link;
+    } else {
+      console.error('Valor "doarcesta" não encontrado no localStorage.');
+    }
+  }
+
+  // Executa agora (se já estiver "#finalizardoarcesta")
+  handleFinalizeDonateHash();
+
+  // E sempre que o hash mudar
+  window.addEventListener('hashchange', handleFinalizeDonateHash);
+})();
+</script>
+
+    
+</body>
+</html>
