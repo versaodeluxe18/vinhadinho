@@ -1,0 +1,3884 @@
+ <!-- PRODUÇÃO EM: https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game -->
+
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+
+
+  <title>VINHADINHO</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: url("https://i.servimg.com/u/f22/19/80/77/63/chatgp10.jpg") no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      color: #f0f0f0;
+      position: relative;
+      overflow: hidden;
+    height: 100%;
+    
+    }
+    
+    /* ===== CARREGANDO ===== */
+    #loading-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;  height: 100vh;
+      z-index: 9999;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      /* fundo radar */
+      background-image: url('https://i.servimg.com/u/f22/19/80/77/63/chatgp10.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center fixed;
+
+      /* círculo que “abre” */
+      clip-path: circle(150% at 50% 50%);
+      transition: clip-path 0.8s ease-in-out;
+    }
+
+    /* ===== Radar ===== */
+  #radar {
+    position: relative;
+  width: 300px;
+  height: 300px;
+  margin-bottom: 20px;
+  border: 4px solid rgba(0,255,0,0.7);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0,255,0,0.5);
+
+  background-color: rgba(255,255,255,0.2);
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,0.5) 3px, transparent 3px),
+    linear-gradient(to bottom, rgba(0,0,0,0.5) 3px, transparent 3px);
+  background-size: 20px 20px;
+}
+
+/* ===== 2) Linha giratória ===== */
+#radar::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 10px;
+  height: 150px;
+  background: rgba(0,255,0,0.7);
+  transform-origin: bottom center;
+  animation: sweep 2s linear infinite;
+}
+@keyframes sweep {
+  from { transform: translate(-50%, -100%) rotate(0deg); }
+  to   { transform: translate(-50%, -100%) rotate(360deg); }
+}
+   
+#drone-loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: auto;
+  transform: translate(-50%, -50%);
+  /* use o nome correto do seu keyframes: */
+  animation: shake-radar 0.5s infinite alternate; 
+}
+@keyframes shake-radar {
+  0%   { transform: translate(-50%, -50%) translateX(0); }
+  50%  { transform: translate(-50%, -50%) translateX(10px); }
+  100% { transform: translate(-50%, -50%) translateX(-10px); }
+}
+
+    /* texto abaixo */
+    #loading-text {
+      margin-top: 20px;
+      font-size: 2rem;
+      color: #000;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    
+    }
+
+    /* barra de progresso */
+    #progress-container {
+      width: 80%;  max-width: 400px;
+      height: 16px;
+      background-color: #ddd;
+      border-radius: 10px;
+      margin: 30px auto;
+      overflow: hidden;
+      display: none;
+    }
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, #ff00ff, #00ffff);
+      transition: width 0.3s ease;
+    }
+
+    /* ===== Game Content ===== */
+   #game-content {
+   display: none;             /* ou block, quando for mostrar */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform-origin: center center;
+}
+
+    /* Modal "COLETANDO" */
+    #collecting-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      color: #ffffff;
+      font-size: 2rem;
+      font-weight: bold;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    #collecting-modal .emoji {
+      margin-left: 10px;
+    
+    }
+    
+  
+    #collected-display {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 20px;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: rgba(25, 25, 25, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .collected-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 1.2rem;
+      color: #ffdd57;
+      position: relative;
+    }
+
+    #score-board {
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+      color: #ffffff;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    }
+    #score-board span {
+      font-weight: bold;
+      color: #ffdd57;
+    }
+
+     .grid {
+      position: relative;
+      width: 498px;
+      height: 498px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.85);
+      font-size: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 8px;
+      position: absolute;
+      transition: transform 0.2s, opacity 0.2s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .cell.selected {
+      border: 3px solid #ffdd57;
+    }
+
+    .firework {
+      position: absolute;
+      font-size: 1.5rem;
+      opacity: 1;
+      animation: rise 0.6s ease-out forwards;
+    }
+    @keyframes rise {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-30px) scale(1.5); }
+    }
+
+    .cell.special {
+      animation: shake 0.5s infinite, pulse 1s infinite;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      75% { transform: translateX(2px); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .cell.explode {
+      animation: explodeAnim 0.3s ease-out forwards;
+    }
+    @keyframes explodeAnim {
+      from { opacity: 1; }
+      to { opacity: 0; transform: scale(1.5); }
+    }
+
+    #history-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+      background: linear-gradient(-45deg, #ff00ff, #00ffff, #ffff00);
+      background-size: 300% 300%;
+      animation: gradientAnim 5s ease infinite;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+    @keyframes gradientAnim {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    #history-panel {
+      position: fixed;
+      top: 80px;
+      left: 20px;
+      width: 260px;
+      max-height: 450px;
+      background: rgba(25, 25, 25, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 15px;
+      overflow-y: auto;
+      display: none;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      z-index: 999;
+      color: #f0f0f0;
+    }
+    #history-panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #ffdd57;
+      text-align: center;
+    }
+    #history-list {
+      list-style: none;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    #history-list li {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      color: #e0e0e0;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    #history-list li:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .collect-emoji {
+      position: absolute;
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 2000;
+      transition: transform 0.8s ease-in, opacity 0.8s ease-in;
+    }
+
+    #special-button {
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #ffdd57, #ff8c00);
+      color: #333;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: not-allowed;
+      opacity: 0.6;
+      transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #special-button.enabled {
+      cursor: pointer;
+      opacity: 1;
+    }
+    
+     .janela-transparente {
+  background-color: rgba(255, 255, 255, 0.9); /* preto com 70% de transparência */
+  border-radius: 16px;             
+  padding: 20px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+}
+
+
+   /* ===== EFEITO MONITOR ANTIGO (CRT) ===== */
+.monitor-overlay{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.12),
+      rgba(0,0,0,0.12) 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0,0,0,0.18) 100%
+    );
+  animation: scanMove 10s linear infinite, flicker 3.2s infinite;
+}
+
+@keyframes scanMove{
+  from { background-position: 0 0, center; }
+  to   { background-position: 0 100%, center; }
+}
+
+@keyframes flicker{
+  0%{opacity:.28}
+  8%{opacity:.38}
+  15%{opacity:.22}
+  30%{opacity:.35}
+  45%{opacity:.25}
+  60%{opacity:.4}
+  75%{opacity:.3}
+  100%{opacity:.34}
+}
+
+
+  </style>
+
+  
+  
+  
+  
+  <!-- Import das bibliotecas Firebase e funções de leitura/gravação de "frutas" -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVx9oPZkhQzausoxKb5iLoYxBWyxjtWvc",
+      authDomain: "vinhado-edd3b.firebaseapp.com",
+      databaseURL: "https://vinhado-edd3b-default-rtdb.firebaseio.com",
+      projectId: "vinhado-edd3b",
+      storageBucket: "vinhado-edd3b.firebasestorage.app",
+      messagingSenderId: "686319490018",
+      appId: "1:686319490018:web:6ddafcdf61d4e830789fbb"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    const db = getDatabase(app);
+
+    async function loginWithGoogle() {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        return result.user;
+      } catch (error) {
+        console.error("Erro no login com Google:", error);
+        alert("Não foi possível fazer login. Tente novamente.");
+        return null;
+      }
+    }
+
+    // Lê o objeto "frutas" do Firebase para um determinado usuário (retorna {} se não existir)
+    async function readUserFruits(uid) {
+      try {
+        const snapshot = await get(ref(db, `users/${uid}/frutas`));
+        if (snapshot.exists()) {
+          return snapshot.val();
+        } else {
+          return {};
+        }
+      } catch (error) {
+        console.error("Erro ao ler frutas do usuário:", error);
+        return {};
+      }
+    }
+
+    // Salva (ou atualiza) o objeto "frutas" no Firebase, somando ao que já existe
+    async function saveUserFruits(uid, collectedThisGame) {
+      try {
+        const existing = await readUserFruits(uid);
+        const updated = { ...existing };
+        for (const [fruitName, qty] of Object.entries(collectedThisGame)) {
+          if (updated[fruitName]) {
+            updated[fruitName] += qty;
+          } else {
+            updated[fruitName] = qty;
+          }
+        }
+        await set(ref(db, `users/${uid}/frutas`), updated);
+        console.log("Frutas atualizadas para:", updated);
+      } catch (error) {
+        console.error("Erro ao salvar frutas do usuário:", error);
+        throw error; // repassa para o caller tratar
+      }
+    }
+
+    window.FirebaseAuth = auth;
+    window.FirebaseLogin = loginWithGoogle;
+    window.FirebaseReadFruits = readUserFruits;
+    window.FirebaseSaveFruits = saveUserFruits;
+  </script>
+</head>
+
+<body>
+  
+  <!-- CARREGANDO -->
+  <div class="monitor-overlay"></div>
+
+    
+   <div id="loading-screen">
+    <div id="radar">
+      <img src="https://i.servimg.com/u/f22/19/80/77/63/drone_10.png" alt="Drone" id="drone-loader" />
+    </div>
+    <div class="janela-transparente"><div id="loading-text">RASTREANDO CAIXAS PRÓXIMAS DO DRONE</div>
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+  </div></div>
+  
+
+
+  <!-- TODO O RESTO DO JOGO, ESSE CONTAINER FICA OCULTO ATÉ O FIM DO LOAD -->
+  <div id="game-content" style="display: none;">  
+
+  <div id="collected-display"></div>
+
+  <div id="score-board">
+    ACUÉ: <span id="score">0</span>
+  </div>
+  <div class="grid"></div>
+</div>
+  
+  
+    
+    
+    <!-- Modal "COLETANDO" -->
+  <div id="collecting-modal" >
+    COLETANDO <span class="emoji">&#x1F45C;</span>CONECTE-SE
+  </div>
+
+  <button id="history-button">H</button>
+  <div id="history-panel">
+    <h2>Histórico de Combos</h2>
+    <ul id="history-list"></ul>
+  </div>
+    
+    <button id="special-button">+</button>
+  
+  
+  
+  
+
+  <script type="module">
+
+    const width = 8;
+    const size = width * width;
+    const grid = document.querySelector('.grid');
+    const scoreDisplay = document.getElementById('score');
+    const historyButton = document.getElementById('history-button');
+    const historyPanel = document.getElementById('history-panel');
+    const historyList = document.getElementById('history-list');
+    const collectedDisplay = document.getElementById('collected-display');
+    const specialButton = document.getElementById('special-button');
+    const collectingModal = document.getElementById('collecting-modal');
+
+    let score = 0;
+    let board = [];
+    let specialFruits = {};
+    let selectedId = null;
+    let isAnimating = false;
+    let history = [];
+    let collectedFruits = {}; // { 'cenoura': 5, 'banana': 2, ... }
+
+    // mapeamento de entidade HTML para nome e vice-versa
+    const entityToName = {
+      "&#x1F34C;": "banana",
+      "&#x1F952;": "pepino",
+      "&#x1F346;": "berinjela",
+      "&#x1F351;": "pessego",
+      "&#x1F955;": "cenoura"
+    };
+    const nameToEntity = {
+      "banana": "&#x1F34C;",
+      "pepino": "&#x1F952;",
+      "berinjela": "&#x1F346;",
+      "pessego": "&#x1F351;",
+      "cenoura": "&#x1F955;"
+    };
+
+    // array com entidades HTML dos emojis
+    const emojiFruits = [
+      "&#x1F34C;", // banana
+      "&#x1F952;", // pepino
+      "&#x1F346;", // berinjela
+      "&#x1F351;", // pessego
+      "&#x1F955;"  // cenoura
+    ];
+    
+    // — Expor funções seguras para o dropBox externo —
+    window.incrementScore = () => {
+      score++;
+      updateScoreDisplay();
+    };
+    window.addCollectedFruit = (name) => {
+      if (!collectedFruits[name]) collectedFruits[name] = 0;
+      collectedFruits[name]++;
+      updateCollectedUI();
+    };
+    
+    function randomEmoji() {
+      return emojiFruits[Math.floor(Math.random() * emojiFruits.length)];
+    }
+    
+    window.collectedFruits   = collectedFruits;
+    window.updateCollectedUI = updateCollectedUI;
+
+    function createBoard() {
+      for (let i = 0; i < size; i++) {
+        board[i] = randomEmoji();
+      }
+      renderBoard();
+    }
+
+    function renderBoard() {
+      grid.innerHTML = '';
+      for (let i = 0; i < size; i++) {
+        const cell = document.createElement('div');
+        cell.id = 'cell-' + i;
+        cell.classList.add('cell');
+        cell.innerHTML = board[i] || '';
+        if (specialFruits[i]) {
+          cell.classList.add('special');
+        }
+        const row = Math.floor(i / width);
+        const col = i % width;
+        cell.style.top = `${row * 62}px`;
+        cell.style.left = `${col * 62}px`;
+        grid.appendChild(cell);
+        cell.addEventListener('click', handleCellClick);
+      }
+    }
+
+    function handleCellClick() {
+      if (isAnimating) return;
+      const id = parseInt(this.id.split('-')[1]);
+      if (selectedId === null) {
+        selectedId = id;
+        this.classList.add('selected');
+      } else if (selectedId === id) {
+        this.classList.remove('selected');
+        selectedId = null;
+      } else {
+        // Validação de movimento sem "wrap" entre linhas
+        const validMoves = [];
+        const selRow = Math.floor(selectedId / width);
+        const selCol = selectedId % width;
+        const idRow = Math.floor(id / width);
+        const idCol = id % width;
+        if (selRow === idRow && Math.abs(selCol - idCol) === 1) validMoves.push(id);
+        if (selCol === idCol && Math.abs(selRow - idRow) === 1) validMoves.push(id);
+
+        if (validMoves.includes(id)) {
+          const fromId = selectedId, toId = id;
+          swapAndCheck(fromId, toId);
+        }
+        document.getElementById('cell-' + selectedId)?.classList.remove('selected');
+        selectedId = null;
+      }
+    }
+
+    function swapAndCheck(fromId, toId) {
+      isAnimating = true;
+      [board[fromId], board[toId]] = [board[toId], board[fromId]];
+      const wasSpecialFrom = specialFruits[fromId];
+      const wasSpecialTo = specialFruits[toId];
+      if (wasSpecialFrom || wasSpecialTo) {
+        if (wasSpecialFrom) delete specialFruits[fromId];
+        if (wasSpecialTo) delete specialFruits[toId];
+        if (wasSpecialFrom) specialFruits[toId] = wasSpecialFrom;
+        if (wasSpecialTo) specialFruits[fromId] = wasSpecialTo;
+      }
+      renderBoard();
+
+      setTimeout(() => {
+        if (!hasMatchAfterSwap()) {
+          // reverte troca
+          [board[fromId], board[toId]] = [board[toId], board[fromId]];
+          delete specialFruits[fromId];
+          delete specialFruits[toId];
+          if (wasSpecialFrom) specialFruits[fromId] = wasSpecialFrom;
+          if (wasSpecialTo) specialFruits[toId] = wasSpecialTo;
+          renderBoard();
+        } else {
+          // passa o índice de destino para priorizar criação de especial naquele tile
+          const anyMatch = checkAllMatches(toId);
+          if (anyMatch) {
+            updateScoreDisplay();
+            animateCrushs();
+          }
+        }
+        isAnimating = false;
+      }, 150);
+    }
+
+    // nova versão: simplesmente usa checkAllMatches em modo dryRun (não altera estado)
+    function hasMatchAfterSwap() {
+      return checkAllMatches(null, { dryRun: true });
+    }
+
+    function checkAllMatches(lastMovedIndex = null, options = {}) {
+      // options.dryRun = true -> detecta sem modificar score/history/UI
+      const dryRun = !!options.dryRun;
+      let found = false;
+      const toMark = new Array(size).fill(false);
+      const newSpecials = [];
+
+      // helper para registrar combo (faz score/history só se !dryRun)
+      function recordCombo(typeLabel, pontos) {
+        if (!dryRun) {
+          score += pontos;
+          history.push({ combo: typeLabel, pontos });
+        }
+      }
+
+      // ---------- SCAN HORIZONTAL por linhas (runs) ----------
+      for (let r = 0; r < width; r++) {
+        let c = 0;
+        while (c < width) {
+          const startIdx = r * width + c;
+          const v = board[startIdx];
+          if (!v) { c++; continue; }
+          let len = 1;
+          while (c + len < width && board[r * width + c + len] === v) len++;
+          if (len >= 3) {
+            found = true;
+            const indices = Array.from({length: len}, (_, k) => r * width + c + k);
+            if (len >= 5) {
+              // cria especial (preferir lastMovedIndex se estiver no run)
+              const specialPos = (lastMovedIndex !== null && indices.includes(lastMovedIndex))
+                ? lastMovedIndex
+                : indices[Math.floor(len / 2)];
+              newSpecials.push({ pos: specialPos, tipo: v });
+              indices.forEach(idx => { if (idx !== specialPos) toMark[idx] = true; });
+              if (!dryRun) recordCombo('5+ horizontais', 5);
+            } else if (len === 4) {
+              indices.forEach(idx => toMark[idx] = true);
+              if (!dryRun) {
+                collectFruits(v, indices);
+                recordCombo('4 horizontais', 4);
+              }
+            } else { // len === 3
+              indices.forEach(idx => toMark[idx] = true);
+              if (!dryRun) recordCombo('3 horizontais', 3);
+            }
+          }
+          c += Math.max(1, len);
+        }
+      }
+
+      // ---------- SCAN VERTICAL por colunas (runs) ----------
+      for (let col = 0; col < width; col++) {
+        let row = 0;
+        while (row < width) {
+          const startIdx = row * width + col;
+          const v = board[startIdx];
+          if (!v) { row++; continue; }
+          let len = 1;
+          while (row + len < width && board[(row + len) * width + col] === v) len++;
+          if (len >= 3) {
+            found = true;
+            const indices = Array.from({length: len}, (_, k) => (row + k) * width + col);
+            if (len >= 5) {
+              const specialPos = (lastMovedIndex !== null && indices.includes(lastMovedIndex))
+                ? lastMovedIndex
+                : indices[Math.floor(len / 2)];
+              newSpecials.push({ pos: specialPos, tipo: v });
+              indices.forEach(idx => { if (idx !== specialPos) toMark[idx] = true; });
+              if (!dryRun) recordCombo('5+ verticais', 5);
+            } else if (len === 4) {
+              indices.forEach(idx => toMark[idx] = true);
+              if (!dryRun) {
+                collectFruits(v, indices);
+                recordCombo('4 verticais', 4);
+              }
+            } else { // len === 3
+              indices.forEach(idx => toMark[idx] = true);
+              if (!dryRun) recordCombo('3 verticais', 3);
+            }
+          }
+          row += Math.max(1, len);
+        }
+      }
+
+      if (found && !dryRun) {
+        // aplica especiais novos
+        newSpecials.forEach(obj => {
+          const { pos, tipo } = obj;
+          if (!specialFruits[pos]) specialFruits[pos] = tipo;
+        });
+
+        // se um especial estiver marcado para remoção, dispare explosão imediatamente
+        Object.keys(specialFruits).forEach(key => {
+          const idx = parseInt(key);
+          if (toMark[idx]) {
+            const tipo = specialFruits[idx];
+            delete specialFruits[idx];
+            toMark[idx] = false;
+            triggerExplosion(idx, tipo);
+          }
+        });
+
+        // remove / anima os restantes marcados
+        for (let i = 0; i < size; i++) {
+          if (toMark[i]) {
+            createFirework(i);
+            board[i] = null;
+            if (specialFruits[i]) delete specialFruits[i];
+          }
+        }
+
+        updateScoreDisplay();
+        updateHistoryUI();
+        updateCollectedUI();
+      }
+
+      return found;
+    }
+
+    function collectFruits(entity, indices) {
+      const name = entityToName[entity];
+      if (!collectedFruits[name]) collectedFruits[name] = 0;
+      collectedFruits[name] += 1;
+      const midIdx = indices[Math.floor(indices.length / 2)];
+      animateCollect(midIdx, entity);
+    }
+
+    function updateCollectedUI() {
+      collectedDisplay.innerHTML = '';
+      for (const [name, qty] of Object.entries(collectedFruits)) {
+        const entity = nameToEntity[name];
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('collected-item');
+        itemDiv.innerHTML = `<span class="emoji">${entity}</span><span class="count">${qty}</span>`;
+        collectedDisplay.appendChild(itemDiv);
+      }
+    }
+
+    function animateCollect(idx, entity) {
+      const cellElem = document.getElementById('cell-' + idx);
+      if (!cellElem) return;
+      const { left, top } = cellElem.getBoundingClientRect();
+      const floatEl = document.createElement('div');
+      floatEl.classList.add('collect-emoji');
+      floatEl.innerHTML = entity;
+      floatEl.style.left = `${left}px`;
+      floatEl.style.top = `${top}px`;
+      document.body.appendChild(floatEl);
+
+      const targetRect = collectedDisplay.getBoundingClientRect();
+      const destX = targetRect.left + 20;
+      const destY = targetRect.top + 10;
+
+      window.getComputedStyle(floatEl).transform;
+      floatEl.style.transform = `translate(${destX - left}px, ${destY - top}px) scale(0.5)`;
+      floatEl.style.opacity = '0';
+
+      setTimeout(() => {
+        if (floatEl.parentNode) document.body.removeChild(floatEl);
+      }, 800);
+    }
+
+    function triggerExplosion(idx, fruitType) {
+      const rowIndex = Math.floor(idx / width);
+      const colIndex = idx % width;
+      let sameTypeCount = 0;
+      let removedCount = 0;
+
+      for (let c = 0; c < width; c++) {
+        const pos = rowIndex * width + c;
+        const cellElem = document.getElementById('cell-' + pos);
+        if (cellElem) cellElem.classList.add('explode');
+        if (board[pos]) {
+          removedCount++;
+          if (board[pos] === fruitType) sameTypeCount++;
+        }
+        board[pos] = null;
+        if (specialFruits[pos]) delete specialFruits[pos];
+      }
+
+      for (let r = 0; r < width; r++) {
+        const pos = r * width + colIndex;
+        const cellElem = document.getElementById('cell-' + pos);
+        if (cellElem) cellElem.classList.add('explode');
+        if (board[pos]) {
+          removedCount++;
+          if (board[pos] === fruitType) sameTypeCount++;
+        }
+        board[pos] = null;
+        if (specialFruits[pos]) delete specialFruits[pos];
+      }
+
+      score += removedCount;
+      const bonus = Math.floor(score * (sameTypeCount * 0.01));
+      score += bonus;
+      history.push({ combo: 'Explosão especial', pontos: removedCount + bonus });
+
+      setTimeout(() => {
+        for (let c = 0; c < width; c++) {
+          const pos = rowIndex * width + c;
+          const cellElem = document.getElementById('cell-' + pos);
+          if (cellElem) cellElem.classList.remove('explode');
+        }
+        for (let r = 0; r < width; r++) {
+          const pos = r * width + colIndex;
+          const cellElem = document.getElementById('cell-' + pos);
+          if (cellElem) cellElem.classList.remove('explode');
+        }
+        renderBoard();
+        collapseBoard();
+        updateScoreDisplay();
+        updateHistoryUI();
+        updateCollectedUI();
+      }, 300);
+    }
+
+    function createFirework(idx) {
+      const cellElem = document.getElementById('cell-' + idx);
+      if (!cellElem) return;
+      const { left, top } = cellElem.getBoundingClientRect();
+      const fire = document.createElement('div');
+      fire.classList.add('firework');
+      fire.textContent = '✨';
+      const gridRect = grid.getBoundingClientRect();
+      fire.style.left = (left - gridRect.left + 20) + 'px';
+      fire.style.top = (top - gridRect.top + 20) + 'px';
+      grid.appendChild(fire);
+      setTimeout(() => {
+        if (fire.parentNode === grid) grid.removeChild(fire);
+      }, 600);
+    }
+
+    function animateCrushs() {
+      isAnimating = true;
+      setTimeout(() => {
+        collapseBoard();
+      }, 300);
+    }
+
+    function collapseBoard() {
+      for (let col = 0; col < width; col++) {
+        const items = [];
+        for (let row = width - 1; row >= 0; row--) {
+          const idx = row * width + col;
+          if (board[idx] !== null) {
+            const tipo = board[idx];
+            const especial = specialFruits[idx] || null;
+            items.push({ tipo, especial });
+          }
+        }
+        let pointer = 0;
+        for (let row = width - 1; row >= 0; row--) {
+          const idx = row * width + col;
+          if (pointer < items.length) {
+            board[idx] = items[pointer].tipo;
+            if (items[pointer].especial) {
+              specialFruits[idx] = items[pointer].especial;
+            } else {
+              delete specialFruits[idx];
+            }
+            pointer++;
+          } else {
+            board[idx] = randomEmoji();
+            delete specialFruits[idx];
+          }
+        }
+      }
+
+      renderBoard();
+      setTimeout(() => {
+        if (checkAllMatches()) {
+          animateCrushs();
+        } else {
+          isAnimating = false;
+        }
+      }, 300);
+    }
+
+    function updateScoreDisplay() {
+      scoreDisplay.textContent = score;
+      updateSpecialButton();
+    }
+
+    function updateHistoryUI() {
+      historyList.innerHTML = '';
+      for (let i = history.length - 1; i >= 0; i--) {
+        const entry = history[i];
+        const li = document.createElement('li');
+        li.textContent = `${entry.combo}: ${entry.pontos} pontos`;
+        historyList.appendChild(li);
+      }
+    }
+
+    function showCollectingModal() {
+      collectingModal.style.display = 'flex';
+    }
+    function hideCollectingModal() {
+      collectingModal.style.display = 'none';
+    }
+
+    // Quando clica no botão especial, agora mostra modal, salva "frutas" em vez de pontos e redireciona
+    specialButton.addEventListener('click', async () => {
+      if (score < 1000) return;
+
+      // Exibe modal "COLETANDO" antes de iniciar o salvamento
+      showCollectingModal();
+
+      const auth = window.FirebaseAuth;
+      let user = auth.currentUser;
+      if (!user) {
+        console.log('Usuário não autenticado → abrindo popup');
+        user = await window.FirebaseLogin();
+        if (!user) {
+          console.warn('Login cancelado ou falhou. Abortando salvamento');
+          hideCollectingModal();
+          return;
+        }
+      }
+      const uid = user.uid;
+      const fruitsThisGame = collectedFruits;
+
+      if (!fruitsThisGame || Object.keys(fruitsThisGame).length === 0) {
+        console.log('Nenhuma fruta coletada neste jogo. Não há o que salvar.');
+        // mesmo sem salvar nada, faz redirecionamento
+        window.location.href = "https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game";
+        return;
+      }
+
+      try {
+        console.log('Tentando salvar frutas no Firebase...', fruitsThisGame);
+        await window.FirebaseSaveFruits(uid, fruitsThisGame);
+        console.log('Gravação concluída → redirecionando');
+        window.location.href = "https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game";
+      } catch (error) {
+        console.error('Erro ao salvar frutas:', error);
+        hideCollectingModal();
+        alert('Faça o login corretamente para jogar, caso esteja precisando de ajuda entre em contato com nosso suporte !');
+      }
+    });
+
+
+
+    createBoard();
+    window.setTimeout(() => {
+      if (checkAllMatches()) animateCrushs();
+    }, 1000);
+
+    historyButton.addEventListener('click', () => {
+      if (historyPanel.style.display === 'none' || historyPanel.style.display === '') {
+        historyPanel.style.display = 'block';
+      } else {
+        historyPanel.style.display = 'none';
+      }
+    });
+
+    function updateSpecialButton() {
+      const maxSize = 150;
+      const minSize = 50;
+      const normalized = Math.min(score, 1000) / 1000;
+      const newSize = minSize + normalized * (maxSize - minSize);
+      specialButton.style.width = `${newSize}px`;
+      specialButton.style.height = `${newSize}px`;
+
+      // Código alterado para usar innerHTML e referência de emoji
+      if (score >= 1000) {
+        specialButton.classList.add('enabled');
+        specialButton.innerHTML = '<span class="emoji">&#x1F45C;</span> COLETAR AGORA';
+      } else {
+        specialButton.classList.remove('enabled');
+        specialButton.innerHTML = '<span class="emoji">&#x1F45C;</span>';
+      }
+    }
+</script>
+
+
+
+
+
+<!-- animação de queda das frutas -->
+<script>
+/* ===== Combo Feedback: cresce + treme + sobe (apenas durante a jogada atual) ===== */
+(function(){
+  const INACTIVITY_MS = 700; // considera fim da cadeia
+  const FADE_OUT_MS = 500;
+
+  // posição vertical (em vh)
+  const BASE_BOTTOM_VH = 8;      // posição inicial (próximo ao rodapé)
+  const MAX_BOTTOM_VH  = 80;     // sobe até este limite
+  const PER_COMBO_VH   = 7;      // quanto sobe por combo (multiplicador)
+
+  // estilos
+  const css = `
+  .combo-feedback {
+    position: fixed;
+    right: 42px;
+    bottom: ${BASE_BOTTOM_VH}vh;
+    z-index: 3000;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: right center;
+    transition: bottom 260ms cubic-bezier(.2,.9,.2,1);
+  }
+  .combo-bubble {
+    font-weight: 900;
+    font-family: "Impact", "Arial Black", Arial, sans-serif;
+    color: #fff;
+    text-align: center;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.35);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+    text-shadow:
+      -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+    user-select: none;
+    transform: translateX(0);
+    opacity: 0;
+    transition: opacity 220ms ease, transform 220ms cubic-bezier(.2,.9,.2,1);
+    will-change: transform, opacity;
+    display: inline-block;
+  }
+
+  @keyframes comboPop {
+    0%   { transform: translateX(30px) scale(0.82) rotate(-6deg); opacity: 0; }
+    45%  { transform: translateX(-6px) scale(1.12) rotate(4deg); opacity: 1; }
+    80%  { transform: translateX(0) scale(0.98) rotate(-2deg); opacity: 1; }
+    100% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; }
+  }
+  .pop { animation: comboPop 420ms cubic-bezier(.2,.9,.2,1) forwards; }
+
+  @keyframes vib {
+    0%   { transform: translateX(calc(-1 * var(--amp, 4px))) rotate(calc(-1 * var(--rot, 1.5deg))); }
+    50%  { transform: translateX(var(--amp, 4px)) rotate(var(--rot, 1.5deg)); }
+    100% { transform: translateX(calc(-1 * var(--amp, 4px))) rotate(calc(-1 * var(--rot, 1.5deg))); }
+  }
+  .shake { animation: vib var(--vtime, 120ms) linear infinite; }
+
+  .big { font-size: 44px; padding: 12px 22px; }
+  .huge { font-size: 56px; padding: 14px 28px; }
+  `;
+  const style = document.createElement('style');
+  style.textContent = css;
+  document.head.appendChild(style);
+
+  // DOM
+  const wrapper = document.createElement('div');
+  wrapper.className = 'combo-feedback';
+  const bubble = document.createElement('div');
+  bubble.className = 'combo-bubble';
+  wrapper.appendChild(bubble);
+  document.body.appendChild(wrapper);
+
+  // mensagem
+  function comboMessage(n) {
+  if (n >= 10) return 'AÍ QUE DELÍCIAAAAAA';
+  if (n >= 9)  return 'É BABADEIRAAAA';
+  if (n >= 8)  return 'TÁ DIVANDOOO';
+  if (n === 7) return 'JÁ ACABOU JESSICA?';
+  if (n === 6) return 'ARRASAAAAA';
+  if (n === 5) return 'KARAMBAA';
+  if (n >= 4)  return 'AMEII';
+  if (n >= 3)  return 'BOAAA';
+ if (n >= 2)  return '2 COMBOS';
+  return `${n} COMBO`;
+}
+
+  // elementos do jogo
+  const historyList = document.getElementById('history-list');
+  const grid = document.querySelector('.grid');
+  if (!historyList || !grid) return;
+
+  // estado
+  let watching = false;
+  let lastHistoryLen = historyList.children.length;
+  let displayCount = 0;
+  let lastChangeTs = 0;
+  let hideTimeout = null;
+
+  // mostra/oculta
+  function showBubble() {
+    if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; }
+    wrapper.style.display = 'flex';
+    bubble.style.opacity = '1';
+  }
+  function hideBubbleSoon() {
+    if (hideTimeout) clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+      bubble.style.transition = `opacity ${FADE_OUT_MS}ms ease, transform ${FADE_OUT_MS}ms ease`;
+      bubble.style.opacity = '0';
+      bubble.style.transform = 'translateX(20px) scale(0.92)';
+      setTimeout(() => {
+        wrapper.style.display = 'none';
+        bubble.className = 'combo-bubble';
+        bubble.style.transform = 'translateX(0)';
+        // reset posição vertical
+        wrapper.style.bottom = BASE_BOTTOM_VH + 'vh';
+      }, FADE_OUT_MS + 40);
+    }, INACTIVITY_MS);
+  }
+
+  // aplica visuais conforme n (cresce a partir do 2º combo)
+  function applyVisuals(n) {
+    bubble.classList.remove('big','huge');
+    if (n >= 7) bubble.classList.add('huge');
+    else if (n >= 5) bubble.classList.add('big');
+
+    // amplitude e rotação crescentes
+    const amp = Math.min(22, 1 + Math.max(0, n - 1) * 1.8); // cresce desde o 2º combo
+    const rot = Math.min(9, 0.6 + Math.max(0, n - 1) * 0.95);
+    const vtime = Math.max(60, 240 - Math.max(0, n - 1) * 12);
+    bubble.style.setProperty('--amp', amp + 'px');
+    bubble.style.setProperty('--rot', rot + 'deg');
+    bubble.style.setProperty('--vtime', vtime + 'ms');
+
+    // escala: começa a aumentar já no 2º combo
+    const scale = 1 + Math.min(0.75, Math.max(0, n - 1) * 0.08);
+    bubble.style.transform = `scale(${scale})`;
+
+    // move verticalmente para cima conforme n (dados em vh, capping)
+    const bottomVh = Math.min(MAX_BOTTOM_VH, BASE_BOTTOM_VH + Math.max(0, n - 1) * PER_COMBO_VH);
+    wrapper.style.bottom = bottomVh + 'vh';
+  }
+
+  // anima incremento (pop + shake)
+  function animateIncrement() {
+    bubble.classList.remove('pop','shake');
+    void bubble.offsetWidth;
+    bubble.classList.add('pop');
+    setTimeout(() => { bubble.classList.add('shake'); }, 140);
+    setTimeout(() => { bubble.classList.remove('pop'); }, 520);
+  }
+
+  // atualiza display
+  function updateDisplay() {
+    if (displayCount < 1) {
+      bubble.textContent = '';
+      wrapper.style.display = 'none';
+      wrapper.style.bottom = BASE_BOTTOM_VH + 'vh';
+      return;
+    }
+    bubble.textContent = comboMessage(displayCount);
+    applyVisuals(displayCount);
+    showBubble();
+    animateIncrement();
+    hideBubbleSoon();
+  }
+
+  // OBSERVER: detecta novas entradas no history em tempo real, só quando watching === true
+  const observer = new MutationObserver((mutations) => {
+    if (!watching) return;
+    let changed = false;
+    for (const m of mutations) {
+      if (m.type === 'childList' && m.addedNodes.length > 0) changed = true;
+    }
+    if (!changed) return;
+
+    const curLen = historyList.children.length;
+    const added = curLen - lastHistoryLen;
+    if (added > 0) {
+      // acumula apenas para a jogada atual
+      displayCount += added;
+      lastHistoryLen = curLen;
+      lastChangeTs = Date.now();
+      updateDisplay();
+    } else {
+      lastHistoryLen = curLen;
+    }
+  });
+  observer.observe(historyList, { childList: true, subtree: false });
+
+  // finaliza observação (jogada terminou)
+  function finalizeWatching() {
+    watching = false;
+    if (displayCount > 0) {
+      hideBubbleSoon();
+    } else {
+      wrapper.style.display = 'none';
+      wrapper.style.bottom = BASE_BOTTOM_VH + 'vh';
+    }
+    displayCount = 0;
+  }
+
+  // inicia observação para UMA NOVA JOGADA — zera contagem anterior
+  function startWatching() {
+    // esconde rapidamente bolha anterior e reseta visuais
+    if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; }
+    bubble.classList.remove('pop','shake');
+    bubble.style.opacity = '0';
+    bubble.style.transform = 'scale(1)';
+    wrapper.style.bottom = BASE_BOTTOM_VH + 'vh';
+
+    watching = true;
+    lastHistoryLen = historyList.children.length; // referência passa a ser o estado AGORA
+    displayCount = 0; // começa a contar só as novas entradas daqui pra frente
+    lastChangeTs = Date.now();
+
+    wrapper.style.display = 'flex';
+    setTimeout(() => { bubble.style.opacity = '1'; }, 30);
+
+    // fallback safety
+    setTimeout(() => {
+      if (Date.now() - lastChangeTs > 3800) finalizeWatching();
+    }, 4000);
+  }
+
+  // inicia com pointerdown (mouse/touch) — jogador começa a jogada
+  grid.addEventListener('pointerdown', () => {
+    startWatching();
+  }, { passive: true });
+
+  // também inicia com teclas (opcional)
+  document.addEventListener('keydown', (e) => {
+    const keys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter',' '];
+    if (keys.includes(e.key)) startWatching();
+  });
+
+  // clique dentro da grid
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.grid')) startWatching();
+  });
+
+  // limpeza
+  window.addEventListener('beforeunload', () => {
+    observer.disconnect();
+  });
+
+})();
+</script>
+
+
+
+
+
+
+
+<!-- Arrastar touch/mouse para trocar frutas -->
+<script>
+(function(){
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  function init(){
+    const grid = document.querySelector('.grid');
+    if (!grid) return;
+
+    injectStyles();
+
+    let pointerActive = false;
+    let pointerId = null;
+    let startX = 0, startY = 0;
+    let startCell = null;
+    let decided = false;
+    const MOVE_THRESHOLD = 12;
+
+    grid.addEventListener('pointerdown', (e) => {
+      const cell = e.target && e.target.closest ? e.target.closest('.cell') : null;
+      if (!cell) return;
+      if (e.button && e.button !== 0) return;
+      if (!e.isPrimary) return;
+      pointerActive = true;
+      pointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      startCell = cell;
+      decided = false;
+      try { grid.setPointerCapture && grid.setPointerCapture(pointerId); } catch(err){}
+      try { startCell.classList.add('dragging'); } catch(_) {}
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('pointermove', (e) => {
+      if (!pointerActive || e.pointerId !== pointerId || !startCell) return;
+      if (e.cancelable) e.preventDefault();
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (decided) return;
+      if (Math.abs(dx) < MOVE_THRESHOLD && Math.abs(dy) < MOVE_THRESHOLD) return;
+      decided = true;
+      const horizontal = Math.abs(dx) >= Math.abs(dy);
+      let dir = null;
+      if (horizontal) dir = dx > 0 ? 'right' : 'left';
+      else dir = dy > 0 ? 'down' : 'up';
+      const fromId = parseInt(String(startCell.id || '').replace('cell-',''), 10);
+      if (isNaN(fromId)) { cleanup(); return; }
+      const size = grid.querySelectorAll('.cell').length || 64;
+      const width = Math.round(Math.sqrt(size)) || 8;
+      const row = Math.floor(fromId / width);
+      const col = fromId % width;
+      let toId = null;
+      if (dir === 'left' && col > 0) toId = fromId - 1;
+      if (dir === 'right' && col < width - 1) toId = fromId + 1;
+      if (dir === 'up' && row > 0) toId = fromId - width;
+      if (dir === 'down' && row < width - 1) toId = fromId + width;
+      if (toId !== null) attemptSwap(fromId, toId, startCell);
+      try { grid.releasePointerCapture && grid.releasePointerCapture(pointerId); } catch (err) {}
+      cleanup();
+    }, { passive: false });
+
+    document.addEventListener('pointerup', (e) => {
+      if (!pointerActive || e.pointerId !== pointerId) return;
+      try { grid.releasePointerCapture && grid.releasePointerCapture(pointerId); } catch (err) {}
+      cleanup();
+    });
+
+    document.addEventListener('pointercancel', (e) => {
+      if (!pointerActive || e.pointerId !== pointerId) return;
+      try { grid.releasePointerCapture && grid.releasePointerCapture(pointerId); } catch (err) {}
+      cleanup();
+    });
+
+    function cleanup(){
+      if (startCell) startCell.classList.remove('dragging');
+      pointerActive = false;
+      pointerId = null;
+      startX = startY = 0;
+      startCell = null;
+      decided = false;
+    }
+
+    async function attemptSwap(fromIdx, toIdx, startCellElem){
+      const cellFrom = document.getElementById('cell-' + fromIdx);
+      const cellTo = document.getElementById('cell-' + toIdx);
+      if (!cellFrom || !cellTo) return;
+      cellFrom.classList.add('attempt');
+      cellTo.classList.add('attempt');
+      const scoreEl = document.getElementById('score');
+      const initialScore = scoreEl ? parseInt(scoreEl.textContent) || 0 : 0;
+      cellFrom.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      await wait(45);
+      cellTo.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      await wait(650);
+      const finalScore = scoreEl ? parseInt(scoreEl.textContent) || 0 : 0;
+      const success = finalScore > initialScore;
+      if (success) {
+        cellFrom.classList.add('attempt-success');
+        cellTo.classList.add('attempt-success');
+      } else {
+        cellFrom.classList.add('attempt-fail');
+        cellTo.classList.add('attempt-fail');
+      }
+      setTimeout(() => {
+        cellFrom.classList.remove('attempt', 'attempt-success', 'attempt-fail');
+        cellTo.classList.remove('attempt', 'attempt-success', 'attempt-fail');
+      }, 700);
+    }
+
+    function wait(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    function injectStyles(){
+      const css = `
+        .grid, .grid * { touch-action: none !important; -ms-touch-action: none !important; }
+        .cell.dragging { transform: scale(0.98); filter: brightness(1.05); transition: none !important; }
+        .cell.attempt { box-shadow: 0 0 0 3px rgba(255,215,0,0.15) inset, 0 6px 18px rgba(0,0,0,0.25); transform: translateY(-4px); transition: transform 0.18s, box-shadow 0.18s; }
+        .cell.attempt-success { animation: flash-success 0.6s ease; }
+        .cell.attempt-fail { animation: flash-fail 0.6s ease; }
+        @keyframes flash-success { 0%{ box-shadow:0 0 0 0 rgba(255,255,255,0)} 50%{ box-shadow:0 0 14px 6px rgba(255,215,0,0.22)} 100%{ box-shadow:0 0 0 0 rgba(255,255,255,0)} }
+        @keyframes flash-fail { 0%{ box-shadow:0 0 0 0 rgba(255,255,255,0)} 50%{ box-shadow:0 0 12px 4px rgba(255,0,0,0.22)} 100%{ box-shadow:0 0 0 0 rgba(255,255,255,0)} }
+      `;
+      const s = document.createElement('style');
+      s.setAttribute('data-generated-by','drag-swap.js');
+      s.textContent = css;
+      document.head.appendChild(s);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+</body>
+
+
+
+
+
+
+  <script>
+    // Após 7s, começa a demo de progresso falso
+    setTimeout(() => {
+      const text = document.getElementById('loading-text');
+      const container = document.getElementById('progress-container');
+      text.textContent = 'INICIANDO TRANSMISSÃO';
+      container.style.display = 'block';
+
+      // anima a barra de 0% a 100%
+      const bar = document.getElementById('progress-bar');
+      let pct = 0;
+      const interval = setInterval(() => {
+        pct += 10;
+        bar.style.width = pct + '%';
+        if (pct >= 100) {
+          clearInterval(interval);
+          finishLoading();
+        }
+      }, 300);
+    }, 7000);
+
+    function finishLoading() {
+      // esconde o overlay e mostra o jogo
+      document.getElementById('loading-screen').style.display = 'none';
+      document.getElementById('game-content').style.display = 'block';
+      // aqui chame initGame() quando quiser
+    }
+  </script>
+
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Criar o modal e esconder
+  const modal = document.createElement('div');
+  modal.id = 'custom-modal';
+  Object.assign(modal.style, {
+    position: 'fixed',
+    top: 0, left: 0,
+    width: '100%', height: '100%',
+    display: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(0,0,0,0.7)',
+    zIndex: 3000,
+  });
+  modal.innerHTML = `
+    <div style="
+      background: #fff;
+      color: #000;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    ">
+      <div id="modal-text" style="margin-bottom: 16px; font-size: 1.2rem;">
+       Precisa de 1.000 Acué
+      </div>
+      <button id="modal-ok" style="margin-right: 8px; padding: 8px 16px; border:none; border-radius:4px; cursor:pointer;">
+        OK
+      </button>
+      <button id="modal-saiba" style="padding: 8px 16px; border:none; border-radius:4px; cursor:pointer;">
+        SAIBA COMO
+      </button>
+    </div>`;
+  document.body.appendChild(modal);
+
+  const btnSpecial = document.getElementById('special-button');
+  const modalText    = modal.querySelector('#modal-text');
+  const btnOk        = modal.querySelector('#modal-ok');
+  const btnSaiba     = modal.querySelector('#modal-saiba');
+
+  // 2) Quando clica no “Coletar Agora”
+  btnSpecial.addEventListener('click', e => {
+    // pega o score atual do DOM
+    const currentScore = parseInt(document.getElementById('score').textContent, 10) || 0;
+    if (currentScore < 1000) {
+      modal.style.display = 'flex';
+    }
+  });
+
+  // 3) Botão OK (fecha sempre)
+  btnOk.addEventListener('click', () => {
+    modal.style.display = 'none';
+    // reset caso volte do "saiba como"
+    modalText.textContent = 'Precisa de 1.000 Acué';
+    btnSaiba.style.display = '';
+    btnOk.textContent    = 'OK';
+  });
+
+  // 4) Botão “Saiba como”
+  btnSaiba.addEventListener('click', () => {
+    modalText.textContent = ' Vinhadinho precisa pagar 1.000 ACUÉ em impostos para receber uma autorização da FEDERAÇÃO DO VALE permitindo o armazenamento das doações coletadas';
+    btnSaiba.style.display = 'none';
+    btnOk.textContent      = 'OK';
+  });
+});
+</script>
+
+
+
+
+
+
+
+ <script>
+    function resizeGame() {
+      const wrapper = document.getElementById('game-content');
+      const MAX_RATIO = 0.8;  // 90%
+      const gameSize = 498;   // altura/largura fixa do .grid
+
+      // calcula o scale que cabe 90% da viewport em Y ou X, o menor
+      const scaleY = window.innerHeight * MAX_RATIO / gameSize;
+      const scaleX = window.innerWidth  * MAX_RATIO / gameSize;
+      const scale = Math.min(scaleX, scaleY);
+
+      // aplica transform: primeiro centraliza (translate), depois escala
+      wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      wrapper.style.display = 'block';
+    }
+
+    window.addEventListener('load', resizeGame);
+    window.addEventListener('resize', resizeGame);
+  </script>
+
+
+
+
+
+
+
+
+
+<!-- PEGAR CAIXA -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+
+  const BOX_IMAGE_URL   = 'https://i.servimg.com/u/f22/19/80/77/63/chatgp22.png';
+  const DRONE_IMAGE_URL = 'https://i.servimg.com/u/f22/19/80/77/63/drone_10.png';
+
+  /* ===============================
+     CONTROLE DE SOM (NOVO)
+     =============================== */
+  function isSoundEnabled() {
+    const btn = document.getElementById('bgAudioToggle');
+    if (!btn) return true;
+
+    return btn.getAttribute('aria-pressed') === 'true';
+  }
+
+  // --- som da batida ao clicar na caixa ---
+  const CLICK_SOUND_URL =
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/batida.mp3';
+
+  const clickSound = new Audio(CLICK_SOUND_URL);
+  clickSound.preload = 'auto';
+
+  try { clickSound.crossOrigin = 'anonymous'; } catch (e) {}
+
+  function playClickSound() {
+    if (!isSoundEnabled()) return; // ???? CORREÇÃO AQUI
+
+    try {
+      const s = clickSound.cloneNode(true);
+      s.play().catch(() => {});
+    } catch (err) {
+      try {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(() => {});
+      } catch (e) {}
+    }
+  }
+  // --- fim do bloco de áudio ---
+
+
+  const PATH_COUNT   = 5;
+  const MIN_INTERVAL = 60   * 1000;
+  const MAX_INTERVAL = 3    * 60 * 1000;
+
+  function dropBox() {
+    const BOX_SIZE = 200;
+
+    const box = document.createElement('div');
+    Object.assign(box.style, {
+      position:         'absolute',
+      width:            `${BOX_SIZE}px`,
+      height:           `${BOX_SIZE}px`,
+      backgroundImage:  `url(${BOX_IMAGE_URL})`,
+      backgroundSize:   'contain',
+      backgroundRepeat: 'no-repeat',
+      top:              `-${BOX_SIZE}px`,
+      left:             `${Math.random() * ((window.innerWidth / 2) - BOX_SIZE)}px`,
+      zIndex:           '1000',
+      cursor:           'pointer',
+      fontSize:         `${BOX_SIZE * 0.4}px`,
+      display:          'flex',
+      alignItems:       'center',
+      justifyContent:   'center',
+    });
+
+    box.dataset.clicked = 'false';
+    box.classList.add('rotating');
+    document.body.appendChild(box);
+
+    requestAnimationFrame(() => {
+      box.style.transition = 'top 5s linear';
+      box.style.top        = `${window.innerHeight + BOX_SIZE + 20}px`;
+    });
+
+    function onFallEnd(e) {
+      if (e.propertyName === 'top' && box.dataset.clicked === 'false') {
+        box.removeEventListener('transitionend', onFallEnd);
+        box.remove();
+      }
+    }
+    box.addEventListener('transitionend', onFallEnd);
+
+    box.addEventListener('click', () => {
+      if (box.dataset.clicked === 'true') return;
+
+      playClickSound(); // ✅ agora respeita o botão de som
+
+      box.dataset.clicked = 'true';
+      box.removeEventListener('transitionend', onFallEnd);
+
+      const r = box.getBoundingClientRect();
+      Object.assign(box.style, {
+        transition: '',
+        top:  `${r.top}px`,
+        left: `${r.left}px`
+      });
+
+      box.classList.replace('rotating', 'shaking');
+
+      const rnum = Math.random();
+      let amount, label;
+
+      if (rnum < 0.95) {
+        amount = Math.floor(Math.random() * 10) + 1;
+        for (let i = 0; i < amount; i++) window.incrementScore();
+        box.textContent = '\u{1F4B0}';
+        label = `+${amount}`;
+      } else {
+        const fruits = ['banana','pepino','berinjela','pessego','cenoura'];
+        const prize = fruits[Math.floor((rnum - 0.95) / 0.01)];
+        amount = Math.floor(Math.random() * 10) + 1;
+        for (let i = 0; i < amount; i++) window.addCollectedFruit(prize);
+
+        const emojiMap = {
+  banana:    '\u{1F34C}', 
+  pepino:    '\u{1F952}', 
+  berinjela: '\u{1F346}', 
+  pessego:   '\u{1F351}', 
+  cenoura:   '\u{1F955}'  
+};
+        box.textContent = emojiMap[prize];
+        label = `+${amount}`;
+      }
+
+      const txt = document.createElement('div');
+      txt.textContent = label;
+      Object.assign(txt.style, {
+        position:'absolute',
+        left:`${r.left + BOX_SIZE/2}px`,
+        top:`${r.top}px`,
+        transform:'translate(-50%,0)',
+        fontSize:'3rem',
+        fontWeight:'bold',
+        color:'#fff',
+        WebkitTextStroke:'3px #000',
+        textShadow:'0 0 2px #000',
+        pointerEvents:'none',
+        opacity:'1',
+        transition:'all 1s ease-out'
+      });
+
+      document.body.appendChild(txt);
+      requestAnimationFrame(() => {
+        txt.style.top = `${r.top - 100}px`;
+        txt.style.opacity = '0';
+      });
+      setTimeout(() => txt.remove(), 1000);
+
+      box.style.backgroundImage = 'none';
+      setTimeout(() => sendDrone(box), 500);
+    });
+  }
+
+  function sendDrone(box) {
+    const DRONE_SIZE = 120;
+    const corners = [
+      { left: 0, top: 0 },
+      { left: window.innerWidth - DRONE_SIZE, top: 0 },
+      { left: 0, top: window.innerHeight - DRONE_SIZE },
+      { left: window.innerWidth - DRONE_SIZE, top: window.innerHeight - DRONE_SIZE }
+    ];
+
+    const start = corners[Math.floor(Math.random() * corners.length)];
+    const drone = document.createElement('img');
+    drone.src = DRONE_IMAGE_URL;
+
+    Object.assign(drone.style, {
+      position:'absolute',
+      width:`${DRONE_SIZE}px`,
+      left:`${start.left}px`,
+      top:`${start.top}px`,
+      transition:'all 1s ease-in-out',
+      zIndex:'1001'
+    });
+
+    document.body.appendChild(drone);
+
+    const r = box.getBoundingClientRect();
+    requestAnimationFrame(() => {
+      drone.style.left = `${r.left}px`;
+      drone.style.top  = `${r.top}px`;
+    });
+
+    drone.addEventListener('transitionend', () => {
+      drone.remove();
+      box.remove();
+    });
+  }
+
+  const css = document.createElement('style');
+  css.textContent = `
+    .rotating { animation: rotate 2s linear infinite; }
+    @keyframes rotate { from {transform:rotate(0)} to {transform:rotate(360deg)} }
+    .shaking { animation: shake .5s infinite alternate; }
+    @keyframes shake {
+      0%,100% { transform:translateX(0) }
+      50% { transform:translateX(10px) }
+    }
+  `;
+  document.head.appendChild(css);
+
+  function randomInterval() {
+    return MIN_INTERVAL + Math.random() * (MAX_INTERVAL - MIN_INTERVAL);
+  }
+
+  const paths = new Array(PATH_COUNT).fill(null).map(() => ({ remaining: randomInterval() }));
+  let rafId = null;
+  let lastTick = performance.now();
+
+  function tick() {
+    if (document.hidden) { rafId = null; return; }
+
+    const now = performance.now();
+    const dt = now - lastTick;
+    lastTick = now;
+
+    for (const p of paths) {
+      p.remaining -= dt;
+      if (p.remaining <= 0) {
+        dropBox();
+        p.remaining = randomInterval();
+      }
+    }
+
+    rafId = requestAnimationFrame(tick);
+  }
+
+  if (!document.hidden) requestAnimationFrame(tick);
+
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- QUEBRAR CAIXA -->
+<script>
+(function() {
+  // injeta todo o CSS via JS
+  const css = `
+    #game-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 9999;
+      background: transparent;
+    }
+    .character, .box, .fragment, .hit-area, .life {
+      position: absolute;
+      user-select: none;
+      touch-action: none;
+    }
+    .character {
+      height: 95vh;
+      bottom: -100vh;
+      right: 5vw;
+      transform: scaleX(-1);
+      transition: bottom 1s ease-out, transform 0.1s;
+      pointer-events: none;
+    }
+    .box {
+      width: 65vw;
+      left: 17.5vw;
+      top: 2vh;
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+      transform-origin: center center;
+    }
+    .hit-area {
+      width: 15vw;
+      height: 15vw;
+      background: rgba(255,255,255,0.2);
+      border: 2px dashed #fff;
+      border-radius: 8px;
+      pointer-events: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font: bold 48px sans-serif;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+      z-index: 10001;
+    }
+    .life {
+      pointer-events: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      font: 700 16px/1 sans-serif;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      z-index: 10002;
+      transform-origin: left top;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    }
+    .life .life-bar {
+      width: 86px;
+      height: 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+      box-shadow: inset 0 -2px 6px rgba(0,0,0,0.4);
+    }
+    .life .life-fill {
+      height: 100%;
+      width: 100%;
+      transition: width 0.25s ease;
+      background: linear-gradient(90deg, rgba(255,200,60,1), rgba(255,110,50,1));
+    }
+    .life .life-text {
+      min-width: 26px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    /* animação original de shake (mantive caso queira usar) */
+    @keyframes shake {
+      0% { transform: translate(0,0) rotate(0); }
+      20% { transform: translate(-10px,0) rotate(-5deg); }
+      40% { transform: translate(10px,0) rotate(5deg); }
+      60% { transform: translate(-10px,0) rotate(-5deg); }
+      80% { transform: translate(10px,0) rotate(5deg); }
+      100% { transform: translate(0,0) rotate(0); }
+    }
+    .shake {
+      animation: shake 0.3s ease-in-out;
+    }
+
+    /* NOVA animação: tremida curta tipo pancada para a caixa */
+    @keyframes tremble {
+      0%   { transform: translateY(0) rotate(0) scale(1); }
+      10%  { transform: translateY(-4px) rotate(-1deg) scale(1.01); }
+      20%  { transform: translateY(3px)  rotate(1deg)  scale(0.995); }
+      30%  { transform: translateY(-3px) rotate(-0.8deg) scale(1.005); }
+      45%  { transform: translateY(2px)  rotate(0.6deg)  scale(0.998); }
+      60%  { transform: translateY(-2px) rotate(-0.4deg) scale(1.002); }
+      80%  { transform: translateY(1px)  rotate(0.2deg)  scale(0.999); }
+      100% { transform: translateY(0)  rotate(0)       scale(1); }
+    }
+    .tremble {
+      animation: tremble 0.36s cubic-bezier(.2,.8,.2,1);
+      will-change: transform;
+    }
+
+    @keyframes hitFeedback {
+      0%,100% { background: rgba(255,255,255,0.2); }
+      50% { background: rgba(139,0,0,0.5); }
+    }
+    .hit-area.blink {
+      animation: hitFeedback 0.4s ease-in-out;
+    }
+  `;
+  const style = document.createElement('style');
+  style.textContent = css;
+  document.head.appendChild(style);
+
+  const container = document.createElement('div');
+  container.id = 'game-container';
+  document.body.appendChild(container);
+
+  const charHit   = 'https://i.servimg.com/u/f22/19/80/77/63/chatgp24.png';
+  const charIdle  = 'https://i.servimg.com/u/f22/19/80/77/63/chatgp23.png';
+  const boxImg    = 'https://i.servimg.com/u/f22/19/80/77/63/caixa_10.png';
+  const pcKeys    = ['A','S','D','F'];
+
+  // ---------- SONS (adicionei aqui) ----------
+  const HIT_AUDIO_URL   = 'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/batida.mp3';
+  const BREAK_AUDIO_URL = 'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/caixaquebrada.mp3';
+
+  // pool para permitir sobreposição de batidas rápidas
+  const HIT_POOL_SIZE = 6;
+  const hitPool = new Array(HIT_POOL_SIZE).fill(null).map(() => {
+    const a = new Audio(HIT_AUDIO_URL);
+    a.preload = 'auto';
+    a.volume = 0.9;
+    return a;
+  });
+  let hitPoolIndex = 0;
+
+  const breakAudio = new Audio(BREAK_AUDIO_URL);
+  breakAudio.preload = 'auto';
+  breakAudio.volume = 1.0;
+
+  function playHit() {
+    try {
+      const a = hitPool[hitPoolIndex];
+      hitPoolIndex = (hitPoolIndex + 1) % HIT_POOL_SIZE;
+      // reinicia e toca
+      a.currentTime = 0;
+      const p = a.play();
+      if (p && p.catch) p.catch(()=>{/* autoplay blocked or other error */});
+    } catch (err) {
+      // degrade silently
+      console.warn('playHit error', err);
+    }
+  }
+
+  function playBreak() {
+    try {
+      breakAudio.currentTime = 0;
+      const p = breakAudio.play();
+      if (p && p.catch) p.catch(()=>{/* ignore */});
+    } catch (err) {
+      console.warn('playBreak error', err);
+    }
+  }
+  // -------------------------------------------
+
+  function isMobile() {
+    return /Mobi|Android/i.test(navigator.userAgent);
+  }
+
+  function scheduleNext() {
+    const delay = (Math.random()*4 + 2) * 60 * 1000;
+    setTimeout(runSequence, delay);
+  }
+
+  function runSequence() {
+    container.style.pointerEvents = 'auto';
+
+    const character = document.createElement('img');
+    character.src = charIdle;
+    character.className = 'character';
+    container.appendChild(character);
+    requestAnimationFrame(() => character.style.bottom = '0');
+
+    setTimeout(() => {
+      const box = document.createElement('img');
+      box.src = boxImg;
+      box.className = 'box';
+      container.appendChild(box);
+      requestAnimationFrame(() => box.style.opacity = '1');
+
+      const hitArea = document.createElement('div');
+      hitArea.className = 'hit-area';
+      container.appendChild(hitArea);
+
+      // ELEMENTO DO CONTADOR / BARRA DE 'VIDAS'
+      const lifeEl = document.createElement('div');
+      lifeEl.className = 'life';
+      lifeEl.innerHTML = `<div class="life-bar"><div class="life-fill"></div></div><div class="life-text"></div>`;
+      container.appendChild(lifeEl);
+
+      let hitsNeeded = Math.floor(Math.random()*5) + 5;
+      let hits = 0, currentKey = '';
+
+      function updateLife() {
+        const remaining = Math.max(0, hitsNeeded - hits);
+        const pct = remaining / hitsNeeded * 100;
+        const fill = lifeEl.querySelector('.life-fill');
+        const txt = lifeEl.querySelector('.life-text');
+        fill.style.width = pct + '%';
+        txt.textContent = remaining;
+        // pequeno pulso quando acerta
+        lifeEl.style.transform = 'scale(1.06)';
+        clearTimeout(lifeEl._pulse);
+        lifeEl._pulse = setTimeout(()=> lifeEl.style.transform = 'scale(1)', 140);
+      }
+
+      function positionLife() {
+        const r = box.getBoundingClientRect();
+        // coloca no canto superior-direito da caixa, com pequena margem
+        const margin = 12;
+        const left = Math.min(window.innerWidth - lifeEl.offsetWidth - 8, r.right - lifeEl.offsetWidth - margin);
+        const top  = Math.max(8, r.top + margin);
+        lifeEl.style.left = Math.round(left) + 'px';
+        lifeEl.style.top  = Math.round(top)  + 'px';
+      }
+
+      function placeHitArea() {
+        const r = box.getBoundingClientRect();
+        const sW = hitArea.offsetWidth;
+        const sH = hitArea.offsetHeight;
+        let x = r.left + Math.random()*(r.width - sW);
+        let y = r.top  + Math.random()*(r.height - sH);
+        x = Math.min(Math.max(0, x), window.innerWidth - sW);
+        y = Math.min(Math.max(0, y), window.innerHeight - sH);
+        hitArea.style.left = x + 'px';
+        hitArea.style.top  = y + 'px';
+        // reposiciona o contador junto com a caixa
+        positionLife();
+      }
+
+      function nextInstr() {
+        if (isMobile()) {
+          currentKey = '';
+          hitArea.textContent = 'TOQUE';
+        } else {
+          currentKey = pcKeys[Math.floor(Math.random()*pcKeys.length)];
+          hitArea.textContent = currentKey;
+        }
+        placeHitArea();
+      }
+
+      // inicializa a vida já visível
+      updateLife();
+      // chama nextInstr só após garantir que elementos têm tamanho (pequeno timeout)
+      requestAnimationFrame(nextInstr);
+
+      function doHit() {
+        // toca som da batida
+        playHit();
+
+        hitArea.classList.add('blink');
+        setTimeout(() => hitArea.classList.remove('blink'), 400);
+
+        // APLICA A TREMIDA NA CAIXA (mantendo animação do personagem exatamente igual)
+        box.classList.remove('shake');
+        box.classList.add('tremble');
+        // remove a classe tremble após a duração da animação
+        setTimeout(() => box.classList.remove('tremble'), 380);
+
+        // personagem continua igualzinho ao que você tinha
+        character.src = charHit;
+        character.style.transform = 'scaleX(-1) translateX(-50px)';
+        setTimeout(() => {
+          character.src = charIdle;
+          character.style.transform = 'scaleX(-1) translateX(0)';
+        }, 150);
+
+        hits++;
+        updateLife();
+
+        if (hits < hitsNeeded) {
+          nextInstr();
+        } else {
+          teardown();
+        }
+      }
+
+      function keyHandler(e) {
+        if (!isMobile() && e.key.toUpperCase() === currentKey) doHit();
+      }
+      function touchOrClickHandler(e) {
+        const pt = e.changedTouches ? e.changedTouches[0] : e;
+        const hr = hitArea.getBoundingClientRect();
+        if (
+          pt.clientX >= hr.left && pt.clientX <= hr.right &&
+          pt.clientY >= hr.top  && pt.clientY <= hr.bottom
+        ) {
+          doHit();
+        }
+      }
+
+      window.addEventListener('keydown', keyHandler);
+      hitArea.addEventListener('touchstart', touchOrClickHandler, { passive:true });
+      hitArea.addEventListener('mousedown', touchOrClickHandler);
+      window.addEventListener('resize', positionLife);
+
+      function teardown() {
+        window.removeEventListener('keydown', keyHandler);
+        hitArea.removeEventListener('touchstart', touchOrClickHandler);
+        hitArea.removeEventListener('mousedown', touchOrClickHandler);
+        window.removeEventListener('resize', positionLife);
+
+        // remove a hit area e a barra imediatamente (visual)
+        hitArea.remove();
+
+        if (lifeEl) lifeEl.remove();
+
+        // toca som da caixa quebrando
+        playBreak();
+
+        // pequenos ajustes: espera curtinho para o som "casar" com a explosão visual
+        setTimeout(() => {
+          const rows=2, cols=3, w=box.clientWidth/cols, h=box.clientHeight/rows;
+          for (let r=0; r<rows; r++) {
+            for (let c=0; c<cols; c++) {
+              const frag = document.createElement('div');
+              frag.className = 'fragment';
+              frag.style.width = w+'px';
+              frag.style.height = h+'px';
+              frag.style.backgroundImage = `url(${boxImg})`;
+              frag.style.backgroundPosition = `-${c*w}px -${r*h}px`;
+              frag.style.left = `${17.5+c*21.7}vw`;
+              frag.style.top  = `${5+r*20}vh`;
+              frag.style.transition = `transform ${1+Math.random()}s ease-out, opacity 1s`;
+              container.appendChild(frag);
+              setTimeout(() => {
+                frag.style.transform = `translate(${(Math.random()-0.5)*200}px, ${window.innerHeight}px) rotate(${Math.random()*360}deg)`;
+                frag.style.opacity = '0';
+              }, 50);
+              setTimeout(() => frag.remove(), 2500);
+            }
+          }
+          box.style.opacity = '0';
+          setTimeout(() => box.remove(), 500);
+
+          character.style.transition = 'bottom 1s ease-in';
+          character.style.bottom = '-100vh';
+          character.addEventListener('transitionend', () => {
+            character.remove();
+            container.style.pointerEvents = 'none';
+            scheduleNext();
+          }, { once:true });
+        }, 80); // 80ms dá tempo pro início do som — ajuste se quiser outro timing
+      }
+
+    }, 1000);
+  }
+
+  // primeira chamada após delay aleatório
+  scheduleNext();
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- SINAL DO DRONE -->
+<script>
+(function(){
+  const MIN_DURATION = 60;   // 1 minuto
+  const MAX_DURATION = 180;  // 3 minutos
+  let intervalId, remaining;
+  const disabledCells = new Set();
+
+  // injeta CSS atualizado
+  const style = document.createElement('style');
+  style.textContent = `
+    .fruit-timer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 25px;
+      font-weight: bold;
+      pointer-events: auto;
+      user-select: none;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+    .fruit-timer:hover { transform: translateY(-2px) scale(1.02); }
+
+    .fruit-timer.vin-selected {
+      box-shadow: 0 0 18px rgba(255,215,0,0.25);
+      outline: 2px solid rgba(255,215,0,0.18);
+      transform: translateY(-3px) scale(1.03);
+    }
+
+    .disabled-cell {
+      background: rgba(0,0,0,0.2) !important;
+      opacity: 0.6 !important;
+      pointer-events: none !important;
+    }
+    .disable-mark {
+      user-select: none;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #900;
+      pointer-events: none;
+    }
+
+    /* painel informativo (agora no canto inferior esquerdo) */
+    #fruit-info-panel {
+      position: fixed;
+      bottom: 25px;
+      left: 25px;
+      width: 320px;
+      max-width: calc(100% - 60px);
+      background: rgba(15,15,15,0.95);
+      color: #fff;
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.6);
+      z-index: 10001;
+      display: none;
+      transform-origin: bottom left;
+      transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+      opacity: 0;
+    }
+    #fruit-info-panel.visible {
+      display: block;
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    #fruit-info-panel.hiding {
+      transform: translateY(8px) scale(0.97);
+      opacity: 0;
+    }
+    #fruit-info-panel h3 { margin-bottom: 8px; font-size: 1rem; color: #ffd957; }
+    #fruit-info-panel p { margin-bottom: 8px; font-size: 0.9rem; line-height: 1.2; color: #e8e8e8; }
+    #fruit-info-panel .btn-row { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+    #fruit-info-panel button {
+      background: linear-gradient(45deg,#ffdd57,#ff8c00);
+      border: none;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #222;
+    }
+    #fruit-info-panel .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-weight: 600;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // observa recriações de célula e reaplica bloqueio
+  const grid = document.querySelector('.grid');
+  const observer = new MutationObserver(muts => {
+    muts.forEach(m => {
+      m.addedNodes.forEach(n => {
+        if (n.nodeType === 1 && n.classList.contains('cell')) {
+          const idx = parseInt(n.id.split('-')[1], 10);
+          if (disabledCells.has(idx)) {
+            n.classList.add('disabled-cell');
+            n.innerHTML = '';
+            const mark = document.createElement('div');
+            mark.className = 'disable-mark';
+            mark.textContent = '\u{2716}';
+            n.appendChild(mark);
+          }
+        }
+      });
+    });
+  });
+  if (grid) observer.observe(grid, { childList: true });
+
+  function pickRandomCell() {
+    const els = Array.from(document.querySelectorAll('.cell'))
+      .filter(c => {
+        const i = parseInt(c.id.split('-')[1], 10);
+        return c.textContent.trim() && !disabledCells.has(i);
+      });
+    return els.length ? els[Math.floor(Math.random() * els.length)] : null;
+  }
+
+  function ensureTimerEl() {
+    let timerEl = document.querySelector('.fruit-timer');
+    if (!timerEl) {
+      timerEl = document.createElement('div');
+      timerEl.className = 'fruit-timer';
+      document.body.appendChild(timerEl);
+    }
+    return timerEl;
+  }
+
+  // painel no canto inferior esquerdo
+  function createInfoPanel() {
+    if (document.getElementById('fruit-info-panel')) return document.getElementById('fruit-info-panel');
+    const panel = document.createElement('div');
+    panel.id = 'fruit-info-panel';
+    panel.innerHTML = `
+      <h3>SINAL DO DRONE</h3>
+      <p>Mostra o tempo restante até a perda do sinal das caixas de frutas. Quando o tempo chega a zero uma caixa fica invisível.</p>
+      <p>O intervalo de tempo é aleatório entre <b>${MIN_DURATION}s</b> e <b>${MAX_DURATION}s</b>.</p>
+      <div class="btn-row">
+        <button id="fruit-info-ok">Fechar</button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    panel.querySelector('#fruit-info-ok').addEventListener('click', () => closeInfoPanel());
+
+    panel.addEventListener('transitionend', (ev) => {
+      if (ev.propertyName !== 'opacity' && ev.propertyName !== 'transform') return;
+      if (!panel.classList.contains('visible')) {
+        panel.style.display = 'none';
+      }
+    });
+
+    return panel;
+  }
+
+  function openInfoPanel() {
+    const panel = createInfoPanel();
+    if (panel.classList.contains('visible')) return;
+    panel.style.display = 'block';
+    requestAnimationFrame(() => panel.classList.add('visible'));
+    ensureTimerEl().classList.add('vin-selected');
+  }
+
+  function closeInfoPanel() {
+    const panel = createInfoPanel();
+    if (!panel.classList.contains('visible')) return;
+    panel.classList.remove('visible');
+    panel.classList.add('hiding');
+    setTimeout(() => panel.classList.remove('hiding'), 260);
+    ensureTimerEl().classList.remove('vin-selected');
+  }
+
+  function wireTimerClicks(timerEl) {
+    timerEl.addEventListener('click', () => {
+      const panel = createInfoPanel();
+      if (panel.classList.contains('visible')) closeInfoPanel();
+      else openInfoPanel();
+    });
+  }
+
+  function startTimer() {
+    const cell = pickRandomCell();
+    if (!cell) return setTimeout(startTimer, 2000);
+
+    const idx = parseInt(cell.id.split('-')[1], 10);
+    remaining = Math.floor(Math.random() * (MAX_DURATION - MIN_DURATION + 1)) + MIN_DURATION;
+
+    let timerEl = ensureTimerEl();
+    timerEl.textContent = '\u{1F4F6} ' + remaining;
+
+    if (!timerEl._wiredInfo) {
+      wireTimerClicks(timerEl);
+      timerEl._wiredInfo = true;
+    }
+
+    intervalId = setInterval(()=>{
+      remaining--;
+      timerEl.textContent = '\u{1F4F6} ' + remaining;
+      if (remaining <= 0) {
+        clearInterval(intervalId);
+        disabledCells.add(idx);
+
+        const c = document.getElementById('cell-' + idx);
+        if (c) {
+          c.classList.add('disabled-cell');
+          c.innerHTML = '';
+          const m = document.createElement('div');
+          m.className = 'disable-mark';
+          m.textContent = '\u{2716}';
+          c.appendChild(m);
+        }
+        setTimeout(startTimer, 2000);
+      }
+    }, 1000);
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(startTimer, 2000);
+  });
+
+  ensureTimerEl();
+  createInfoPanel();
+
+  window.addEventListener('beforeunload', () => {
+    try { observer && observer.disconnect(); } catch(e) {}
+  });
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- gerencia trechos de arquivo de áudio -->
+<script>
+(function(){
+  /* =============================
+     CONFIGURAÇÃO (apenas músicas de fundo + falas)
+     ============================= */
+  const BG_MUSIC_LIST = [
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/musica1.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/musica2.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/musica3.mp3'
+  ];
+
+  const MESSAGE_AUDIO_LIST = [
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando1.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando5.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando2.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando6.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando4.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando3.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando7.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando8.mp3',
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/combosimples.mp3' // index 8 (usado para 1/2 COMBO)
+  ];
+
+  // cooldowns (ms) - ajuste aqui se quiser
+  const COOLDOWN_MESSAGE_MS = 10000; // mensagens genéricas
+
+  /* =============================
+     ESTADO INTERNO
+     ============================= */
+  let soundEnabled = false;     // true depois do gesto do usuário
+  let bgAudio = null;           // Audio da música de fundo (loop)
+  const audioCache = new Map(); // url -> HTMLAudioElement (pré-carregado)
+  const lastPlayed = new Map(); // url -> timestamp(ms) do último play
+
+  /* =============================
+     ESTILO + BOTÃO
+     ============================= */
+  const style = document.createElement('style');
+  style.textContent = `
+    .bg-audio-toggle {
+      position: fixed;
+      top: 14px;
+      left: 78px;
+      z-index: 99999;
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.08));
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      cursor: pointer;
+      transition: transform .12s ease, opacity .12s ease;
+      color: #2fe0d3;
+      border: 2px solid rgba(0,0,0,0.08);
+      backdrop-filter: blur(4px);
+    }
+    .bg-audio-toggle:hover { transform: scale(1.05); }
+    .bg-audio-toggle:active { transform: scale(.98); }
+    .bg-audio-toggle svg { width: 28px; height: 28px; display:block; pointer-events:none; }
+    .bg-audio-toggle .slash { position:absolute; width:32px; height:32px; transform: rotate(-22deg); pointer-events:none; }
+  `;
+  document.head.appendChild(style);
+
+  const btn = document.createElement('button');
+  btn.id = 'bgAudioToggle';
+  btn.className = 'bg-audio-toggle';
+  btn.setAttribute('aria-pressed', 'false');
+  btn.title = 'Som: mudo — clique para ativar';
+  btn.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M5 9v6h4l5 4V5L9 9H5z" fill="currentColor"></path>
+      <g id="waves" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16.5 8.5c1 1.2 1 3 0 4.2"></path>
+        <path d="M18.5 6.5c1.8 1.9 1.8 4.8 0 6.7"></path>
+      </g>
+    </svg>
+    <svg class="slash" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block;">
+      <path d="M4 20L20 4" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+  `;
+  document.body.appendChild(btn);
+
+  const waves = btn.querySelector('#waves');
+  const slash = btn.querySelector('.slash');
+
+  function updateUI(){
+    const isMuted = !soundEnabled;
+    btn.setAttribute('aria-pressed', (!isMuted).toString());
+    btn.title = isMuted ? 'Som: mudo — clique para ativar' : 'Som: ligado — clique para mutar';
+    waves.style.display = isMuted ? 'none' : 'block';
+    slash.style.display = isMuted ? 'block' : 'none';
+  }
+
+  updateUI();
+
+  /* =============================
+     PRELOAD / CACHE
+     ============================= */
+  function preloadAudio(url){
+    if(!url) return Promise.reject(new Error('url inválida'));
+    if(audioCache.has(url)) return Promise.resolve(audioCache.get(url));
+    return new Promise((resolve, reject) => {
+      try {
+        const a = new Audio();
+        a.preload = 'auto';
+        a.src = url;
+        const onLoaded = () => {
+          cleanup();
+          audioCache.set(url, a);
+          resolve(a);
+        };
+        const onErr = (e) => {
+          cleanup();
+          audioCache.set(url, a);
+          reject(e);
+        };
+        const cleanup = () => {
+          a.removeEventListener('canplaythrough', onLoaded);
+          a.removeEventListener('error', onErr);
+        };
+        a.addEventListener('canplaythrough', onLoaded, { once: true });
+        a.addEventListener('error', onErr, { once: true });
+        try { a.load(); } catch(e){}
+        // fallback: resolve após timeout
+        setTimeout(() => {
+          if(!audioCache.has(url)){
+            audioCache.set(url, a);
+            resolve(a);
+          }
+        }, 6000);
+      } catch(err){
+        reject(err);
+      }
+    });
+  }
+
+  async function preloadAllMessageAudios(){
+    const list = MESSAGE_AUDIO_LIST.slice();
+    const promises = list.map(u => preloadAudio(u).catch(err => { console.warn('preload msg falhou', u, err); return null; }));
+    await Promise.all(promises);
+  }
+
+  // NÃO pré-carregamos mais sons de queda/combinação; função mantida para compatibilidade
+  async function preloadGameSounds(){
+    return Promise.resolve();
+  }
+
+  /* =============================
+     PLAY GENÉRICO (com cooldown & clone)
+     - se cooldownMs === 0 -> ignora sistema de cooldown (bypass)
+     ============================= */
+  async function playAudio(url, cooldownMs = COOLDOWN_MESSAGE_MS, opts = {}) {
+    if(!url) return;
+    if(!soundEnabled) return; // não tocar quando desativado
+    try {
+      // apenas checa/define cooldown se cooldownMs > 0
+      if(cooldownMs > 0){
+        const last = lastPlayed.get(url);
+        if(last && (Date.now() - last) < cooldownMs) return;
+        // registra timestamp provisório para bloquear repetição até tentar tocar
+        lastPlayed.set(url, Date.now());
+      }
+
+      const base = await preloadAudio(url);
+      // clone para poder tocar múltiplas instâncias
+      const player = base.cloneNode(true);
+      player.loop = false;
+      player.volume = (typeof opts.volume === 'number') ? opts.volume : 1.0;
+
+      // tentar tocar
+      await player.play().catch(err => {
+        console.warn('Falha ao play:', err);
+        // liberar cooldown para permitir nova tentativa futura (aplica apenas se foi registrado)
+        if(cooldownMs > 0) lastPlayed.delete(url);
+      });
+
+      player.addEventListener('ended', () => {
+        try { player.remove(); } catch(e){}
+      }, { once: true });
+
+    } catch(err){
+      console.warn('Erro playAudio:', err);
+      // só limpa registro se registramos
+      // (no caso de cooldownMs===0 nada foi registrado)
+      // para segurança, removemos qualquer registro existente
+      try { lastPlayed.delete(url); } catch(e){}
+    }
+  }
+
+  /* =============================
+     FUNÇÕES ESPECÍFICAS DO JOGO (agora NO-OPS se não for fala/bg)
+     ============================= */
+  // Essas funções foram mantidas para compatibilidade com resto do jogo,
+  // mas não tocam sons de queda/combinação conforme solicitado.
+  async function playSwapAttempt(){ /* no-op: som de swap removido */ return; }
+  async function playSwapFail(){ /* no-op: som de falha removido */ return; }
+  async function playDropRandom(){ /* no-op: sons de queda removidos */ return; }
+  async function playCollectFourFruit(fruitName){ /* no-op: sons de 4-frutas removidos */ return; }
+
+  /* =============================
+     Mapeamento de mensagem -> áudio (simples)
+     ============================= */
+  function normalizeKey(s){
+    if(!s) return '';
+    const trimmed = String(s).trim().toUpperCase();
+    return trimmed.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+  function msgToAudioUrl(msg){
+    const key = normalizeKey(msg);
+    if(!key) return MESSAGE_AUDIO_LIST[0];
+    if(key.includes('SANTE SALUT MON AMOUR')) return MESSAGE_AUDIO_LIST[7];
+    if(key.includes('BABADEIRA') || key.includes('BABADEIR')) return MESSAGE_AUDIO_LIST[1];
+    if(key.includes('DIVANDO') || key.includes('DIVAND')) return MESSAGE_AUDIO_LIST[2];
+    if(key.includes('JESSICA')) return MESSAGE_AUDIO_LIST[4];
+    if(key.includes('ARRAS')) return MESSAGE_AUDIO_LIST[3];
+    if(key.includes('KARAMBA')) return MESSAGE_AUDIO_LIST[5];
+    if(key.includes('AMEII') || key.includes('AMEI')) return MESSAGE_AUDIO_LIST[0];
+    if(key.includes('BOAAA') || key.includes('BOA')) return MESSAGE_AUDIO_LIST[6];
+    // 1 COMBO / 2 COMBO continuam apontando para index 8 (combosimples.mp3)
+    if(key.includes('1 COMBO')) return MESSAGE_AUDIO_LIST[8];
+    if(key.includes('2 COMBO')) return MESSAGE_AUDIO_LIST[8];
+    // fallback hash simples
+    let sum = 0;
+    for(let i=0;i<key.length;i++) sum += key.charCodeAt(i);
+    return MESSAGE_AUDIO_LIST[sum % MESSAGE_AUDIO_LIST.length];
+  }
+
+  // playMessageAudioOnce agora permite bypass de cooldown para 1/2 COMBO
+  async function playMessageAudioOnce(msg){
+    if(!msg) return;
+    const key = normalizeKey(msg);
+    const url = msgToAudioUrl(msg);
+    if(!url) return;
+    // se for 1 COMBO ou 2 COMBO -> cooldown = 0 (bypass), caso contrário usa COOLDOWN_MESSAGE_MS
+    const isComboBypass = key.includes('1 COMBO') || key.includes('2 COMBO');
+    const cooldownToUse = isComboBypass ? 0 : COOLDOWN_MESSAGE_MS;
+    await playAudio(url, cooldownToUse, { volume: 1.0 });
+  }
+
+  /* =============================
+     OBSERVER UTILITY (opcional)
+     ============================= */
+  function attachComboObserver(selector = '.combo-bubble'){
+    const bubble = document.querySelector(selector);
+    if(!bubble) return null;
+    const obs = new MutationObserver((muts) => {
+      for(const m of muts){
+        if(m.type === 'characterData' || m.type === 'childList' || m.type === 'subtree'){
+          const txt = bubble.textContent && bubble.textContent.trim();
+          if(txt){
+            playMessageAudioOnce(txt);
+          }
+        }
+      }
+    });
+    obs.observe(bubble, { characterData: true, childList: true, subtree: true });
+    return obs;
+  }
+  // tenta anexar automaticamente (se existir)
+  const comboObserver = attachComboObserver();
+
+  /* =============================
+     BOTÃO: clique ativa/desativa e dispara preload
+     ============================= */
+  btn.addEventListener('click', async function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    // primeira ativação: cria bgAudio e tenta tocar (pode falhar em ambientes restritos)
+    if(!bgAudio){
+      const idx = Math.floor(Math.random() * BG_MUSIC_LIST.length);
+      const chosen = BG_MUSIC_LIST[idx];
+      bgAudio = new Audio(chosen);
+      bgAudio.loop = true;
+      bgAudio.volume = 0.08; // música de fundo baixa
+      soundEnabled = true;
+      try { await bgAudio.play(); } catch(err) { console.warn('bgAudio play falhou:', err); }
+      // pré-carrega apenas as falas/messages
+      preloadAllMessageAudios().catch(err => console.warn('preloadAllMessageAudios erro', err));
+      updateUI();
+      return;
+    }
+    // toggle
+    if(!soundEnabled){
+      soundEnabled = true;
+      try{ if(bgAudio.paused) await bgAudio.play(); } catch(e){ console.warn('bgAudio play falhou ao resumir', e); }
+      // tentar carregar se ainda não carregado
+      if(audioCache.size < MESSAGE_AUDIO_LIST.length) {
+        preloadAllMessageAudios().catch(err => console.warn('preloadAllMessageAudios erro', err));
+      }
+    } else {
+      soundEnabled = false;
+      try{ bgAudio.pause(); } catch(e){}
+    }
+    updateUI();
+  });
+
+  /* =============================
+     EXPOSIÇÃO PÚBLICA
+     ============================= */
+  window.AudioManager = {
+    // funções que não tocam sons de queda/combinação (no-op)
+    playSwapAttempt,
+    playSwapFail,
+    playDropRandom,
+    playCollectFourFruit,
+    // mensagens e préloads
+    playMessageAudioOnce,
+    preloadAudio,
+    preloadGameSounds, // agora é noop
+    preloadAllMessageAudios,
+    // utilitários
+    setSoundEnabled(value){
+      soundEnabled = !!value;
+      updateUI();
+      if(soundEnabled && bgAudio && bgAudio.paused){
+        bgAudio.play().catch(()=>{});
+      }
+    },
+    isSoundEnabled(){ return !!soundEnabled; }
+  };
+
+  // cleanup observer ao sair
+  window.addEventListener('beforeunload', () => {
+    try{ comboObserver && comboObserver.disconnect(); }catch(e){}
+  });
+
+  // fim do IIFE
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+(function () {
+  'use strict';
+
+  const URLS = {
+    pool: [
+      'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/mordidapessego.mp3',
+      'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/mordidaberinjela.mp3',
+      'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/mordidacenoura.mp3',
+      'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/mordidapepino.mp3',
+      'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/mordidabanana.mp3'
+    ],
+    applause: 'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/aplausos.mp3',
+    special: 'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/especial.mp3'
+  };
+
+  const COOLDOWN_MS = 900; // cooldown entre reproduções do mesmo url
+  const LOG = false; // desligado: não gerar mensagens no console
+
+
+  function log() { /* intencionalmente vazio para evitar console */ }
+  function warn() { /* intencionalmente vazio para evitar console */ }
+
+ 
+  function isSoundEnabled() {
+    try {
+      if (window.AudioManager && typeof window.AudioManager.isSoundEnabled === 'function') {
+        return !!window.AudioManager.isSoundEnabled();
+      }
+      if (typeof window.playSoundEnabled === 'function') {
+        return !!window.playSoundEnabled();
+      }
+      if (typeof window.soundEnabled !== 'undefined') {
+        return !!window.soundEnabled;
+      }
+    } catch (e) {
+      // ignore
+    }
+    return true; // fallback: permitir som
+  }
+
+  
+  const lastPlayed = new Map();
+
+  async function safePlay(url) {
+    if (!url) return;
+    try {
+      if (!isSoundEnabled()) {
+        return;
+      }
+
+      const last = lastPlayed.get(url) || 0;
+      if (Date.now() - last < COOLDOWN_MS) {
+        return;
+      }
+      lastPlayed.set(url, Date.now());
+
+      if (typeof window.playAudio === 'function') {
+        try {
+          const maybe = window.playAudio(url, COOLDOWN_MS, { volume: 1.0 });
+          if (maybe && typeof maybe.catch === 'function') maybe.catch(() => { /* ignore */ });
+        } catch (e) { /* ignore */ }
+      }
+
+      const player = new Audio();
+      player.preload = 'auto';
+      player.src = url;
+
+      try {
+        if (typeof window.masterVolume === 'number') {
+          player.volume = Math.max(0, Math.min(1, window.masterVolume));
+        }
+      } catch (e) { /* ignore */ }
+
+      const p = player.play();
+      if (p && typeof p.then === 'function') {
+        p.catch(err => {
+          lastPlayed.set(url, 0);
+          try { player.remove(); } catch (e) { /* ignore */ }
+        });
+      }
+
+      player.addEventListener('ended', () => {
+        try { player.remove(); } catch (e) { /* ignore */ }
+      }, { once: true });
+
+    } catch (err) {
+      try { lastPlayed.set(url, 0); } catch (e) { /* ignore */ }
+    }
+  }
+
+ 
+  function playRandomFromPool() {
+    const pool = URLS.pool;
+    if (!pool || !pool.length) return;
+    safePlay(pool[Math.floor(Math.random() * pool.length)]);
+  }
+  function playApplause() { safePlay(URLS.applause); }
+  function playSpecialActivate() { safePlay(URLS.special); }
+
+  
+  function cloneObj(o) {
+    try { return JSON.parse(JSON.stringify(o)); }
+    catch (e) {
+      const r = {};
+      for (const k in o) r[k] = o[k];
+      return r;
+    }
+  }
+
+  function diffIncreases(prev = {}, cur = {}) {
+    const out = {};
+    for (const k of Object.keys(cur || {})) {
+      const p = Number(prev[k] || 0);
+      const c = Number(cur[k] || 0);
+      if (c > p) out[k] = c - p;
+    }
+    return out;
+  }
+
+  
+  function tryWrapUpdateCollectedUI() {
+    if (typeof window.updateCollectedUI !== 'function') return false;
+    try {
+      const original = window.updateCollectedUI;
+      let prev = cloneObj(window.collectedFruits || {});
+
+      window.updateCollectedUI = function wrapped(...args) {
+        const res = original.apply(this, args);
+        try {
+          const cur = window.collectedFruits || {};
+          const inc = diffIncreases(prev, cur);
+          for (const name of Object.keys(inc)) {
+            playRandomFromPool();
+          }
+          prev = cloneObj(cur);
+        } catch (e) {
+          // ignore
+        }
+        return res;
+      };
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+ 
+  function tryProxyCollectedFruits() {
+    try {
+      if (!('collectedFruits' in window)) {
+        return false;
+      }
+
+      const original = window.collectedFruits || {};
+      if (original && original.__isComboProxy) {
+        return true;
+      }
+
+      const handler = {
+        get(target, prop) { return Reflect.get(target, prop); },
+        set(target, prop, value) {
+          try {
+            const prev = Number(target[prop] || 0);
+            const next = Number(value || 0);
+            const ret = Reflect.set(target, prop, value);
+            if (!isNaN(prev) && !isNaN(next) && next > prev) {
+              playRandomFromPool();
+            }
+            return ret;
+          } catch (e) {
+            return Reflect.set(target, prop, value);
+          }
+        },
+        defineProperty(target, prop, desc) { return Reflect.defineProperty(target, prop, desc); },
+        deleteProperty(target, prop) { return Reflect.deleteProperty(target, prop); }
+      };
+
+      const proxy = new Proxy(Object.assign({}, original), handler);
+      Object.defineProperty(proxy, '__isComboProxy', { value: true, enumerable: false, configurable: false });
+      window.collectedFruits = proxy;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  const specialAnnouncedPositions = new Set();
+  const announcedNodes = new WeakSet();
+
+  function nodePositionKey(node) {
+    try {
+      if (!node || node.nodeType !== 1) return null;
+      if (node.dataset && node.dataset.pos) return String(node.dataset.pos);
+      if (node.dataset && (node.dataset.row !== undefined || node.dataset.col !== undefined)) {
+        return `${node.dataset.row ?? '?'}:${node.dataset.col ?? '?'}`;
+      }
+      if (node.hasAttribute && node.hasAttribute('data-row') && node.hasAttribute('data-col')) {
+        return `${node.getAttribute('data-row')}:${node.getAttribute('data-col')}`;
+      }
+      if (node.id) return `#${node.id}`;
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  function attachGridObserver() {
+    const grid = document.querySelector('.grid');
+    if (!grid) {
+      return false;
+    }
+
+    function handleNode(node) {
+      if (!node || node.nodeType !== 1) return;
+
+      // detecta special (criação)
+      if (node.classList && node.classList.contains('special')) {
+        const key = nodePositionKey(node);
+        if (key) {
+          if (!specialAnnouncedPositions.has(key)) {
+            specialAnnouncedPositions.add(key);
+            playApplause();
+          }
+        } else {
+          if (!announcedNodes.has(node)) {
+            announcedNodes.add(node);
+            playApplause();
+          }
+        }
+      } else {
+        // limpeza quando special sai/é transformada
+        const key = nodePositionKey(node);
+        if (key && specialAnnouncedPositions.has(key) && !node.classList.contains('special')) {
+          specialAnnouncedPositions.delete(key);
+        }
+        if (announcedNodes.has(node) && !node.classList.contains('special')) {
+          announcedNodes.delete(node);
+        }
+      }
+
+      // detecta explode -> som de ativação
+      if (node.classList && node.classList.contains('explode')) {
+        playSpecialActivate();
+      }
+
+      // checa descendentes também
+      try {
+        const found = node.querySelectorAll && node.querySelectorAll('.special, .explode');
+        if (found && found.length) {
+          for (const el of found) handleNode(el);
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    // snapshot inicial: marca specials já existentes para não tocar aplauso ao iniciar
+    try {
+      const existing = grid.querySelectorAll && grid.querySelectorAll('.special');
+      if (existing && existing.length) {
+        for (const el of existing) {
+          const key = nodePositionKey(el);
+          if (key) specialAnnouncedPositions.add(key);
+          else announcedNodes.add(el);
+        }
+      }
+    } catch (e) { /* ignore */ }
+
+    const obs = new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'class' && m.target) {
+          handleNode(m.target);
+        } else if (m.type === 'childList') {
+          (m.addedNodes || []).forEach(n => { if (n.nodeType === 1) handleNode(n); });
+          try {
+            const specials = grid.querySelectorAll && grid.querySelectorAll('.special, .explode');
+            if (specials && specials.length) for (const el of specials) handleNode(el);
+          } catch (e) { /* ignore */ }
+        }
+      }
+    });
+
+    obs.observe(grid, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+
+    window.ComboAudioGridObserver = { disconnect: () => obs.disconnect() };
+    return true;
+  }
+
+  function attachSpecialFruitsWatcher(pollInterval = 80) {
+    if (!('specialFruits' in window)) {
+      let waited = 0;
+      const h = setInterval(() => {
+        waited += pollInterval;
+        if ('specialFruits' in window) {
+          clearInterval(h);
+          attachSpecialFruitsWatcher(pollInterval);
+        } else if (waited > 4000) {
+          clearInterval(h);
+        }
+      }, pollInterval);
+      return false;
+    }
+
+    try {
+      let prev = cloneObj(window.specialFruits || {});
+
+      const id = setInterval(() => {
+        try {
+          const cur = cloneObj(window.specialFruits || {});
+
+          if (Array.isArray(cur) && Array.isArray(prev)) {
+            for (const item of cur) {
+              const key = typeof item === 'object' ? JSON.stringify(item) : String(item);
+              if (prev.indexOf(item) === -1 && !specialAnnouncedPositions.has(key)) {
+                specialAnnouncedPositions.add(key);
+                playApplause();
+              }
+            }
+          } else {
+            for (const k of Object.keys(cur || {})) {
+              const curVal = Number(cur[k] || 0);
+              const prevVal = Number(prev[k] || 0);
+              if (!(k in prev) && !specialAnnouncedPositions.has(k)) {
+                specialAnnouncedPositions.add(k);
+                playApplause();
+              } else if (curVal > prevVal) {
+                if (!specialAnnouncedPositions.has(k)) {
+                  specialAnnouncedPositions.add(k);
+                  playApplause();
+                }
+              }
+            }
+            for (const k of Object.keys(prev || {})) {
+              if (!(k in cur) && specialAnnouncedPositions.has(k)) {
+                specialAnnouncedPositions.delete(k);
+              }
+            }
+          }
+
+          prev = cur;
+        } catch (e) {
+          // ignore
+        }
+      }, pollInterval);
+
+      window.ComboAudioSpecialFruitsWatcher = { stop: () => clearInterval(id) };
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function attachCollectedDomObserver() {
+    const container = document.getElementById('collected-display');
+    if (!container) {
+      return false;
+    }
+
+    let lastHtml = container.innerHTML;
+    const obs = new MutationObserver(() => {
+      const cur = container.innerHTML;
+      if (cur !== lastHtml) {
+        lastHtml = cur;
+        playRandomFromPool();
+      }
+    });
+
+    obs.observe(container, { childList: true, subtree: true, characterData: true });
+    window.ComboAudioCollectedObserver = { disconnect: () => obs.disconnect() };
+    return true;
+  }
+
+
+  function initAttempts(maxMs = 6000) {
+    const start = Date.now();
+    let wrapped = false, proxied = false, collectedObs = false, gridObs = false, specialWatcher = false;
+
+    (function attempt() {
+      try {
+        if (!wrapped) wrapped = tryWrapUpdateCollectedUI();
+        if (!proxied) proxied = tryProxyCollectedFruits();
+        if (!collectedObs) collectedObs = attachCollectedDomObserver();
+        if (!gridObs) gridObs = attachGridObserver();
+        if (!specialWatcher) specialWatcher = attachSpecialFruitsWatcher();
+
+        if (wrapped || proxied || collectedObs || gridObs || specialWatcher) {
+          window.ComboAudio = {
+            playRandom: playRandomFromPool,
+            triggerSpecialCreated: playApplause,
+            triggerSpecialActivated: playSpecialActivate,
+            debug: { wrapped, proxied, collectedObs, gridObs, specialWatcher },
+            setPool(arr) { if (Array.isArray(arr) && arr.length) URLS.pool = arr.slice(); },
+            urls: JSON.parse(JSON.stringify(URLS))
+          };
+          return;
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      if (Date.now() - start > maxMs) {
+        window.ComboAudio = {
+          playRandom: playRandomFromPool,
+          triggerSpecialCreated: playApplause,
+          triggerSpecialActivated: playSpecialActivate,
+          debug: { wrapped: false, proxied: false, collectedObs: false, gridObs: false, specialWatcher: false },
+          setPool(arr) { if (Array.isArray(arr) && arr.length) URLS.pool = arr.slice(); },
+          urls: JSON.parse(JSON.stringify(URLS))
+        };
+        return;
+      }
+
+      setTimeout(attempt, 120);
+    })();
+  }
+
+  // start
+  initAttempts();
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- CRONÔMETRO DE COBRANÇA-->
+<script>
+(function(){
+  const MIN_SEC = 30;
+  const MAX_SEC = 60;
+  let currentCharge = 100;
+  let timerSeconds = 120; // primeira vez
+  let firstRun = true;
+  let intervalId = null;
+  let lastTickTime = Date.now();
+
+  const cobrancaSound = new Audio('https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/dinheiro.mp3');
+  cobrancaSound.volume = 0.9;
+
+  function randSec(){ return Math.floor(MIN_SEC + Math.random() * (MAX_SEC - MIN_SEC + 1)); }
+
+  // === estilos (painel inicia com display:none) ===
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes vin-impact {
+      0% { transform: scale(1) rotate(0deg); filter: none; }
+      10% { transform: scale(1.45) rotate(6deg); filter: brightness(1.6) hue-rotate(10deg); }
+      30% { transform: scale(1.22) rotate(-4deg); filter: brightness(1.35) hue-rotate(8deg); }
+      55% { transform: scale(1.35) rotate(3deg); filter: brightness(1.5) hue-rotate(25deg); }
+      100% { transform: scale(1) rotate(0deg); filter: none; }
+    }
+    @keyframes vin-pulse-color {
+      0% { box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+      25% { box-shadow: 0 0 24px rgba(255,140,0,0.65); }
+      50% { box-shadow: 0 0 36px rgba(255,180,60,0.9); }
+      75% { box-shadow: 0 0 24px rgba(255,100,0,0.78); }
+      100% { box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+    }
+    .vin-feedback {
+      animation: vin-impact 0.8s cubic-bezier(.2,.9,.3,1), vin-pulse-color 0.8s cubic-bezier(.2,.9,.3,1);
+      transform-origin: center;
+    }
+
+    /* Painel informativo: hidden por padrão (display:none) */
+    #vin-info-panel {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      width: 340px;
+      max-height: calc(40vh);
+      min-height: 160px;
+      background: linear-gradient(180deg, rgba(24,20,18,0.96), rgba(12,10,8,0.94));
+      color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      z-index: 15000;
+      padding: 16px;
+      display: none; /* <-- começa fechado */
+      gap: 8px;
+      overflow: auto;
+      transform: translateY(110%); /* deslocado para baixo quando invisível */
+      opacity: 0;
+      transition: transform 0.48s cubic-bezier(.2,1,.3,1), opacity 0.28s ease;
+      font-family: Arial, sans-serif;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+    }
+    /* visível: display é setado via JS, e então ativamos esta classe para animar */
+    #vin-info-panel.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    #vin-info-panel h3 {
+      margin: 0 0 6px;
+      font-size: 1.04rem;
+      color: #ffd08b;
+      display:flex; gap:8px; align-items:center;
+    }
+    #vin-info-panel p { margin:0; font-size:0.88rem; line-height:1.28rem; opacity:0.95; }
+
+    #vin-close-info {
+      align-self: flex-start;
+      margin-top: 8px;
+      background: linear-gradient(135deg,#6b5b3b,#4b3a28);
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight:700;
+      transition: transform 0.18s, background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+    #vin-close-info:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.36); }
+    #vin-info-panel.visible #vin-close-info {
+      background: linear-gradient(135deg,#ffb74d,#ff8a00);
+      color:#111;
+      transform: scale(1.04);
+      box-shadow: 0 14px 36px rgba(255,140,0,0.18);
+    }
+    #vin-close-info.closing { transform: translateY(4px) scale(0.98); opacity:0.9; }
+    @media(max-width:420px) { #vin-info-panel { width: calc(92vw); left: 4%; } }
+
+    /* estilo do cronômetro "selecionado" (quando o painel está aberto) */
+    #vin-cronometro.vin-selected {
+      background: linear-gradient(135deg, rgba(255,200,90,0.15), rgba(255,140,0,0.18));
+      color: #111;
+      box-shadow: 0 10px 30px rgba(255,140,0,0.18);
+      transform: translateY(-2px);
+    }
+    #vin-cronometro.vin-selected .emoji-badge {
+      background: rgba(255,255,255,0.18);
+      transform: scale(1.05);
+    }
+  `;
+  document.head.appendChild(style);
+
+  // === cronômetro UI ===
+  const el = document.createElement('div');
+  el.id = 'vin-cronometro';
+  Object.assign(el.style, {
+    position: 'fixed',
+    top: '64px',
+    right: '20px',
+    zIndex: 20000,
+    padding: '8px 12px',
+    borderRadius: '10px',
+    background: 'linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.35))',
+    color: '#fff',
+    fontWeight: '700',
+    fontFamily: 'Arial, sans-serif',
+    boxShadow: '0 6px 18px rgba(0,0,0,0.45)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    minWidth: '180px',
+    justifyContent: 'space-between',
+    cursor: 'pointer'
+  });
+
+  const emojiBadge = document.createElement('div');
+  emojiBadge.className = 'emoji-badge';
+  emojiBadge.textContent = '\u{1F4B8}';
+  Object.assign(emojiBadge.style, {
+    width: '36px', height: '36px', borderRadius: '8px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: '18px', background: 'rgba(255,255,255,0.08)',
+    transition: 'transform 140ms'
+  });
+
+  const textWrap = document.createElement('div');
+  textWrap.style.flex = '1';
+  textWrap.innerHTML = `<div style="font-size:0.82rem;opacity:0.95">Próxima taxa</div>
+                        <div id="vin-cronometro-seg" style="font-size:1.2rem;">--</div>`;
+  const valWrap = document.createElement('div');
+  valWrap.id = 'vin-cronometro-val';
+  valWrap.style.fontSize = '0.9rem';
+  valWrap.style.opacity = '0.95';
+  valWrap.innerText = `Taxa: ${currentCharge}`;
+
+  el.appendChild(emojiBadge);
+  el.appendChild(textWrap);
+  el.appendChild(valWrap);
+  document.body.appendChild(el);
+
+  const secEl = document.getElementById('vin-cronometro-seg');
+  const valEl = document.getElementById('vin-cronometro-val');
+
+  // === painel informativo (inicia hidden com display:none) ===
+  const panel = document.createElement('div');
+  panel.id = 'vin-info-panel';
+  panel.innerHTML = `
+    <h3>TAXA DA FEDERAÇÃO </h3>
+    <p>
+      A Federação do Vale cobra um imposto em <b>ACUÉ</b>.
+      O tempo para pagar é entre <b>${MIN_SEC} e ${MAX_SEC} segundos</b>.
+    </p>
+    <p>
+      Há uma chance de <b>10%</b> da taxa
+      dobrar, tornando o próximo ciclo mais caro.
+    </p>
+ 
+    <button id="vin-close-info">Fechar</button>
+  `;
+  document.body.appendChild(panel);
+
+  const closeBtn = document.getElementById('vin-close-info');
+
+  // Abre o painel: torna display:block e aplica classe visible (para animação) e marca cronômetro
+  function openPanel(){
+    if (panel.classList.contains('visible')) return;
+    panel.style.display = 'block';
+    requestAnimationFrame(() => {
+      panel.classList.add('visible');
+    });
+    // aplica destaque visual no cronômetro (feedback de "selecionado")
+    el.classList.add('vin-selected');
+  }
+
+  // Fecha o painel: remove classe visible para animar para baixo, depois display:none e remove destaque
+  function closePanel(){
+    if (!panel.classList.contains('visible')) return;
+    panel.classList.remove('visible');
+    closeBtn.classList.add('closing');
+    // remove destaque do cronômetro
+    el.classList.remove('vin-selected');
+
+    const onTransEnd = (ev) => {
+      if (ev.propertyName !== 'transform' && ev.propertyName !== 'opacity') return;
+      panel.style.display = 'none';
+      closeBtn.classList.remove('closing');
+      panel.removeEventListener('transitionend', onTransEnd);
+    };
+    panel.addEventListener('transitionend', onTransEnd);
+    setTimeout(() => {
+      if (panel.style.display !== 'none' && !panel.classList.contains('visible')) {
+        panel.style.display = 'none';
+        closeBtn.classList.remove('closing');
+      }
+    }, 700);
+  }
+
+  // Toggle ao clicar no cronômetro
+  el.addEventListener('click', () => {
+    if (panel.classList.contains('visible')) closePanel();
+    else openPanel();
+  });
+
+  // fechar via botão com pequena animação
+  closeBtn.addEventListener('click', () => {
+    closeBtn.classList.add('closing');
+    setTimeout(() => closePanel(), 120);
+  });
+
+  // === funções ACUÉ ===
+  function readAcue(){
+    if (typeof window.score === 'number') return window.score;
+    const el = document.getElementById('score');
+    if (!el) return 0;
+    return parseInt(el.textContent,10) || 0;
+  }
+  function writeAcue(n){
+    if (typeof window.score === 'number') {
+      window.score = n;
+      if (typeof window.updateScoreDisplay === 'function') {
+        try { window.updateScoreDisplay(); return; } catch(e){}
+      }
+    }
+    const el = document.getElementById('score');
+    if (el) el.textContent = String(n);
+  }
+
+  // === modal detido ===
+  function showArrestModal(){
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position:fixed; left:0; top:0; right:0; bottom:0;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.7); z-index:30000;
+    `;
+    const box = document.createElement('div');
+    box.style.cssText = `
+      width:min(520px,92vw); border-radius:12px; padding:18px;
+      text-align:center; background:#111; color:#fff;
+      box-shadow:0 8px 30px rgba(0,0,0,0.6);
+    `;
+    box.innerHTML = `
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbwyPxj4K6k98vfYwbKdD3Oyk9AOA9HTbxVtB6-G3gQt7ERdjAROFMDAp7YAvk6E53huQnIzMYLRx000b_H1v2Oy6Xw0HXx2Pngi_NjAT_GikbJed0vDEY5WB7G_o3BYj3f3LNIRcKSQUnQx0ockKVMPvoJIdyat12OBJznM-pThDOc6SvtcnACxJ0m_c/w200-h133/vinhadinhopreso.png" alt=""
+           style="width:100%;max-height:320px;object-fit:contain;border-radius:8px;">
+      <div style="margin-top:12px;font-weight:800;font-size:1.05rem;">
+        Infelizmente vinhadinho foi detido pela federação do vale por não ter acué suficiente para pagar os impostos da federação do vale
+      </div>
+      <button style="margin-top:14px;padding:10px 14px;border-radius:8px;cursor:pointer;
+                     font-weight:700;">PAGAR A FIANÇA E LIBERAR VINHADINHO</button>
+    `;
+    box.querySelector('button').onclick = () => location.reload();
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+  }
+
+  // === feedback visual ===
+  function playVisualFeedback(){
+    el.classList.remove('vin-feedback');
+    void el.offsetWidth;
+    el.classList.add('vin-feedback');
+    setTimeout(() => el.classList.remove('vin-feedback'), 900);
+  }
+
+  // === cobrança ===
+  async function onTimerEnd(){
+    const acue = readAcue();
+    if (acue >= currentCharge){
+      try { cobrancaSound.currentTime = 0; cobrancaSound.play(); } catch(e){}
+      playVisualFeedback();
+      writeAcue(acue - currentCharge);
+      if (Math.random() < 0.10) currentCharge *= 2;
+      timerSeconds = randSec();
+      firstRun = false;
+      updateUI();
+      startInterval();
+    } else {
+      showArrestModal();
+      stopInterval();
+      secEl.textContent = '—';
+      valEl.textContent = `: ${currentCharge} ACUÉ`;
+    }
+  }
+
+  function updateUI(){
+    const secs = Math.max(0, Math.ceil(timerSeconds));
+    secEl.textContent = `${secs}s`;
+    valEl.textContent = `: ${currentCharge}`;
+  }
+
+  function tick(){
+    const now = Date.now();
+    const delta = (now - lastTickTime) / 1000;
+    lastTickTime = now;
+    timerSeconds -= delta;
+    if (timerSeconds <= 0) {
+      onTimerEnd();
+    }
+    updateUI();
+  }
+
+  function startInterval(){
+    stopInterval();
+    lastTickTime = Date.now();
+    intervalId = setInterval(tick, 250);
+  }
+  function stopInterval(){ if (intervalId) { clearInterval(intervalId); intervalId = null; } }
+
+  // inicia
+  updateUI();
+  startInterval();
+
+  // expor controle
+  window.VIN_COBRANCA = {
+    getCharge: () => currentCharge,
+    setCharge: (v) => { currentCharge = Number(v) || currentCharge; updateUI(); },
+    resetTimer: () => { timerSeconds = randSec(); updateUI(); },
+    forceTick: () => tick(),
+    openInfo: openPanel,
+    closeInfo: closePanel
+  };
+
+})();
+</script>
+
+
+
+
+<!-- muda o fundo -->
+<script>
+(function () {
+  'use strict';
+
+  const BG_MAP = {
+    montanha: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhXuEHi1o73tYBw4xJUM6DVvHH87A6_wh58-9NFAfb9h5s272_y2fad00owpr4NRruRV4rCC7aJ_Zju-2iN8OCh9NIiof_Pvm0jzVAjjJHdjALALfLpH-vy3b1Q8mPebUrPePj2J1OVOYXgMANNUVR7eCH7cwZx3d5EL-GX-hKWpQqohhuKus3kz6NyCx4/s16000/fundomontanha.png',
+    floresta: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhieUFk0l-5cZFPpon2tiwlf3ez8x2n9wmwzgjhlFfoELld-3nVElEGq4kJ-nCJB9CHXb2s6nywAAO4prJFEmvdCYB523fZ2O-STnIobZ5PHF3WM6TJoe5eEBXlSCnt68Ot20CDxSew2HMlmiVN2lcUnEFrwM3JL6388rn1qntuVbrA9pajM0v1nPM6jdU/s16000/fundofloresta.png',
+    rio:      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjMxbGn9odCbHs33-ow578aj17_c2xJvm0u5MICtvRB2xMylfL77T5eHdXAp5Qeayr4s9fpkUKlJn2qroYNWIQIAIVZVYKfzsls5dU1DUcOm0U_ZzFvWGLBQZsRwitrZniJSs94mDEEHATQAlUY6KTcFlvDqRDR0ATjWBpg5TzS5V8ZEy2j72Mtrsaw-mE/s16000/fundorio.png'
+  };
+
+
+  const targetEl = document.body;
+
+  
+  function applyBackgroundImage(url) {
+    if (!url) {
+     
+      targetEl.style.backgroundImage = '';
+      return;
+    }
+    // se for um arquivo relativo, deixamos como está; se quiser prefixo, ajuste aqui
+    targetEl.style.backgroundImage = `url("${url}")`;
+    targetEl.style.backgroundRepeat = 'no-repeat';
+    targetEl.style.backgroundPosition = 'center center';
+    targetEl.style.backgroundSize = 'cover';
+  }
+
+  
+  function applyFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem('taxacoletada');
+      if (!raw) {
+        
+        return;
+      }
+      const val = String(raw).trim().toLowerCase();
+    
+      if (BG_MAP[val]) {
+        applyBackgroundImage(BG_MAP[val]);
+      } else {
+        // tenta detecção por substring (mais permissiva)
+        for (const key of Object.keys(BG_MAP)) {
+          if (val.includes(key)) {
+            applyBackgroundImage(BG_MAP[key]);
+            return;
+          }
+        }
+       
+      }
+    } catch (err) {
+      console.error('Erro ao ler taxacoletada do localStorage:', err);
+    }
+  }
+
+ 
+  window.addEventListener('storage', (ev) => {
+    if (ev.key === 'taxacoletada') {
+      
+      applyFromLocalStorage();
+    }
+  });
+
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyFromLocalStorage);
+  } else {
+    applyFromLocalStorage();
+  }
+
+  
+  window.setTaxaColetada = function(value) {
+    try {
+      if (value === null || value === undefined || String(value).trim() === '') {
+        localStorage.removeItem('taxacoletada');
+      } else {
+        localStorage.setItem('taxacoletada', String(value));
+      }
+      applyFromLocalStorage();
+    } catch (e) {
+      console.error('Erro ao gravar taxacoletada:', e);
+    }
+  };
+
+})();
+</script>
+
+
+
+
+
+
+<!-- salva acué -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const specialButton = document.getElementById('special-button');
+
+  // Adiciona evento extra ao botão "Coletar Agora"
+  specialButton.addEventListener('click', () => {
+    // Lê o valor atual de acué (score)
+    const scoreElement = document.getElementById('score');
+    if (!scoreElement) return;
+
+    const valorAtual = parseInt(scoreElement.textContent) || 0;
+
+    // Se for válido e maior que 0, salva no localStorage
+    if (valorAtual > 0) {
+      localStorage.setItem('taxacoletada', valorAtual);
+      console.log(`Salvo no localStorage: ${valorAtual} ACUÉ`);
+    }
+  });
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<!-- BOTÃO DE SAIR -->
+<script>
+(function () {
+
+  /* ===== KEYFRAMES DA LAVA (INJETADOS LOCALMENTE) ===== */
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes lavaExit {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* ===== BOTÃO ===== */
+  const exitBtn = document.createElement('button');
+  exitBtn.innerHTML = '✖';
+  exitBtn.title = 'Sair';
+
+  Object.assign(exitBtn.style, {
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '20px',
+    fontWeight: 'bold',
+    color: '#000',
+
+    /* === LAVA === */
+    background: 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)',
+    backgroundSize: '600% 600%',
+    animation: 'lavaExit 8s ease infinite',
+
+    /* === SOMBRA PADRÃO DO JOGO === */
+    boxShadow: '0 4px 10px rgba(0,0,0,0.35)',
+    transition: 'transform .2s, box-shadow .2s',
+    zIndex: 9999
+  });
+
+  exitBtn.onmouseenter = () => {
+    exitBtn.style.transform = 'translateY(-2px)';
+    exitBtn.style.boxShadow = '0 6px 14px rgba(0,0,0,0.45)';
+  };
+  exitBtn.onmouseleave = () => {
+    exitBtn.style.transform = 'translateY(0)';
+    exitBtn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.35)';
+  };
+
+  document.body.appendChild(exitBtn);
+
+  /* ===== OVERLAY ===== */
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style, {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(0,0,0,0.6)',
+    display: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000
+  });
+
+  /* ===== MODAL ===== */
+  const modal = document.createElement('div');
+  Object.assign(modal.style, {
+    background: 'rgba(255,255,255,0.9)',
+    borderRadius: '16px',
+    padding: '20px',
+    maxWidth: '360px',
+    boxShadow: '0 0 40px rgba(0,0,0,0.8)',
+    textAlign: 'center'
+  });
+
+  modal.innerHTML = `
+<p style="margin-bottom:20px; color:#000;"> 
+      Deseja se desconectar do sistema do drone e retornar ao portal da Federação do Vale?
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button id="exit-yes">SIM</button>
+      <button id="exit-no">NÃO</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  /* ===== BOTÕES DO MODAL (LAVA EMBUTIDA) ===== */
+  modal.querySelectorAll('button').forEach(btn => {
+    Object.assign(btn.style, {
+      padding: '10px 18px',
+      border: 'none',
+      borderRadius: '50px',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      color: '#000',
+      background: 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)',
+      backgroundSize: '600% 600%',
+      animation: 'lavaExit 8s ease infinite',
+      boxShadow: '0 4px 10px rgba(0,0,0,0.35)',
+      transition: 'transform .2s, box-shadow .2s'
+    });
+
+    btn.onmouseenter = () => {
+      btn.style.transform = 'translateY(-2px)';
+      btn.style.boxShadow = '0 6px 14px rgba(0,0,0,0.45)';
+    };
+    btn.onmouseleave = () => {
+      btn.style.transform = 'translateY(0)';
+      btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.35)';
+    };
+  });
+
+  /* ===== AÇÕES ===== */
+  exitBtn.onclick = () => overlay.style.display = 'flex';
+  modal.querySelector('#exit-no').onclick = () => overlay.style.display = 'none';
+  modal.querySelector('#exit-yes').onclick = () => {
+    location.href = 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game';
+  };
+
+})();
+</script>
+
+
+
+
+</html>
