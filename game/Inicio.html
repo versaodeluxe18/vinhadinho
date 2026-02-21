@@ -2230,5 +2230,122 @@ balloon.innerHTML = `
 
 
 
+
+
+
+ <!-- Esconde botão dev no mundogamer  -->
+<script>
+(function () {
+  if (!/Mundo Gamer/i.test(navigator.userAgent)) return;
+
+  const hideIfExists = () => {
+    const btn = document.getElementById('sp-devs');
+    if (btn) btn.style.display = 'none';
+  };
+
+  hideIfExists();
+
+  const observer = new MutationObserver(hideIfExists);
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+
+
+  
+  
+  
+  
+  <!-- cursor animado  -->
+  <script>
+    (() => {
+  const canvas = document.getElementById("mouse-pixels");
+  const ctx = canvas.getContext("2d");
+
+  canvas.style.position = "fixed";
+  canvas.style.inset = "0";
+  canvas.style.pointerEvents = "none";
+  canvas.style.zIndex = "9998";
+  canvas.style.imageRendering = "pixelated";
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  const pixels = [];
+  const MAX = 220;
+
+  let mouse = { x: 0, y: 0, vx: 0, vy: 0 };
+  let last = { x: 0, y: 0 };
+
+  window.addEventListener("mousemove", e => {
+    mouse.vx = e.clientX - last.x;
+    mouse.vy = e.clientY - last.y;
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    last.x = mouse.x;
+    last.y = mouse.y;
+
+    spawn(mouse.x, mouse.y, mouse.vx, mouse.vy);
+  });
+
+  function spawn(x, y, vx, vy) {
+    if (pixels.length > MAX) pixels.shift();
+
+    const size = 4 + Math.random() * 4;
+
+    pixels.push({
+      x,
+      y,
+      vx: vx * 0.04 + (Math.random() - 0.5),
+      vy: vy * 0.04 + (Math.random() - 0.5),
+      life: 1,
+      size
+    });
+  }
+
+  function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = pixels.length - 1; i >= 0; i--) {
+      const p = pixels[i];
+
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.02;
+      p.vx *= 0.92;
+      p.vy *= 0.92;
+
+      if (p.life <= 0) {
+        pixels.splice(i, 1);
+        continue;
+      }
+
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(
+        Math.round(p.x / 2) * 2,
+        Math.round(p.y / 2) * 2,
+        p.size,
+        p.size
+      );
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(update);
+  }
+
+  update();
+})();
+
+  </script>
+  
+
+
+  
+  
+
 </body>
 </html>
