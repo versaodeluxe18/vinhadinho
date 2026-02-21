@@ -1,0 +1,1122 @@
+<!-- PRODUÇÃO EM: https://versaodeluxe.directorioforuns.com/h144-vinhadinho-blog-game   -->
+
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Vinhadinho — Híbridos / Blog</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#b86b3f;
+    --dark:#1f1b18;
+    --page-gray: #dcd6d2;
+    --panel-gray: #cfc9c5;
+    --card-bg: #f7f3f1;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;}
+  body{
+    margin:0;
+    font-family:'Press Start 2P',monospace;
+    color:var(--dark);
+    background-color: var(--page-gray);
+  }
+
+  /* Wrapper que ocupa toda a viewport e centraliza vertical/horizontalmente */
+  .page-overlay{
+    min-height:100vh;
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 12px;
+  }
+
+  /* container central */
+  .container{
+    width:100%;
+    max-width:920px;
+    padding:28px 12px;
+    background:transparent;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+
+  h1{display:none}
+
+  .hybrid-list{
+    width:100%;
+    max-width:820px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    margin:0 auto;
+    align-items:center;
+    padding:12px 6px;
+  }
+
+  .hybrid-row{
+    display:grid;
+    grid-template-columns:110px 1fr;
+    align-items:center;
+    gap:12px;
+    padding:14px 18px;
+    background:transparent;
+    border-radius:8px;
+    border:1px solid rgba(0,0,0,0.04);
+    justify-items:center;
+    width:100%;
+    max-width:620px;
+    margin:0 auto;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.02);
+  }
+
+  @media(max-width:920px){
+    .hybrid-row{grid-template-columns:96px 1fr}
+    .hybrid-list{max-width:680px}
+    .container{max-width:700px}
+  }
+  @media(max-width:680px){
+    .hybrid-row{grid-template-columns:86px 1fr;grid-auto-rows:minmax(80px,auto)}
+    .hybrid-list{max-width:96%}
+    .container{padding:18px 8px}
+  }
+
+  .avatar{
+    width:110px;height:110px;border-radius:50%;overflow:hidden;border:4px solid #000;
+    display:flex;align-items:center;justify-content:center;background:#fff;box-shadow: 0 6px 0 rgba(0,0,0,0.06);
+  }
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .name-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    text-align:center;
+    padding-left:6px;
+    width:100%;
+  }
+  .name{ font-size:20px;letter-spacing:1px;color:#141212;margin:0; }
+  .sub-btn{
+    padding:8px 18px;border-radius:8px;border:2px solid #000;background:var(--accent);color:#100;font-size:11px;cursor:pointer;
+    text-transform:uppercase;
+  }
+  .sub-btn.secondary{background:transparent;color:var(--accent);border-color:var(--accent)}
+
+  hr.sep{
+    border:0;border-top:1px solid rgba(0,0,0,0.06);margin:10px 0 0 0;
+    grid-column:1 / -1;
+    opacity:0.5;
+    width:100%;
+  }
+
+  /* Modal e blog (mantidos) */
+  .modal-back{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.65);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:6500;
+    padding:16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .modal-back.open{display:flex}
+  .modal-card{
+    max-width:820px;
+    width:100%;
+    background:#fff;
+    border-radius:12px;
+    padding:18px;
+    text-align:center;
+    box-shadow:0 30px 60px rgba(0,0,0,.48);
+    transform-origin:center;
+  }
+  .modal-card img{width:100%;height:auto;max-height:60vh;object-fit:contain;border-radius:8px}
+  .modal-card h2{margin:10px 0 6px;font-size:16px;color:#141212}
+  .modal-card p{margin:0 0 12px;font-size:12px;color:#333}
+  .modal-card .btn{padding:10px 16px;border-radius:8px;border:2px solid var(--dark);background:transparent;cursor:pointer;font-family:inherit}
+
+  .blog-overlay{position:fixed;inset:0;display:none;align-items:flex-start;justify-content:center;padding:36px;z-index:3000;background: linear-gradient(rgba(220,214,210,0.98), rgba(220,214,210,0.98));overflow:auto;opacity:0;transition:opacity .28s ease;}
+  .blog-overlay.open{display:flex;opacity:1}
+  .blog-shell{width:min(1100px,96%);background: linear-gradient(#efebe9, #e3ddd9);border-radius:10px;padding:18px;color:var(--dark);box-shadow:0 18px 60px rgba(0,0,0,.12);border: 1px solid rgba(0,0,0,0.06);transform: translateY(22px) scale(.98);opacity:0;transition: transform .52s, opacity .46s;}
+  .blog-overlay.open .blog-shell{ transform: none; opacity:1 }
+
+  .blog-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .blog-title{font-size:18px;color:var(--dark)}
+  .blog-close{background:transparent;border:2px solid var(--dark);color:var(--dark);padding:8px 12px;border-radius:6px;cursor:pointer;font-family:inherit}
+
+  .blog-hero{
+  height:160px;
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:12px;
+
+  /* FUNDO COM IMAGEM */
+  background-image: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjasOThrpexcHYsnHm81woyWGOj8YRYNxn83FA8DrLNue2as8sTmJ2YyX-Rsft_nMqFgHS_b39-kiACYh5mXvPHkY7bYZDr8cEZYqGIwyjMbmsXbahilUGIpbesNPfy5vT-_pFPtYdLkGsIi9pB0F6R7PbUbgbharzOQdIu0JrGP0nNPtQEOt147F2WFt8/s16000/Fundovinhadinho.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+
+  border: 1px solid rgba(0,0,0,0.04);
+}
+  .typing-text{color:#ffffff; font-size:clamp(12px,2.6vw,18px);text-align:center;text-shadow: none;padding:12px;}
+
+  .carousel{display:flex;flex-direction:column;align-items:center;gap:8px;margin:18px 0}
+  .carousel-viewport{width:min(760px,100%);height:200px;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;background-color: var(--panel-gray);}
+  .carousel-viewport img{width:60%;height:100%;object-fit:contain;border-radius:4px;box-shadow:0 8px 18px rgba(0,0,0,.08)}
+  .dots{display:flex;gap:8px;align-items:center}
+  .dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,0.12);cursor:pointer;border:1px solid rgba(0,0,0,0.06)}
+  .dot.active{background:var(--accent)}
+
+  /* --- COLLAPSIBLE (redesign do cabeçalho) --- */
+  .collapsible{background-color: transparent;border-radius:6px;padding:10px;margin:12px 0;color:var(--dark);width:100%;}
+
+  /* HEAD redesenhado: cartão com título à esquerda e seta à direita */
+  #history-coll .head,
+  #supporters-coll .head {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    width:100%;
+    padding:10px 12px;
+    user-select:none;
+    cursor:pointer;
+    background: linear-gradient(180deg,#fff,#fbf6f3);
+    border-radius:10px;
+    border:1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.03);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  #history-coll .head:active,
+  #supporters-coll .head:active { transform: translateY(1px); box-shadow: 0 4px 0 rgba(0,0,0,0.02); }
+
+  #history-coll .head h2,
+  #supporters-coll .head h2 {
+    margin:0;font-size:14px;color:var(--dark); text-align:left;
+  }
+  #history-coll .head .muted,
+  #supporters-coll .head .muted {
+    display:block;font-size:10px;color:#6a605b;margin-top:6px;font-family:inherit;
+  }
+
+  /* botão visual para a seta (mais acessível e clicável) */
+  #history-chev,
+  #supporters-chev {
+    font-size:28px;
+    transition: transform .28s ease, background .18s ease, color .18s ease;
+    line-height:1;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:56px;
+    height:56px;
+    border-radius:12px;
+    border:2px solid rgba(0,0,0,0.06);
+    background: linear-gradient(180deg,#fff,#f3eae6);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.04);
+    color:var(--dark);
+    cursor:pointer;
+  }
+  /* destaque no hover/focus */
+  #history-head:focus #history-chev,
+  #history-head:hover #history-chev,
+  #supporters-head:focus #supporters-chev,
+  #supporters-head:hover #supporters-chev {
+    background: linear-gradient(180deg,#fff1e8,#ffe9dc);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 0 rgba(0,0,0,0.06);
+  }
+
+  .collapsible.open #history-chev,
+  .collapsible.open #supporters-chev { transform: rotate(180deg); }
+
+  #history-content,
+  #supporters-content { overflow:hidden; max-height:0; transition: max-height .36s ease; }
+
+  .collapsible[open] #history-content,
+  .collapsible[open] #supporters-content{ max-height:1000px }
+
+  .history-inner{ display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;justify-content:center;padding:12px 6px; }
+
+  /* --- NOVA SEÇÃO: 3 CARDS (COLETANDO / ACAMPAMENTO / CABANA) --- */
+  .cards-row{
+    margin-top:16px;
+    width:100%;
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    padding:6px;
+  }
+  .card{
+    width:280px;
+    background:var(--card-bg);
+    border-radius:10px;
+    padding:12px;
+    text-align:center;
+    border:1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 10px 0 rgba(0,0,0,0.03);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .card img{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+    border-radius:8px;
+    display:block;
+  }
+  .card-title{font-size:13px;margin:0;color:var(--dark)}
+  .card-desc{font-size:11px;color:#2a2a2a;line-height:1.4;min-height:44px}
+  .read-btn{
+    margin-top:auto;
+    padding:8px 12px;border-radius:8px;border:2px solid var(--dark);background:var(--accent);color:#100;cursor:pointer;font-size:11px;text-transform:uppercase;
+  }
+
+  .support-section{margin-top:18px;padding:18px;border-radius:8px;background:linear-gradient(180deg,#f1ebe8,#e7e0dc);text-align:center}
+  .ad-btn{width:80%;max-width:480px;padding:12px;border-radius:8px;border:2px solid var(--accent);background:#fff;color:var(--accent);cursor:pointer;font-family:inherit;margin:0 auto;display:block}
+  footer{margin-top:18px;text-align:center;color:var(--dark);font-size:11px}
+
+  /* responsividade */
+  @media(max-width:980px){ .card{width:30%;} }
+  @media(max-width:860px){ .card{width:46%;} }
+  @media(max-width:640px){ .card{width:100%} .blog-hero{height:120px} .carousel-viewport{height:140px} }
+
+  /* foco acessível para cabeçalhos do retrátil */
+  #history-head:focus,
+  #supporters-head:focus { outline:3px solid rgba(184,107,63,0.14); outline-offset:4px; border-radius:10px; }
+  
+  
+  #carousel-container {
+    position: relative;
+  }
+
+  #curtiButton {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+
+    width: auto;
+    min-width: 220px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    padding: 10px 18px;
+
+    background: white;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    cursor: pointer;
+    transition: background-color 0.6s;
+  }
+
+  #curtiButton.purple {
+    background: purple;
+    color: white;
+    cursor: default;
+  }
+  
+  
+  
+  .firework {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff, #ff0, #f00);
+  pointer-events: none;
+  animation: explode 0.8s ease-out forwards;
+}
+
+@keyframes explode {
+  from {
+    transform: translate(0,0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(0);
+    opacity: 0;
+  }
+}
+
+  
+</style>
+</head>
+<body>
+  <div class="page-overlay">
+    <div class="container" id="main-container">
+      <div class="hybrid-list" id="hybrid-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal (ajustado para ficar acima do blog) -->
+  <div id="modal-missing" class="modal-back" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-name">
+      <img id="modal-img" src="" alt="Personagem">
+      <h2 id="modal-name">NOME</h2>
+      <p id="modal-desc">PARADEIRO DESCONHECIDO PELA FEDERAÇÃO</p>
+      <div style="margin-top:12px">
+        <button id="modal-close" class="btn">Voltar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blog overlay -->
+  <div id="blog-overlay" class="blog-overlay" aria-hidden="true">
+    <div class="blog-shell" role="dialog" aria-modal="true">
+      <div class="blog-top">
+        <div class="blog-title">BLOG DO VINHADINHO</div>
+        <div>
+          <button id="blog-back" class="blog-close">VOLTAR A LISTA</button>
+        </div>
+      </div>
+
+      <div class="blog-hero">
+        <div id="typing-text" class="typing-text"></div>
+      </div>
+
+      <button id="curtiButton">CURTIR O BLOG</button>
+      
+      
+      <div class="carousel" aria-label="Galeria">
+        <div class="carousel-viewport" id="carousel-viewport"></div>
+        <div class="dots" id="carousel-dots"></div>
+      </div>
+
+      <!-- ÁREA RETRÁTIL: MINHA HISTÓRIA -->
+      <div class="collapsible" id="history-coll" aria-expanded="false">
+        <div class="head" id="history-head" role="button" tabindex="0" aria-controls="history-content" aria-expanded="false">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;">
+            <h2>MINHA HISTORIA</h2>
+            
+          </div>
+          <div class="chev" id="history-chev" aria-hidden="true" title="Abrir / Fechar">▾</div>
+        </div>
+
+        <div class="content" id="history-content">
+          <div class="history-inner">
+            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEh6VO06nioUVjd_Ba7E4IJqkKw7QmzqGaUAZhsA0PF3u-KZ0CrExCQbB4rleGItZs9375_AZKVPpX-Rf7t6z03bif1tBIDPqPq3t67jzjP4dM1QSZeB8TB4AfJEUDKG-rIBnF4x9lkV-JT7dE3F2Oaeyqvo8WgWLfjbjA3TQe1KNZGPCRafB7OTqPAPaSQ" alt="hist" style="width:320px;height:auto;border-radius:6px;">
+            <div style="max-width:320px;color:var(--dark);font-size:12px;line-height:1.5;">
+              <p>Acho que todos conhecem meu passado, afinal eu sou o primeiro hibrido da história da humanidade. Depois de longos anos vivendo entre nós, os constantes questionamentos sobre a minha pespectativa de vida, o medo e julgamento das pessoas me fez querer sair da capital.
+
+<br><br>Vou continuar conectado e pretendo manter contato com todos por meio deste blog e das minhas redes sociais, mas eu preciso desse processo. Não pertenço mais ao lugar de onde vim, e também não me sinto acolhido no vale.
+<br><br>A todos os meus amigos e simpatizantes, levo vocês comigo no coração. Não vou revelar onde estou morando, mas estou bem (como vocês podem ver) e através do sistema de vigilancia da federação vou compartilhando minha nova jornada com vocês, meus seguidores.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRÊS CARDS -->
+      <div class="cards-row" role="list" aria-label="Opções">
+        <article class="card" role="listitem" aria-labelledby="card1-title">
+          <img src="https://blogger.googleusercontent.com/img/a/AVvXsEifpnOMTgdxQYgZjSE1X74dvmjaaRe6liz4t-ODEVuf4MamSM653QIydNmnNH_BqIXyjz_yedklE54-yws7wEnU-6hoi8nG-83rL-GsgpS-zTz2W56xAmi90jYh6qYZotGdkkFxtL5QXMYa7EaYUyeOxWL1b5cWooQqnC4YIvljwcUmtJQq7FjKkA9_heY" alt="Coletando imagem">
+          <h4 id="card1-title" class="card-title">COLETANDO</h4>
+          <div class="card-desc"> </div>
+          <button class="read-btn" data-action="coletando">LEIA MAIS</button>
+        </article>
+
+        <article class="card" role="listitem" aria-labelledby="card2-title">
+          <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgEdqoE0W9BUDrtWTLPE4LFLJjVfRtaqheZ_5iTIPJ9PVj_6SOETrZbnNTDzjp9MqEdLDTxMttEkum32wD5exK32qXK_851q4WzSCXLIe3gCRiXnFxSpwF6yvxIzEYU1wvH2aNyHt3MvHMlliP8qiObda_FbWhBmtEozSOPI1HAs0JD6dWQ5uj5Rvs4iag" alt="Acampamento imagem">
+          <h4 id="card2-title" class="card-title">ACAMPAMENTO</h4>
+          <div class="card-desc">  </div>
+          <button class="read-btn" data-action="acampamento">LEIA MAIS</button>
+        </article>
+
+        <article class="card" role="listitem" aria-labelledby="card3-title">
+          <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjRMqOfeK7SyvabwnQ11-_he-M6XYw5TbdsDLtDFne02g99QjypTbxYbOT9nMVEU55SG_aDCpdS4qVR9kuVIf8RPgpInbwBIK4zTXEjlMBYH5C9uz_dMelzzq-AfSPqzbNWsV3e8opA7DeuR_4SW9r2fNgB3DUnR-ViYUrJBR_PLYAAsNwIiF62dJtSnOo" alt="Cabana imagem">
+          <h4 id="card3-title" class="card-title">CABANA</h4>
+          <div class="card-desc">  </div>
+          <button class="read-btn" data-action="cabana">LEIA MAIS</button>
+        </article>
+      </div>
+
+      <!-- NOVO: RETRÁTIL APOIADORES (logo abaixo dos cards e acima dos patrocinadores) -->
+      <div class="collapsible" id="supporters-coll" aria-expanded="false" style="margin-top:14px;">
+        <div class="head" id="supporters-head" role="button" tabindex="0" aria-controls="supporters-content" aria-expanded="false">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;">
+            <h2>APOIADORES</h2>
+            
+          </div>
+          <div class="chev" id="supporters-chev" aria-hidden="true" title="Abrir / Fechar">▾</div>
+        </div>
+
+        <div class="content" id="supporters-content">
+          <div style="padding:12px 14px;color:var(--dark);font-size:12px;line-height:1.5;max-width:920px;margin:0 auto;">
+            <p>
+              Agradeço de coração a todos pelo apoio nessa minha jornada. A capital foi meu lar por muito tempo, mas é no interior que estou me reencontrando. Nada disso seria possível sem as doações que mantêm minha vida possível, sendo assim agradeço aos meus apoiadores:
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="support-section">
+        <h3 style="margin:0 0 8px;font-size:14px">PATROCINADORES</h3>
+        <p>Mesmo sem acuê (dinheiro) você ainda pode apoiar Vinhadinho visualizando alguns anúncios através do botão abaixo. A cada 3 anúncios visualizados a federação envia uma caixinha especial para a cabana de Vinhadinho.</p>
+        <button id="ad-open" class="ad-btn">ABRIR ANÚNCIO (3)</button>
+      </div>
+
+     
+    </div>
+  </div>
+
+<script>
+  const VINHA_IMG = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEip3rZVM8GVmeimKP0GLhGuFFbOcKf5jtt98qkLeLI17995Fw0Mfee47KM9FmSn37FgBm6buziac1PaEIMJ6CkAX0vXTsUFvvWpFlRQAbYFPWFRJFXYk9gog7aUyvCiKX0n3BupXFiL_9DmxP8T6IoCaUyZwzTDJyRC__t64NrL5fgjspF2NAIoxpJtsLM/s1600/Gemini_Generated_Image_5lcu9i5lcu9i5lcu__1_-removebg-preview.png';
+  const MISSING_IMG = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgBO5oFrNryFgEYAStH5crf906OexpHXJeMKN3CkyKm2elJChtgJCbYD9CDYkBYxNVgl45rbgz2B-F3WRWrujkEuOSG9YN_4H62VkSqqDXKAUWXLwf5T08BEtpW2zFARSHH9E6zJ00g2YZHlyaa-V0fhaXihK_2ahgok3jJ-YwX1njzcGiqzSokVJIMEXs/s1600/Gemini_Generated_Image_t4hu6jt4hu6jt4hu-removebg-preview.png';
+  const CENTRO_IMG = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgBO5oFrNryFgEYAStH5crf906OexpHXJeMKN3CkyKm2elJChtgJCbYD9CDYkBYxNVgl45rbgz2B-F3WRWrujkEuOSG9YN_4H62VkSqqDXKAUWXLwf5T08BEtpW2zFARSHH9E6zJ00g2YZHlyaa-V0fhaXihK_2ahgok3jJ-YwX1njzcGiqzSokVJIMEXs/s1600/Gemini_Generated_Image_t4hu6jt4hu6jt4hu-removebg-preview.png';
+
+  const hybrids = [
+    { id:'vinhadinho', name:'VINHADINHO', img: VINHA_IMG, active:true },
+    { id:'diego',      name:'DIEGO',      img: MISSING_IMG, active:false },
+    { id:'camila',     name:'CAMILA',     img: MISSING_IMG, active:false },
+    { id:'neto',       name:'NETO',       img: MISSING_IMG, active:false },
+    { id:'vini',       name:'VINI',       img: MISSING_IMG, active:false }
+  ];
+
+  const listEl = document.getElementById('hybrid-list');
+  listEl.innerHTML = '';
+  hybrids.forEach(h=>{
+    const row = document.createElement('div');
+    row.className = 'hybrid-row';
+    row.innerHTML = `
+      <div class="avatar" aria-hidden="true"><img src="${h.img}" alt="${h.name}"></div>
+      <div class="name-wrap">
+        <div class="name">${h.name}</div>
+        <button class="sub-btn ${h.active ? '' : 'secondary'}" data-id="${h.id}">${h.active ? 'ACESSAR' : 'VER'}</button>
+      </div>
+      <hr class="sep">
+    `;
+    listEl.appendChild(row);
+  });
+
+  /* modais / blog (mantido) */
+  const modal = document.getElementById('modal-missing');
+  const modalImg = document.getElementById('modal-img');
+  const modalName = document.getElementById('modal-name');
+  const modalDesc = document.getElementById('modal-desc');
+  const modalClose = document.getElementById('modal-close');
+  const blogOverlay = document.getElementById('blog-overlay');
+  const blogShell = document.querySelector('.blog-shell');
+  const blogBack = document.getElementById('blog-back');
+
+  listEl.addEventListener('click', (ev)=>{
+    const btn = ev.target.closest('button[data-id]');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const h = hybrids.find(x=>x.id===id);
+    if(!h) return;
+    if(h.active){
+      document.getElementById('main-container').style.display = 'none';
+      openBlogOverlayWithAnimation();
+      return;
+    }
+    modalImg.src = CENTRO_IMG;
+    modalName.textContent = h.name;
+    modalDesc.textContent = 'PARADEIRO DESCONHECIDO PELA FEDERAÇÃO';
+    openModal();
+  });
+
+  modalClose.addEventListener('click', ()=> { closeModal(); });
+  modal.addEventListener('click', (e)=>{ if(e.target===modal){ closeModal(); } });
+  blogBack.addEventListener('click', ()=>{ closeBlogOverlay(); });
+  document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ if(modal.classList.contains('open')) { closeModal(); return; } if(blogOverlay.classList.contains('open')) { closeBlogOverlay(); } } });
+
+  function openModal(){
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    const card = document.querySelector('.modal-card');
+    if(card) card.focus && card.setAttribute('tabindex','-1') && card.focus();
+  }
+  function closeModal(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    setTimeout(()=>{ if(blogOverlay.classList.contains('open')) blogShell.focus && blogShell.setAttribute('tabindex','-1') && blogShell.focus(); else document.getElementById('main-container').focus && document.getElementById('main-container').focus(); }, 40);
+  }
+
+  function openBlogOverlayWithAnimation(){
+    blogOverlay.classList.add('open'); blogOverlay.setAttribute('aria-hidden','false');
+    blogShell.style.transition = 'none'; blogShell.style.transform = 'translateY(18px) scale(.98)'; blogShell.style.opacity = '0';
+    requestAnimationFrame(()=>{ blogShell.style.transition = ''; blogShell.classList.add('opening'); blogShell.style.transform = ''; blogShell.style.opacity = ''; });
+    const onTransitionEnd = (e) => { if(e.target !== blogShell) return; startTyping(); carouselInit(); blogShell.removeEventListener('transitionend', onTransitionEnd); };
+    blogShell.addEventListener('transitionend', onTransitionEnd);
+  }
+  function closeBlogOverlay(){
+    blogOverlay.classList.remove('open'); blogOverlay.setAttribute('aria-hidden','true');
+    const el = document.getElementById('typing-text'); if(el && el._typingTimer) { clearTimeout(el._typingTimer); el._typingTimer = null; }
+    if(window.__carouselTimer) { clearInterval(window.__carouselTimer); window.__carouselTimer = null; }
+    document.getElementById('main-container').style.display = '';
+  }
+
+  function startTyping(){
+    const el = document.getElementById('typing-text');
+    const frasesMobile = ["O INTERIOR ME FAZ BEM","ENCONTREI A PAZ AQUI","CADA DIA MAIS FELIZ"];
+    const frasesDesktop = [
+      "Meu blog pessoal pra você acompanhar a minha jornada",
+      "O vazio me consumiu e no interior do campo estou me redescobrindo",
+      "Sai da capital pra descobrir quem sou no campo",
+      "Entre plantações e pastos encontro paz para escrever"
+    ];
+    let frases = window.innerWidth <= 768 ? frasesMobile : frasesDesktop;
+    let i=0, j=0, forward=true, timer=null;
+    el.textContent = '';
+    function step(){
+      const txt = frases[i];
+      if(forward){
+        j++; el.textContent = txt.slice(0,j);
+        if(j>=txt.length){ forward=false; timer=setTimeout(step,700); return; }
+      } else {
+        j--; el.textContent = txt.slice(0,j);
+        if(j<=0){ forward=true; i=(i+1)%frases.length; timer=setTimeout(step,300); return; }
+      }
+      timer = setTimeout(step, forward ? 80 : 40);
+      el._typingTimer = timer;
+    }
+    if(el._typingTimer) clearTimeout(el._typingTimer);
+    step();
+  }
+
+  function carouselInit(){
+    const imgs = [
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhGA7yRvq7cy9Lt2AlhtQyKfq7kwGutkufmMG_jEVeBeZcS5V-QD3Ynm9FKcUO-vBeif-9g-_TrwBw0fxaMqhQf6KtIBs31ykki7WmsTc2FamLmfnHTX0P2wWyIwqH_0-mcNVF02NayZt9jM0VuUCdnh4E4dQrZVZT837tRjJq9QNitz9hKXL8sjPYyr6o/s320/ChatGPT%20Image%205%20de%20jun.%20de%202025,%2019_17_19.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgUj6i4fBi0u18zdUJs2ZqqN5-B8_d_LPrzI21J3ezp3h9T8dBijfxZSgM7I1kZrH0DXdz05sjgmIR58Gq2pPiDAaHA0zMTYpZaiEGeGIXzQHJildYHzviXGqUV5QOoq1lx0wS7vN-kjXcNH8Ol1laZNoCCng_v-loRCbJ3pYPM93cFaw1EQNypdsywajw/s320/Pomar%20de%20Bananas%20Pixelado.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCjptsGG3rs-CuXvlw6BpHnFCqGh6WKhQiS4DkCz7PnzN01aSjEzwGkzJ_1dK0vWY8mmCYwxgOq90KIMggOFv0FJYK2KskfRm8Hn88l0qm0apXXiVQZh14xLmrrgkOzT-PY17pBXmM1p3VG-4LZIXI1t2yIDuvO-C4kP7E09ur3S6zSeoc8FiRuWiKDZY/s320/ChatGPT%20Image%207%20de%20jun.%20de%202025,%2005_26_17.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjCeUGZHCQicooSlOMJxPrLF8zphO5vITVQSJ_nA5DvV0jFCTm05MSSGlLi2XXC5v-_d410RXpKc67-v8sd8bvZAvBanrvSc3Ot7oTdvtD1O6Tp59IrBrWrzxdeHrJ1lTJnVlDqY92wkqUHpqIzKzS7ZWblr4zudemsDdRM4elxMthPe37slL1CvWBllgk/s320/ChatGPT%20Image%207%20de%20jun.%20de%202025,%2005_19_20.png'
+      
+    ];
+    const vp = document.getElementById('carousel-viewport');
+    const dots = document.getElementById('carousel-dots');
+    vp.innerHTML = ''; dots.innerHTML = '';
+    let idx = 0, timer=null;
+    function show(i){ idx = i % imgs.length; vp.innerHTML = `<img src="${imgs[idx]}" alt="slide ${idx+1}">`; dots.querySelectorAll('.dot').forEach((d,di)=>d.classList.toggle('active', di===idx)); }
+    imgs.forEach((u,i)=>{ const d = document.createElement('div'); d.className='dot'; if(i===0) d.classList.add('active'); d.addEventListener('click', ()=>{ show(i); reset(); }); dots.appendChild(d); });
+    function reset(){ clearInterval(timer); timer = setInterval(()=>show((idx+1)%imgs.length),3000); }
+    show(0); reset(); window.__carouselTimer = timer;
+  }
+
+  /* ----------------- RETRÁTIL: MINHA HISTÓRIA ----------------- */
+  (function(){
+    const coll = document.getElementById('history-coll');
+    const head = document.getElementById('history-head');
+    const content = document.getElementById('history-content');
+
+    if(!coll || !head || !content) return;
+
+    coll.classList.remove('open');
+    coll.setAttribute('aria-expanded','false');
+    head.setAttribute('aria-expanded','false');
+    content.style.maxHeight = '0px';
+
+    function open(){ coll.classList.add('open'); coll.setAttribute('aria-expanded','true'); head.setAttribute('aria-expanded','true'); content.style.maxHeight = content.scrollHeight + 'px'; }
+    function close(){ coll.classList.remove('open'); coll.setAttribute('aria-expanded','false'); head.setAttribute('aria-expanded','false'); content.style.maxHeight = '0px'; }
+    function toggle(){ if(coll.classList.contains('open')) close(); else open(); }
+
+    head.addEventListener('click', (e)=>{ e.preventDefault(); toggle(); });
+    head.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+
+    const imgs = content.querySelectorAll('img');
+    if(imgs.length > 0){
+      imgs.forEach(img=>{
+        if(!img.complete){
+          img.addEventListener('load', ()=>{
+            if(coll.classList.contains('open')) content.style.maxHeight = content.scrollHeight + 'px';
+          });
+        }
+      });
+    }
+    window.addEventListener('resize', ()=>{
+      if(coll.classList.contains('open')){
+        setTimeout(()=>{ content.style.maxHeight = content.scrollHeight + 'px'; }, 120);
+      }
+    });
+  })();
+
+  /* ----------------- RETRÁTIL: APOIADORES ----------------- */
+  (function(){
+    const coll = document.getElementById('supporters-coll');
+    const head = document.getElementById('supporters-head');
+    const content = document.getElementById('supporters-content');
+
+    if(!coll || !head || !content) return;
+
+    coll.classList.remove('open');
+    coll.setAttribute('aria-expanded','false');
+    head.setAttribute('aria-expanded','false');
+    content.style.maxHeight = '0px';
+
+    function open(){ coll.classList.add('open'); coll.setAttribute('aria-expanded','true'); head.setAttribute('aria-expanded','true'); content.style.maxHeight = content.scrollHeight + 'px'; }
+    function close(){ coll.classList.remove('open'); coll.setAttribute('aria-expanded','false'); head.setAttribute('aria-expanded','false'); content.style.maxHeight = '0px'; }
+    function toggle(){ if(coll.classList.contains('open')) close(); else open(); }
+
+    head.addEventListener('click', (e)=>{ e.preventDefault(); toggle(); });
+    head.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+
+    // Ajustar altura quando imagens (se houver) carregarem; aqui não há imagens,
+    // mas mantemos o comportamento por consistência
+    const imgs = content.querySelectorAll('img');
+    if(imgs.length > 0){
+      imgs.forEach(img=>{
+        if(!img.complete){
+          img.addEventListener('load', ()=>{
+            if(coll.classList.contains('open')) content.style.maxHeight = content.scrollHeight + 'px';
+          });
+        }
+      });
+    }
+    window.addEventListener('resize', ()=>{
+      if(coll.classList.contains('open')){
+        setTimeout(()=>{ content.style.maxHeight = content.scrollHeight + 'px'; }, 120);
+      }
+    });
+  })();
+
+  /* ----------------- handlers dos botões "LEIA MAIS" dos cards ----------------- */
+  (function(){
+    const cards = document.querySelectorAll('.read-btn');
+    cards.forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const act = btn.dataset.action;
+        const map = {
+          coletando: {
+            title: 'COLETANDO',
+            img: 'https://blogger.googleusercontent.com/img/a/AVvXsEifpnOMTgdxQYgZjSE1X74dvmjaaRe6liz4t-ODEVuf4MamSM653QIydNmnNH_BqIXyjz_yedklE54-yws7wEnU-6hoi8nG-83rL-GsgpS-zTz2W56xAmi90jYh6qYZotGdkkFxtL5QXMYa7EaYUyeOxWL1b5cWooQqnC4YIvljwcUmtJQq7FjKkA9_heY',
+            desc: 'O Modo Coletar é uma experiência rápida e dinâmica, ideal para quem gosta de ação constante. Nesse modo, o jogador entra em um cenário onde o objetivo principal é coletar o máximo de itens possível, evitando obstáculos e administrando o tempo com precisão.'
+          },
+          acampamento: {
+            title: 'ACAMPAMENTO',
+            img: 'https://blogger.googleusercontent.com/img/a/AVvXsEgEdqoE0W9BUDrtWTLPE4LFLJjVfRtaqheZ_5iTIPJ9PVj_6SOETrZbnNTDzjp9MqEdLDTxMttEkum32wD5exK32qXK_851q4WzSCXLIe3gCRiXnFxSpwF6yvxIzEYU1wvH2aNyHt3MvHMlliP8qiObda_FbWhBmtEozSOPI1HAs0JD6dWQ5uj5Rvs4iag',
+            desc: 'O Modo Acampamento oferece uma jogabilidade mais estratégica e relaxante, simulando a rotina de montar e administrar um pequeno acampamento. Aqui, o foco não é velocidade, mas sim organização, cuidado e evolução do ambiente.'
+          },
+          cabana: {
+            title: 'CABANA',
+            img: 'https://blogger.googleusercontent.com/img/a/AVvXsEjRMqOfeK7SyvabwnQ11-_he-M6XYw5TbdsDLtDFne02g99QjypTbxYbOT9nMVEU55SG_aDCpdS4qVR9kuVIf8RPgpInbwBIK4zTXEjlMBYH5C9uz_dMelzzq-AfSPqzbNWsV3e8opA7DeuR_4SW9r2fNgB3DUnR-ViYUrJBR_PLYAAsNwIiF62dJtSnOo',
+            desc: 'O Modo Cabana é uma experiência focada na personalização e aconchego. Seu objetivo é construir, decorar e melhorar a sua cabana, deixando-a cada vez mais completa, bonita e funcional.'
+          }
+        };
+        const info = map[act] || map.coletando;
+        document.getElementById('modal-img').src = info.img;
+        document.getElementById('modal-name').textContent = info.title;
+        document.getElementById('modal-desc').textContent = info.desc;
+        openModal();
+      });
+    });
+  })();
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ================= CSS DINÂMICO ================= */
+  const style = document.createElement('style');
+  style.textContent = `
+    #ad-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 9000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 16px;
+    }
+
+    #ad-message {
+      font-size: 14px;
+      color: #ffffff;
+      margin-top: 16px;
+      display: none;
+      max-width: 420px;
+      line-height: 1.4;
+    }
+
+    .gift-box {
+      font-size: 3.2rem;
+      cursor: pointer;
+      margin: 0 8px;
+      transition: transform .2s;
+      position: relative;
+    }
+
+    .gift-box:hover {
+      transform: scale(1.1);
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60% { transform: translateX(-6px); }
+      40%,80% { transform: translateX(6px); }
+    }
+
+    .shake {
+      animation: shake 0.5s infinite;
+    }
+
+    @keyframes fireworks {
+      from {
+        opacity: 1;
+        transform: scale(0) translate(0,0);
+      }
+      to {
+        opacity: 0;
+        transform: scale(1) translate(var(--dx), var(--dy));
+      }
+    }
+
+    .firework {
+      position: absolute;
+      font-size: 3.5rem;
+      pointer-events: none;
+      animation: fireworks 0.8s forwards;
+    }
+
+    #close-ad {
+      margin-top: 18px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #000000;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* ================= CONFIGURAÇÕES ================= */
+  const MAX_ANNUNCIOS = 3;
+  const LOCK_DURATION = 5 * 60 * 1000;
+  const STORAGE_KEY = 'anuncioroleta';
+
+  const GAMES = ['berinjela','pêssego','banana','cenoura','pepino'];
+  const EMOJIS = {
+  berinjela: '\u{1F346}', // 🍆
+  pêssego:   '\u{1F351}', // 🍑
+  banana:    '\u{1F34C}', // 🍌
+  cenoura:   '\u{1F955}', // 🥕
+  pepino:    '\u{1F952}'  // 🥒
+};
+ 
+
+
+  let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) ||
+    { clique: [], tempo: [], presente: [], comboTime: null };
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+  /* ================= OVERLAY ================= */
+  const overlay = document.createElement('div');
+  overlay.id = 'ad-overlay';
+  overlay.innerHTML = `
+    <div id="boxes" style="display:flex;gap:14px;"></div>
+    <div id="ad-message"></div>
+    <button id="close-ad">FECHAR</button>
+  `;
+  document.body.appendChild(overlay);
+
+  const boxesC = overlay.querySelector('#boxes');
+  const message = overlay.querySelector('#ad-message');
+  const closeBtn = overlay.querySelector('#close-ad');
+  const btn = document.getElementById('ad-open');
+
+  /* ================= FUNÇÕES ================= */
+  function formatNow() {
+    const d = new Date();
+    const p = n => String(n).padStart(2,'0');
+    return `${p(d.getDate())}.${p(d.getMonth()+1)}.${String(d.getFullYear()).slice(2)} `
+         + `${p(d.getHours())}.${p(d.getMinutes())}.${p(d.getSeconds())}`;
+  }
+
+  function closeOverlay() {
+    overlay.style.display = 'none';
+    boxesC.innerHTML = '';
+    message.style.display = 'none';
+    closeBtn.style.display = 'none';
+  }
+
+  function updateBtn() {
+    const now = Date.now();
+    if (data.comboTime) {
+      const elapsed = now - data.comboTime;
+      if (elapsed < LOCK_DURATION) {
+        btn.textContent = `Aguarde... (${Math.ceil((LOCK_DURATION - elapsed) / 1000)}s)`;
+        btn.disabled = true;
+        setTimeout(updateBtn, 500);
+        return;
+      } else {
+        data = { clique: [], tempo: [], presente: [], comboTime: null };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        closeOverlay();
+      }
+    }
+    btn.textContent = `ABRIR ANUNCIO (${MAX_ANNUNCIOS - data.clique.length})`;
+    btn.disabled = false;
+  }
+
+  /* ================= EVENTOS ================= */
+  btn.addEventListener('click', () => {
+    data.clique.push(1);
+    data.tempo.push(formatNow());
+
+    if (data.clique.length >= MAX_ANNUNCIOS && !data.comboTime) {
+      data.comboTime = Date.now();
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+    window.open(
+      'https://www.effectivegatecpm.com/tspi4smg?key=f8f32f613fd70fd476bc75fe66a43146',
+      '_blank'
+    );
+
+    updateBtn();
+    if (data.clique.length >= MAX_ANNUNCIOS) showBoxes();
+  });
+
+  function showBoxes() {
+    overlay.style.display = 'flex';
+    if (boxesC.childElementCount) return;
+
+    for (let i = 0; i < MAX_ANNUNCIOS; i++) {
+      const box = document.createElement('div');
+      box.className = 'gift-box';
+      box.textContent = '\u{1F381}';
+      box.addEventListener('click', () => pickGift(box));
+      boxesC.appendChild(box);
+    }
+
+    message.textContent = 'ESCOLHA UM PRESENTE PARA ENVIAR A VINHADINHO';
+    message.style.display = 'block';
+  }
+
+ function pickGift(box) {
+  boxesC.querySelectorAll('.gift-box')
+    .forEach(b => b.style.pointerEvents = 'none');
+
+  const gift = GAMES[Math.floor(Math.random() * GAMES.length)];
+  data.presente.push(gift);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+  box.textContent = EMOJIS[gift];
+  box.classList.add('shake');
+
+  for (let i = 0; i < 25; i++) {
+    const fw = document.createElement('div');
+    fw.className = 'firework';
+
+    fw.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+    fw.style.setProperty('--dy', (Math.random() * -160) + 'px');
+
+    box.appendChild(fw);
+    setTimeout(() => fw.remove(), 800);
+  }
+
+  setTimeout(() => {
+    message.textContent =
+      `PARABÉNS! VOCÊ ENVIOU "${gift.toUpperCase()}" PARA A CABANA DE VINHADINHO`;
+    closeBtn.style.display = 'inline-block';
+  }, 500);
+}
+
+  /* ================= FECHAR OVERLAY ================= */
+  closeBtn.addEventListener('click', closeOverlay);
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeOverlay();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeOverlay();
+  });
+
+  updateBtn();
+});
+</script>
+
+
+<script>
+  const btn = document.getElementById('curtiButton');
+  const key = 'curtida';
+
+  function formatNow() {
+    const now = new Date();
+    const d = String(now.getDate()).padStart(2,'0');
+    const m = String(now.getMonth()+1).padStart(2,'0');
+    const y = now.getFullYear();
+    const h = String(now.getHours()).padStart(2,'0');
+    return `${d}/${m}/${y}/${h}`;
+  }
+
+  function parseSaved(v) {
+    const [d,m,y,h] = v.split('/').map(Number);
+    return new Date(y, m-1, d, h);
+  }
+
+  function disable() {
+    btn.classList.add('purple');
+    btn.disabled = true;
+    btn.textContent = 'VOCÊ CURTIU';
+  }
+
+  function hideButton() {
+    btn.style.display = 'none';
+  }
+
+  function showButton() {
+    btn.style.display = '';
+  }
+
+  const saved = localStorage.getItem(key);
+  if (saved) {
+    const diffH = (new Date() - parseSaved(saved)) / 3600000;
+    if (diffH < 3) {
+      hideButton();
+    } else {
+      localStorage.removeItem(key);
+      showButton();
+    }
+  }
+
+  btn.addEventListener('click', () => {
+    localStorage.setItem(key, formatNow());
+    disable();
+  });
+</script>
+
+
+
+
+
+
+<script>
+(function () {
+  /* =======================
+     CSS DO BOTÃO (INJETADO)
+     ======================= */
+  const style = document.createElement('style');
+  style.textContent = `
+    #back-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent, #b86b3f);
+      color: #fff;
+      border: 2px solid rgba(0,0,0,0.08);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+      z-index: 7001;
+      cursor: pointer;
+      font-size: 22px;
+      transition: transform .12s ease, box-shadow .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #back-fab:active {
+      transform: translateY(1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+    }
+
+    #back-fab svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* =======================
+     BOTÃO (CRIADO VIA JS)
+     ======================= */
+  const btn = document.createElement('button');
+  btn.id = 'back-fab';
+  btn.setAttribute('aria-label', 'Voltar');
+  btn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"></path>
+      <path d="M12 19l-7-7 7-7"></path>
+    </svg>
+  `;
+  document.body.appendChild(btn);
+
+  /* =======================
+     LÓGICA DE VOLTAR
+     ======================= */
+  function voltar() {
+    // 1️⃣ Se blog overlay estiver aberto → fecha
+    const blogOverlay = document.getElementById('blog-overlay');
+    if (blogOverlay && blogOverlay.classList.contains('open')) {
+      if (typeof closeBlogOverlay === 'function') {
+        closeBlogOverlay();
+        return;
+      }
+    }
+
+    // 2️⃣ Se modal estiver aberto → fecha
+    const modal = document.getElementById('modal-missing');
+    if (modal && modal.classList.contains('open')) {
+      if (typeof closeModal === 'function') {
+        closeModal();
+        return;
+      }
+    }
+
+    // 3️⃣ Volta no histórico
+    if (window.history.length > 1) {
+      history.back();
+      return;
+    }
+
+    // 4️⃣ Fallback final
+    if (document.referrer) {
+      location.href = document.referrer;
+    } else {
+      location.href = '/';
+    }
+  }
+
+  /* =======================
+     EVENTOS
+     ======================= */
+  btn.addEventListener('click', voltar);
+
+  btn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      voltar();
+    }
+  });
+
+})();
+</script>
+
+
+
+
+</body>
+</html>
