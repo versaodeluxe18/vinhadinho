@@ -1,0 +1,2234 @@
+<!-- PRODUÇÃO EM:  https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Federação do Vale</title>
+  <!-- Fonte pixelada -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+ 
+<style id="fed-intro-style">
+  /* estilos do overlay - isolados */
+  .fed-intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 14000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    pointer-events: auto;
+  }
+  .fed-intro-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .fed-img {
+    position:absolute;
+    inset:0;
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+    transition: opacity 700ms ease, filter 700ms ease;
+    opacity:0;
+    will-change: opacity;
+  }
+  .fed-bg {
+    position:absolute;
+    inset:0;
+    background: transparent;
+    transition: background-color 900ms ease, opacity 900ms ease;
+  }
+  .fed-topbar {
+    position: absolute;
+    top: 6vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    z-index: 14010;
+    pointer-events:none;
+  }
+  .fed-logo {
+    width: 92px;
+    height: 92px;
+    object-fit:contain;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.35));
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+  .fed-status {
+    font-family: 'Press Start 2P', monospace;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    pointer-events: none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .fed-dots {
+    display:inline-block;
+    width:4em;
+    text-align:left;
+  }
+  /* animação dots */
+  @keyframes fed-dots {
+    0% { content: " .  "; }
+    33% { content: " .. "; }
+    66% { content: " ..."; }
+    100% { content: " .  "; }
+  }
+  .fed-dots::after {
+    content: ' .';
+    display:inline-block;
+    width:2.4em;
+    animation: fed-dots 1s steps(3) infinite;
+  }
+
+  .fed-welcome {
+    position: absolute;
+    bottom: 12vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 14010;
+    font-family: 'Press Start 2P', monospace;
+    color: #fff;
+    text-align:center;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 500ms ease, transform 500ms ease;
+    pointer-events: none;
+  }
+
+  /* pequena proteção para telas pequenas */
+  @media (max-width:420px) {
+    .fed-logo { width: 72px; height:72px; }
+    .fed-welcome { font-size: 10px; }
+    .fed-status { font-size: 10px; }
+  }
+  
+  
+  /* === FIX DE BOTÕES NO MODAL === */
+.custom-modal-content button {
+  white-space: normal;           /* ignora pre-wrap do texto */
+  line-height: 1;                /* corrige altura inflada */
+  padding: 0.6rem 0.8rem;        /* padding controlado */
+  display: flex;
+  align-items: center;           /* centraliza verticalmente */
+  justify-content: center;
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+}
+
+</style>
+
+
+ <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      font-family: 'Press Start 2P', monospace;
+      background: #f0f0f0;
+      color: #111;
+      overflow-x: hidden;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Container full-screen */
+    section {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 3fr 1fr;
+    }
+
+   
+     /* Sidebar (coluna da esquerda) */
+.sidebar {
+  grid-column: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* antes: padding-left: 4%; */
+  padding-left: 2%;    /* altere para o mesmo valor da coluna da direita */
+  gap: 1rem;
+}
+    .sidebar .logo img {
+      width: 120px;
+      filter: grayscale(100%) brightness(150%);
+      opacity: 0.7;
+      transition: transform 0.5s, filter 0.5s, opacity 0.5s;
+    }
+    .sidebar .logo img:hover {
+      transform: rotate(-5deg) scale(1.05);
+      filter: grayscale(100%) brightness(180%);
+      opacity: 0.8;
+    }
+    .sidebar nav a {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+      transition: opacity 0.3s, transform 0.3s, color 0.3s;
+    }
+    .sidebar nav a:hover {
+      opacity: 1;
+      transform: translateX(10px);
+      color: #c49b46;
+    }
+
+   
+
+/* CTA losango (coluna da direita) */
+.cta {
+  grid-column: 3 / 4;
+  display: flex;
+  align-items: center;
+  /* empurra o losango para a direita */
+  justify-content: flex-end;
+  /* mesma margem interna que na sidebar */
+  padding-right: 2%;
+  /* tira o padding-left se não precisar mais dele */
+  padding-left: 0;
+}
+    .diamond {
+      position: relative;
+      z-index: 1;
+      width: 200px;
+      height: 350px;
+      background: #c49b46;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      animation: pulse 4s ease-in-out infinite;
+      transition: transform 0.3s;
+      overflow: hidden;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.05); }
+    }
+    .diamond:hover {
+      transform: scale(1.1) rotate(5deg);
+    }
+    .diamond span {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .diamond:hover span {
+      color: #ffffff;
+    }
+    .diamond button {
+      margin-top: 2rem;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: rgba(17, 17, 17, 0.8);
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      transition: color 0.3s;
+    }
+    /* animação lava no botão */
+    @keyframes lava {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .diamond button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(-45deg, #ff00ff, #00ffff, #ffff00);
+      background-size: 300% 300%;
+      opacity: 0;
+      animation: lava 5s ease infinite;
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
+    .diamond:hover button::before {
+      opacity: 1;
+    }
+    .diamond:hover button {
+      color: #111111;
+    }
+
+    /* Overlay fullscreen com lava de fundo */
+    .fullscreen-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 0;
+      transition: width 0.5s ease, height 0.5s ease;
+    }
+    .fullscreen-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(-45deg, #ff00ff, #00ffff, #ffff00);
+      background-size: 300% 300%;
+      animation: lava 8s ease infinite;
+      opacity: 0.8;
+      z-index: -1;
+    }
+    .fullscreen-overlay.active {
+      width: 100vw;
+      height: 100vh;
+    }
+    .audio-players {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 92%;
+  max-width: 420px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+    .fullscreen-overlay.active .audio-players {
+      display: flex;
+    }
+    .audio-player {
+  background: #ffffff;
+  border: 3px solid #c49b46;
+  border-radius: 6px;
+  padding: 0.5rem;
+  width: 100%;
+  z-index: 1;
+}
+    .audio-player h3 {
+  margin-bottom: 0.25rem;
+  font-size: 0.6rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+   
+   .audio-player audio {
+  width: 100%;
+  height: 32px;
+}
+   
+    .audio-player iframe {
+      width: 100%;
+      height: 60px;
+      border: none;
+    }
+
+    .hero-img { display: flex; align-items: center; justify-content: center; position: relative; } .hero-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; /* mostra mais do topo */ filter: grayscale(100%); /* sem transição hover */ /* impede arrastar */ -webkit-user-drag: none; /* para Chrome/Safari */ user-drag: none; /* padrão futuro */ pointer-events: none; /* impede qualquer interação do mouse */ }
+
+    /* Estilos do modal custom */
+    .custom-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+      width: 0;
+      height: 75vh;
+      transition: width 0.6s ease-out;
+      z-index: 10000;
+      border-radius: 8px;
+    }
+    .custom-modal.open {
+      width: 50%;
+    }
+    .custom-modal-header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0.5rem;
+    }
+    .custom-modal-close {
+      background: #c49b46;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
+    }
+    .custom-modal-content {
+  height: calc(100% - 3rem);
+  overflow-y: auto;
+  overflow-x: hidden;            /* esconde a barra horizontal */
+  padding: 1rem;
+  box-sizing: border-box;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #fff;
+
+  white-space: pre-wrap;         /* permite quebra de linha automática */
+  word-break: break-word;        /* quebra palavras muito longas */
+}
+
+    .custom-modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    .custom-modal-content::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+    .custom-modal-content::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+    }
+   
+   
+   /* ===== EFEITO MONITOR ANTIGO (CRT) ===== */
+.monitor-overlay{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.12),
+      rgba(0,0,0,0.12) 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0,0,0,0.18) 100%
+    );
+  animation: scanMove 10s linear infinite, flicker 3.2s infinite;
+}
+
+@keyframes scanMove{
+  from { background-position: 0 0, center; }
+  to   { background-position: 0 100%, center; }
+}
+
+@keyframes flicker{
+  0%{opacity:.28}
+  8%{opacity:.38}
+  15%{opacity:.22}
+  30%{opacity:.35}
+  45%{opacity:.25}
+  60%{opacity:.4}
+  75%{opacity:.3}
+  100%{opacity:.34}
+}
+
+  </style>
+</head>
+<body>
+  
+  
+  
+  <!-- Tela Principal -->
+  
+  <div class="monitor-overlay"></div>
+
+  <section id="main">
+    <div class="sidebar">
+      <div class="logo">
+        <img src="https://i.servimg.com/u/f22/19/80/77/63/emblem12.png" alt="Logo">
+      </div> 
+      <nav>
+        <a data-index="1">A CAPITAL</a>
+        <a data-index="2">O VALE HOJE</a>
+        <a data-index="3">O VALE AMANHA</a>
+        <a data-index="4">O HIBRIDO</a>
+      </nav>
+    </div>
+      
+    <div class="hero-img">
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgbIX6RcZndnIaebFxp9_Fr-KI5wd3739WB66ERhuix42g2NSyEGxP0m2ePZrmwZQg_6Pc62CKIRpUq4G2gb9fY0PZKF-p8HH5rxKGcXpiackheSiMRu9TrkBa5VuBSorB9dgEkOLwkONKxjBA_3QxWudpHlzm0ZtlNtvTfz4iA5JXfBbH3CfQzaTgf6Kc/s16000/ministrosvinhadinho.png" alt="Heróis do Vale">
+    </div>
+    <div class="cta">
+      <div class="diamond" id="lava-trigger">
+        <span>Voz do Vale</span>
+        <button>▶</button>
+      </div>
+    </div>
+  </section>
+      
+      
+      
+
+  <!-- Overlay para os áudios (player próprio) -->
+      
+      <div class="fullscreen-overlay" id="lava-overlay">
+  <div class="audio-players">
+
+    <div class="audio-player">
+      <h3 data-i18n="DAY_ZERO">DIA ZERO</h3>
+      <audio controls preload="none">
+        <source src="https://github.com/versaodeluxe18/vinhadinho/raw/refs/heads/main/arquivos/Diazero_low.mp3" type="audio/mpeg">
+        Seu navegador não suporta áudio.
+      </audio>
+    </div>
+
+    <div class="audio-player">
+      <h3 data-i18n="YEAR_7">ANO 7</h3>
+      <audio controls preload="none">
+        <source src="https://github.com/versaodeluxe18/vinhadinho/raw/refs/heads/main/arquivos/anosete_low.mp3" type="audio/mpeg">
+        Seu navegador não suporta áudio.
+      </audio>
+    </div>
+
+    <div class="audio-player">
+      <h3 data-i18n="YEAR_69">ANO 69</h3>
+      <audio controls preload="none">
+        <source src="https://github.com/versaodeluxe18/vinhadinho/raw/refs/heads/main/arquivos/ano69_min.mp3" type="audio/mpeg">
+        Seu navegador não suporta áudio.
+      </audio>
+    </div>
+
+  </div>
+</div>
+
+  <!-- Modal custom -->
+  <div class="custom-modal" id="custom-modal">
+   <div class="custom-modal-header" style="display:flex;justify-content:space-between;gap:.5rem;">
+  <button class="custom-modal-close" id="modal-open-link">ACESSAR PORTAL</button>
+  <button class="custom-modal-close" id="modal-close">Voltar</button>
+</div>
+
+    <div class="custom-modal-content" id="modal-content">
+      <!-- texto inserido via JS -->
+    </div>
+  </div>
+
+
+      
+  <script>
+(function () {
+
+  /* ================= CONFIG ================= */
+  const STORAGE_KEY = 'fed_intro_last_shown';
+  const SKIP_TIME_MS = 3 * 60 * 60 * 1000;
+
+  const IMAGE_1 = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg2530hQgeaQ_aBHIvx5pb6kt46ha322elP3ft5GAE5pE31_KviZkKmMKIjZ5QTQZqFIFPsCtfn2kPcgaenvTaVL8SPwhGWEyBex46ZvRnUZRh2hLJzU2G-3gJ-WBZT_B4ZFK0pm02FnRCSPWwh64umTND5rO-jK0OVUXyxx2wJdF7DIkHDI196Og70KYo/s1600/versaodleuxelogoentrada.png';
+  const IMAGE_2 = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiI-c_gKTKV2W9z24RnBE2j9rYc2fhO3kVjXyqBDYF_L1TRahpJ5IT1RtcJcuRUdUFpac7s2Dc5536DGnmrk4Kd-nLAAm_mYYz1H4bUDXHTD5Tvl3qEbvuaK3WUODUU79OoCI2pQ07juJ6pDTv11o0m91r9X9k4hyphenhyphenqVER2YiH2CA4SwgXCajSmAJBDiL3k/s1600/vinhadinhologoentrada.png';
+
+  // ???? imagem exclusiva do BEM-VINDO
+  const IMAGE_WELCOME = 'https://i.servimg.com/u/f22/19/80/77/63/emblem12.png';
+
+  const TIME_IMG_1 = 2000;
+  const TIME_IMG_2 = 2000;
+  const TIME_LOGO  = 3000;
+
+  const GAME_BG = '#2b2b2b';
+
+  /* ================= HELPERS ================= */
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  function shouldSkipIntro() {
+    const last = Number(localStorage.getItem(STORAGE_KEY));
+    return last && (Date.now() - last) < SKIP_TIME_MS;
+  }
+
+  function saveIntroTimestamp() {
+    try { localStorage.setItem(STORAGE_KEY, Date.now()); } catch(e){}
+  }
+
+  function preloadImages(urls) {
+    return Promise.all(urls.map(src =>
+      new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = res;
+        img.onerror = rej;
+        img.src = src;
+      })
+    ));
+  }
+
+  if (shouldSkipIntro()) return;
+
+  /* ================= CSS ================= */
+  const style = document.createElement('style');
+  style.textContent = `
+    body { overflow:hidden }
+
+    .fed-loader,.fed-intro {
+      position:fixed;
+      inset:0;
+      z-index:99999;
+    }
+
+    /* ===== LOADER ===== */
+    .fed-loader {
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+    }
+
+    .fed-loading {
+      position:relative;
+      font-family:'Press Start 2P', monospace;
+      font-size:44px;
+      letter-spacing:.12em;
+    }
+
+    .fed-loading-text {
+      position:relative;
+      z-index:2;
+    }
+
+    .fed-orbit {
+      position:absolute;
+      inset:-18px;
+      animation:spin 2.2s linear infinite;
+    }
+
+    .fed-orbit .dot {
+      position:absolute;
+      width:6px;
+      height:6px;
+      background:#fff;
+      border-radius:50%;
+    }
+
+    .fed-orbit .d1 { top:0; left:50%; transform:translateX(-50%); }
+    .fed-orbit .d2 { right:0; top:50%; transform:translateY(-50%); }
+    .fed-orbit .d3 { bottom:0; left:50%; transform:translateX(-50%); }
+
+    @keyframes spin {
+      from { transform:rotate(0deg); }
+      to   { transform:rotate(360deg); }
+    }
+
+    /* ===== INTRO ===== */
+    .fed-intro { overflow:hidden; }
+
+    .fed-bg {
+      position:absolute;
+      inset:0;
+      background:#000;
+      transition:background-color 900ms ease;
+      z-index:1;
+    }
+
+    .fed-img {
+      position:absolute;
+      inset:0;
+      background-size:cover;
+      background-position:center;
+      opacity:0;
+      transition:opacity 1s ease;
+      z-index:2;
+    }
+
+    .fed-img.show { opacity:1 }
+
+    .fed-center {
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      opacity:0;
+      transition:opacity 1s ease;
+      z-index:3;
+    }
+
+    .fed-center.show { opacity:1 }
+
+    .fed-center img {
+      width:40vmin;
+      max-width:420px;
+      filter:drop-shadow(0 20px 40px rgba(0,0,0,.6));
+    }
+
+    .fed-center span {
+      margin-top:20px;
+      font-family:'Press Start 2P', monospace;
+      font-size:14px;
+      color:#fff;
+    }
+
+    .fed-intro.fade-out {
+      opacity:0;
+      transition:opacity 600ms ease;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* ================= LOADER ================= */
+  const loader = document.createElement('div');
+  loader.className = 'fed-loader';
+  loader.innerHTML = `
+    <div class="fed-loading">
+      <span class="fed-loading-text">CARREGANDO</span>
+      <div class="fed-orbit">
+        <span class="dot d1"></span>
+        <span class="dot d2"></span>
+        <span class="dot d3"></span>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(loader);
+
+  /* ================= INTRO ================= */
+  const intro = document.createElement('div');
+  intro.className = 'fed-intro';
+  intro.innerHTML = `
+    <div class="fed-bg" id="fedBg"></div>
+    <div class="fed-img" id="img1" style="background-image:url('${IMAGE_1}')"></div>
+    <div class="fed-img" id="img2" style="background-image:url('${IMAGE_2}')"></div>
+    <div class="fed-center" id="center">
+      <img src="${IMAGE_WELCOME}">
+      <span>BEM-VINDO</span>
+    </div>
+  `;
+
+  async function startIntro() {
+    try {
+      await preloadImages([IMAGE_1, IMAGE_2, IMAGE_WELCOME]);
+    } catch {
+      return;
+    }
+
+    loader.remove();
+    document.body.appendChild(intro);
+
+    const img1 = document.getElementById('img1');
+    const img2 = document.getElementById('img2');
+    const center = document.getElementById('center');
+    const bg = document.getElementById('fedBg');
+
+    img1.classList.add('show');
+    await wait(TIME_IMG_1);
+
+    img2.classList.add('show');
+    await wait(500);
+    img1.classList.remove('show');
+    await wait(TIME_IMG_2);
+
+    img2.classList.remove('show');
+    center.classList.add('show');
+    await wait(TIME_LOGO);
+
+    bg.style.backgroundColor = GAME_BG;
+    await wait(900);
+
+    intro.classList.add('fade-out');
+    await wait(600);
+
+    intro.remove();
+    document.body.style.overflow = '';
+
+    saveIntroTimestamp();
+  }
+
+  startIntro();
+
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+    
+    <script>
+  /* ================= IDIOMA (dinâmico) ================= */
+  function getLang() {
+    return localStorage.getItem('idioma') || 'pt';
+  }
+
+  /* ================= TEXTOS I18N ================= */
+  const TEXTOS_I18N = {
+    pt: {
+       1: `Você chegou onde tudo começa. A Capital do Vale é o coração pulsante da inovação, da arte, da cultura e do progresso. Aqui, tradição e tecnologia caminham lado a lado. Cada rua, cada tela, cada gesto foi pensado para o bem de todos.
+
+Na Capital, vivemos o futuro hoje. Nossos sistemas garantem segurança, ordem e eficiência. A energia que abastece os distritos nasce aqui. As decisões mais importantes são tomadas com responsabilidade e visão. Tudo para que o Vale continue forte, unido e em paz.
+
+Nossos cidadãos são exemplo de elegância, inteligência e civilidade. Aqui, celebramos o talento, a disciplina e o compromisso com o bem coletivo.
+
+
+
+
+`,
+  2: `O mundo mudou. E o Vale mudou com ele.
+
+Hoje, vivemos uma nova era. Uma era de harmonia, transparência e união entre povos. Através da ação coordenada da Federação, todos os países agora caminham juntos por um objetivo comum: a paz duradoura.
+
+O Vale é referência global em estabilidade e cooperação. Aqui, todos participam. Cidadãos de todas as regiões podem acessar o Portal da Federação e se conectar, em tempo real, aos milhares de drones que sobrevoam o território. Monitoramos juntos. Cuidamos juntos. Construímos juntos.
+
+É possível acompanhar o desenvolvimento dos Nascidos Híbridos, uma nova geração de esperança, criada com os melhores traços da humanidade. Você pode enviar mensagens, oferecer presentes e observar seus passos. Eles não têm nada a esconder. Eles representam o futuro.
+
+A vigilância é a nossa ponte com a confiança. O controle é o que permite que a paz floresça.
+
+O Vale está aberto. O Vale está desperto.
+Todos juntos por uma Capital.
+Todos juntos pela paz.
+
+
+
+
+`,
+  3: `O futuro do Vale já começou. E ele começa onde tudo sempre aconteceu: na Capital.
+
+A nova fase é de expansão. A Capital vai crescer, levar mais tecnologia, mais presença, mais cuidado. Vamos aumentar o controle dos híbridos, com sistemas avançados de monitoramento, sempre abertos à população. Nada será escondido. Nada será deixado de lado.
+
+Os híbridos não são uma ameaça. Eles são a resposta. Eles são o próximo passo.
+
+Em breve, a Capital vai oferecer mais do que proteção. Vai oferecer cura. A doença que ainda assombra o mundo inteiro está com os dias contados. Ninguém mais vai precisar partir. Ninguém mais vai sofrer em silêncio. O futuro é mais do que esperança. É certeza.
+
+A Federação do Vale é o futuro.
+A Capital é a paz.
+Nossa união é a cura.
+
+
+
+`,
+  4: `Os Nascidos Híbridos do Dia Zero não transmitem o flagelo.
+
+A Federação do Vale tem evidências claras de que eles não representam risco de contágio. Ainda não sabemos exatamente o que causa a doença que, ano após ano, se torna mais agressiva e fatal em várias partes do mundo. Mas uma coisa é certa: os híbridos não são os culpados. E também não são perigosos.
+
+Pelo contrário. A Federação trabalha em parceria com eles. Os híbridos são fundamentais na busca por respostas, e fazem parte ativa do esforço global por cura, segurança e estabilidade.
+
+Qualquer cidadão pode acessar o sistema oficial do Vale através do nosso site e enviar um drone para acompanhar de perto a movimentação dos híbridos. Os drones são equipados com câmeras, GPS e capacidade de transporte de pequenos objetos. Você pode observar, ajudar, registrar e até enviar presentes diretamente para os híbridos.
+
+Eles também têm o dever de manter contato constante com a população, por meio do Portal de Blog, onde publicam seus relatos, rotinas e experiências.
+
+Não tenha medo.
+A Capital do Vale protege todos.
+A verdade está ao alcance de todos.
+A paz é construída com confiança.
+
+
+
+
+`
+    },
+
+    en: {
+      1: `You have arrived where everything begins. The Capital of the Valley is the beating heart of innovation, art, culture, and progress. Here, tradition and technology walk side by side. Every street, every screen, every gesture has been designed for the good of all.
+
+In the Capital, we live the future today. Our systems ensure security, order, and efficiency. The energy that powers the districts is born here. The most important decisions are made with responsibility and vision. All so that the Valley may remain strong, united, and at peace.
+
+Our citizens are an example of elegance, intelligence, and civility. Here, we celebrate talent, discipline, and commitment to the collective good.
+
+
+
+
+
+`,
+      2: `The world has changed. And the Valley has changed with it.
+
+Today, we live in a new era. An era of harmony, transparency, and unity among peoples. Through the coordinated action of the Federation, all nations now walk together toward a common goal: lasting peace.
+
+The Valley is a global reference in stability and cooperation. Here, everyone takes part. Citizens from all regions can access the Federation Portal and connect, in real time, to the thousands of drones that patrol the territory. We monitor together. We care together. We build together.
+
+It is possible to follow the development of the Hybrid Born, a new generation of hope, created with the finest traits of humanity. You can send messages, offer gifts, and observe their steps. They have nothing to hide. They represent the future.
+
+Surveillance is our bridge to trust. Control is what allows peace to flourish.
+
+The Valley is open. The Valley is awake.
+All together for one Capital.
+All together for peace.
+
+
+
+
+
+`,
+      3: `The future of the Valley has already begun. And it begins where everything has always happened: in the Capital.
+
+The new phase is one of expansion. The Capital will grow, bringing more technology, more presence, more care. We will increase the control of the hybrids, with advanced monitoring systems, always open to the population. Nothing will be hidden. Nothing will be left aside.
+
+The hybrids are not a threat. They are the answer. They are the next step.
+
+Soon, the Capital will offer more than protection. It will offer healing. The disease that still haunts the entire world has its days numbered. No one will need to leave anymore. No one will suffer in silence. The future is more than hope. It is certainty.
+
+The Federation of the Valley is the future.
+The Capital is peace.
+Our unity is the cure.
+
+
+
+
+
+`,
+      4: `The Day Zero Hybrid Born do not transmit the plague.
+
+The Federation of the Valley has clear evidence that they do not represent a risk of contagion. We still do not know exactly what causes the disease that, year after year, becomes more aggressive and fatal in many parts of the world. But one thing is certain: the hybrids are not to blame. And they are not dangerous.
+
+On the contrary. The Federation works in partnership with them. Hybrids are fundamental in the search for answers and are an active part of the global effort for healing, security, and stability.
+
+Any citizen can access the Valley’s official system through our website and deploy a drone to closely follow the movement of the hybrids. Drones are equipped with cameras, GPS, and the ability to transport small objects. You can observe, assist, record, and even send gifts directly to the hybrids.
+
+They also have the duty to maintain constant contact with the population through the Blog Portal, where they publish their reports, routines, and experiences.
+
+Do not be afraid.
+The Capital of the Valley protects everyone.
+The truth is within everyone’s reach.
+Peace is built on trust.
+
+
+
+
+
+`
+    },
+
+    hi: {
+      1: `आप वहाँ पहुँच चुके हैं जहाँ सब कुछ शुरू होता है। घाटी की राजधानी नवाचार, कला, संस्कृति और प्रगति का धड़कता हुआ हृदय है। यहाँ परंपरा और तकनीक कंधे से कंधा मिलाकर चलती हैं। हर सड़क, हर स्क्रीन, हर इशारा सभी के कल्याण के लिए बनाया गया है।
+
+राजधानी में, हम आज ही भविष्य में जीते हैं। हमारे सिस्टम सुरक्षा, व्यवस्था और दक्षता सुनिश्चित करते हैं। जो ऊर्जा जिलों को शक्ति देती है, वह यहीं से जन्म लेती है। सबसे महत्वपूर्ण निर्णय जिम्मेदारी और दूरदृष्टि के साथ लिए जाते हैं। ताकि घाटी मजबूत, एकजुट और शांत बनी रहे।
+
+हमारे नागरिक शालीनता, बुद्धिमत्ता और सभ्यता का उदाहरण हैं। यहाँ हम प्रतिभा, अनुशासन और सामूहिक भलाई के प्रति प्रतिबद्धता का उत्सव मनाते हैं。
+
+
+
+
+
+`,
+      2: `दुनिया बदल चुकी है। और घाटी भी उसके साथ बदल गई है।
+
+आज हम एक नए युग में जी रहे हैं। सामंजस्य, पारदर्शिता और लोगों के बीच एकता का युग। महासंघ की समन्वित कार्रवाई के माध्यम से, अब सभी राष्ट्र एक साझा लक्ष्य की ओर साथ-साथ बढ़ रहे हैं: स्थायी शांति।
+
+घाटी स्थिरता और सहयोग का वैश्विक उदाहरण है। यहाँ सभी भाग लेते हैं। सभी क्षेत्रों के नागरिक महासंघ पोर्टल तक पहुँच सकते हैं और वास्तविक समय में उन हज़ारों ड्रोन से जुड़ सकते हैं जो क्षेत्र की निगरानी करते हैं। हम साथ निगरानी करते हैं। साथ देखभाल करते हैं। साथ निर्माण करते हैं।
+
+हाइब्रिड जन्मों के विकास को देखना संभव है — आशा की एक नई पीढ़ी, जो मानवता के सर्वोत्तम गुणों से निर्मित है। आप संदेश भेज सकते हैं, उपहार दे सकते हैं और उनके कदमों को देख सकते हैं। उनके पास छिपाने के लिए कुछ नहीं है। वे भविष्य का प्रतिनिधित्व करते हैं।
+
+निगरानी हमारा विश्वास से जुड़ने का पुल है। नियंत्रण ही वह आधार है जो शांति को फलने-फूलने देता है।
+
+घाटी खुली है। घाटी जागृत है।
+एक राजधानी के लिए — सभी एक साथ।
+शांति के लिए — सभी एक साथ।
+
+
+
+
+
+`,
+      3: `घाटी का भविष्य पहले ही शुरू हो चुका है। और यह वहीं से शुरू होता है जहाँ सब कुछ हमेशा हुआ है: राजधानी में।
+
+नया चरण विस्तार का है। राजधानी का विस्तार होगा — अधिक तकनीक, अधिक उपस्थिति और अधिक देखभाल के साथ। हम हाइब्रिड्स पर नियंत्रण बढ़ाएँगे, उन्नत निगरानी प्रणालियों के माध्यम से, जो हमेशा जनता के लिए खुली रहेंगी। कुछ भी छिपाया नहीं जाएगा। कुछ भी नज़रअंदाज़ नहीं किया जाएगा।
+
+हाइब्रिड कोई खतरा नहीं हैं। वे ही उत्तर हैं। वे अगला कदम हैं।
+
+शीघ्र ही, राजधानी केवल सुरक्षा से अधिक प्रदान करेगी। वह उपचार प्रदान करेगी। वह बीमारी जो अब भी पूरी दुनिया को सताती है, उसके दिन गिने-चुने रह गए हैं। अब किसी को विदा नहीं होना पड़ेगा। कोई भी चुपचाप पीड़ा नहीं सहेगा। भविष्य केवल आशा नहीं है। वह निश्चितता है।
+
+घाटी का महासंघ ही भविष्य है।
+राजधानी ही शांति है।
+हमारी एकता ही उपचार है。
+
+
+
+
+
+`,
+      4: `डे ज़ीरो के हाइब्रिड जन्म इस महामारी को नहीं फैलाते।
+
+घाटी के महासंघ के पास स्पष्ट प्रमाण हैं कि वे संक्रमण का जोखिम नहीं हैं। हम अभी तक ठीक-ठीक नहीं जानते कि वह बीमारी किस कारण होती है जो हर वर्ष दुनिया के कई हिस्सों में और अधिक आक्रामक और घातक होती जा रही है। लेकिन एक बात निश्चित है: हाइब्रिड दोषी नहीं हैं। और वे खतरनाक भी नहीं हैं।
+
+इसके विपरीत। महासंघ उनके साथ साझेदारी में कार्य करता है। हाइब्रिड उत्तर खोजने में महत्वपूर्ण भूमिका निभाते हैं और उपचार, सुरक्षा और स्थिरता के वैश्विक प्रयास का सक्रिय हिस्सा हैं।
+
+कोई भी नागरिक हमारी वेबसाइट के माध्यम से घाटी की आधिकारिक प्रणाली तक पहुँच सकता है और हाइब्रिड्स की गतिविधियों पर नज़र रखने के लिए एक ड्रोन भेज सकता है। ड्रोन कैमरों, GPS और छोटे वस्तुओं के परिवहन की क्षमता से सुसज्जित हैं। आप देख सकते हैं, सहायता कर सकते हैं, रिकॉर्ड कर सकते हैं और यहाँ तक कि सीधे हाइब्रिड्स को उपहार भी भेज सकते हैं।
+
+उनका यह कर्तव्य भी है कि वे ब्लॉग पोर्टल के माध्यम से जनता के साथ निरंतर संपर्क बनाए रखें, जहाँ वे अपने विवरण, दिनचर्या और अनुभव प्रकाशित करते हैं।
+
+डरें नहीं।
+घाटी की राजधानी सभी की रक्षा करती है।
+सत्य सभी की पहुँच में है।
+शांति विश्वास से निर्मित होती है。
+
+
+
+
+
+`
+    }
+  };
+
+  /* ================= LINKS ================= */
+  const modalLinks = {
+    1: 'https://versaodeluxe.directorioforuns.com/h147-vinhadinho-capital-game',
+    2: 'https://versaodeluxe.directorioforuns.com/h146-vinhadinho-hoje-game',
+    3: 'https://versaodeluxe.directorioforuns.com/h145-vinhadinho-amanha-game',
+    4: 'https://versaodeluxe.directorioforuns.com/h144-vinhadinho-blog-game'
+  };
+
+  /* ================= FUNÇÕES ================= */
+  function aplicarTextoModal(idx) {
+    const lang = getLang();
+    const textos = TEXTOS_I18N[lang] || TEXTOS_I18N.pt;
+    const content = document.getElementById('modal-content');
+    content.textContent = textos[idx] || '';
+  }
+
+  function abrirModal(idx) {
+    const modal = document.getElementById('custom-modal');
+    const openBtn = document.getElementById('modal-open-link');
+
+    aplicarTextoModal(idx);
+
+    const link = modalLinks[idx];
+    if (link) {
+      openBtn.style.display = 'inline-block';
+      openBtn.onclick = () => window.location.href = link;
+    } else {
+      openBtn.style.display = 'none';
+    }
+
+    modal.dataset.currentIndex = idx;
+
+    void modal.offsetWidth;
+    modal.classList.add('open');
+  }
+
+  /* ================= EVENTOS ================= */
+  document.querySelectorAll('.sidebar nav a').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      abrirModal(link.getAttribute('data-index'));
+    });
+  });
+
+  document.getElementById('modal-close').addEventListener('click', () => {
+    document.getElementById('custom-modal').classList.remove('open');
+  });
+
+  /* ================= ATUALIZA AO TROCAR IDIOMA ================= */
+  window.addEventListener('idioma:change', () => {
+    const modal = document.getElementById('custom-modal');
+    if (!modal.classList.contains('open')) return;
+
+    const idx = modal.dataset.currentIndex;
+    if (idx) aplicarTextoModal(idx);
+  });
+
+  /* ================= LAVA OVERLAY ================= */
+  const trigger = document.getElementById('lava-trigger');
+  const overlay = document.getElementById('lava-overlay');
+  let ativo = false;
+
+  trigger.addEventListener('click', () => {
+    ativo = !ativo;
+    overlay.classList.toggle('active', ativo);
+  });
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) {
+      overlay.classList.remove('active');
+      ativo = false;
+    }
+  });
+</script>
+
+    
+    
+    
+    
+    
+
+
+
+
+
+
+<script>
+(function(){
+  // Ajuste de enquadramento: altere se quiser ('50% 50%' centro exato)
+  const OBJECT_POSITION = '50% 50%';
+
+  // Injeta CSS de fallback para ocultar imagens internas (mantém sua lógica)
+  const CSS_ID = 'fix-dev-avatar-css';
+  if (!document.getElementById(CSS_ID)) {
+    const style = document.createElement('style');
+    style.id = CSS_ID;
+    style.textContent = `
+      .dev-avatar img,
+      .dev-card .dev-avatar img,
+      #modal-content .dev-avatar img { display: none !important; }
+
+      /* Ajustes do modal principal para evitar corte de conteúdo */
+      #custom-modal { box-sizing: border-box; }
+
+      /* IMPORTANT: removido overflow: hidden para permitir rolagem interna */
+      #custom-modal .modal-inner,
+      #modal-content {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-height: 72vh; /* limita a altura do modal para caber na tela */
+        /* NOTA: não colocar overflow:hidden aqui - queremos que o conteúdo interno role */
+      }
+
+      /* Área que contém o texto principal dentro do modal
+         usamos overflow:auto para permitir rolagem interna sem quebrar layout */
+      #modal-content .qsd-text-wrap {
+        flex: 1 1 auto;
+        overflow: auto;
+        padding: 0.6rem;
+        box-sizing: border-box;
+        border-top: 1px solid rgba(255,255,255,0.03);
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+        color: #ddd;
+      }
+      #modal-content .qsd-text-wrap p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.55;
+        white-space: normal; /* permite quebra natural de linhas */
+        text-align: justify;  /* justifica o texto (alinha direita e esquerda) */
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        hyphens: auto;
+        word-break: break-word;
+      }
+
+      /* Botões fixos na base do modal — não sobreporão o conteúdo */
+      #modal-content .qsd-actions {
+        display:flex;
+        justify-content:flex-end;
+        gap:.5rem;
+        padding-top:.5rem;
+        flex-shrink:0;
+      }
+
+      /* overlay externo (iframe) */
+      #external-overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.6);
+        z-index: 12000;
+        padding: 1.25rem;
+      }
+      #external-overlay.open { display:flex; }
+      #external-overlay .external-frame-wrap{
+        width: min(1100px, 96%);
+        height: min(720px, 92%);
+        background: #0f1720;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        overflow: hidden;
+        display:flex;
+        flex-direction:column;
+      }
+      #external-overlay .external-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding: .5rem .75rem;
+        background: linear-gradient(90deg, rgba(196,155,70,0.08), rgba(255,255,255,0.02));
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+      }
+      #external-overlay .external-title{ font-family:'Press Start 2P', monospace; font-size:12px; color:#fff; }
+      #external-overlay .external-close{
+        background:#c49b46;border:none;padding:.4rem .6rem;border-radius:6px;cursor:pointer;font-family:'Press Start 2P',monospace;
+      }
+      #external-overlay iframe{
+        width:100%;
+        height:100%;
+        border:0;
+        background:#fff;
+        flex:1 1 auto;
+      }
+      #external-overlay .external-fallback{
+        padding:.75rem;
+        font-size:12px;
+        color:#ddd;
+        background:linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
+      }
+
+      /* opcional: barras de rolagem visíveis em WebKit (se quiser) */
+      /* #modal-content .qsd-text-wrap::-webkit-scrollbar { width: 10px; }
+      #modal-content .qsd-text-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius:10px; } */
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Cria o overlay de iframe (adiciona uma vez ao body)
+  if (!document.getElementById('external-overlay')) {
+    const overlay = document.createElement('div');
+    overlay.id = 'external-overlay';
+    overlay.innerHTML = `
+      <div class="external-frame-wrap" role="dialog" aria-modal="true" aria-label="Saiba Mais">
+        <div class="external-header">
+          <div class="external-title"> </div>
+          <div>
+            <button class="external-open-new" style="margin-right:.5rem;background:transparent;border:1px solid rgba(255,255,255,0.06);padding:.35rem .5rem;border-radius:6px;color:#fff;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:11px;">
+              Abrir em nova aba
+            </button>
+            <button class="external-close">FECHAR</button>
+          </div>
+        </div>
+        <iframe src="" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+        <div class="external-fallback"></div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // listeners do overlay
+    const iframe = overlay.querySelector('iframe');
+    const closeBtn = overlay.querySelector('.external-close');
+    const openNewBtn = overlay.querySelector('.external-open-new');
+
+    function openExternal(url){
+      iframe.src = url;
+      overlay.classList.add('open');
+      overlay.querySelector('.external-close').focus();
+    }
+    function closeExternal(){
+      overlay.classList.remove('open');
+      overlay.querySelector('iframe').src = '';
+    }
+
+    closeBtn.addEventListener('click', closeExternal);
+    overlay.addEventListener('click', (e)=> {
+      if (e.target === overlay) closeExternal();
+    });
+    openNewBtn.addEventListener('click', ()=> {
+      const url = iframe.src || 'https://docs.google.com/document/d/1rl1IWgHyBLZLOd4jdmntOEgolxb8QwmMZu7XUJA2H6A/edit?usp=sharing';
+      window.open(url, '_blank', 'noopener');
+    });
+
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && overlay.classList.contains('open')) closeExternal();
+    });
+
+    window.__VinhadinhoExternal = {
+      open: openExternal,
+      close: closeExternal
+    };
+  }
+
+  // === seu código de suporte / salão dos devs (mesmo fluxo) ===
+  const nav = document.querySelector('.sidebar nav');
+  if (!nav) return;
+
+  const existing = Array.from(nav.querySelectorAll('a')).find(a => (a.textContent||'').trim().toUpperCase() === 'SUPORTE');
+  if (existing) existing.remove();
+
+  const suporteLink = document.createElement('a');
+  suporteLink.setAttribute('href', '#suporte');
+  suporteLink.setAttribute('data-index', 'support');
+  suporteLink.textContent = 'SUPORTE';
+  nav.appendChild(suporteLink);
+
+  const modal = document.getElementById('custom-modal');
+  const modalContent = document.getElementById('modal-content');
+  if (!modal || !modalContent) {
+    console.warn('custom-modal ou modal-content não encontrados.');
+    return;
+  }
+
+  const staticClose = document.getElementById('modal-close');
+  if (staticClose) staticClose.textContent = 'FECHAR';
+
+  function openModal(){ void modal.offsetWidth; modal.classList.add('open'); }
+  function closeModal(){ modal.classList.remove('open'); }
+
+  // dados (edite conforme quiser)
+  const devs = [
+    { name: 'W.F.Fukuta', area: 'Desenvolveu os primeiros modos de jogo sendo eles: Coletar, Cabana e Acampamento.', img: 'https://lh3.googleusercontent.com/a/ACg8ocJ0id7x8HEHHe49qeDOn0HANTh3_73x9GyrpcobgJf51g76r9lD=s96-c', WEBSITE: 'https://www.instagram.com/w.f.fukuta/', discord: 'w.f.fukuta' }
+  ];
+
+  // Render principal do Suporte
+  function renderSuporteMain(){
+  modalContent.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="font-size:14px;margin:0;text-transform:uppercase;">Suporte</h2>
+        <button id="suporte-fechar" style="cursor:pointer;font-family:'Press Start 2P',monospace;">
+          FECHAR
+        </button>
+      </div>
+
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:160px;">
+          <button
+            id="sp-contact"
+            style="width:100%;cursor:pointer;padding:.6rem;text-transform:uppercase;background:#c49b46;border:none;color:#111;">
+            Contactar o suporte
+          </button>
+        </div>
+
+        <div style="flex:1;min-width:160px;">
+          <button
+            id="sp-devs"
+            style="width:100%;cursor:pointer;padding:.6rem;text-transform:uppercase;background:transparent;border:2px solid rgba(255,255,255,0.06);color:#fff;">
+            Salao dos Devs
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // FECHAR
+  document.getElementById('suporte-fechar')?.addEventListener('click', e=>{
+    e.preventDefault();
+    closeModal();
+  });
+
+  // CONTACTAR SUPORTE (overlay iframe)
+  document.getElementById('sp-contact')?.addEventListener('click', e=>{
+    e.preventDefault();
+
+    if (window.__VinhadinhoExternal?.open) {
+      window.__VinhadinhoExternal.open(
+        'https://docs.google.com/forms/d/e/1FAIpQLSft1-NwU7wIAVG8JmnE7ATenk6UJFPZKbBVEOlDPijKKFvEZw/viewform?usp=dialog'
+      );
+    } else {
+      window.open(
+        'https://docs.google.com/forms/d/e/1FAIpQLSft1-NwU7wIAVG8JmnE7ATenk6UJFPZKbBVEOlDPijKKFvEZw/viewform?usp=dialog',
+        '_blank',
+        'noopener'
+      );
+    }
+  });
+
+  // ???? SALÃO DOS DEVS (ESTAVA FALTANDO RECRIAR CORRETAMENTE)
+  document.getElementById('sp-devs')?.addEventListener('click', e=>{
+    e.preventDefault();
+    renderDevsSalon();
+  });
+}
+
+
+
+  // Render do Salao dos Devs — agora usando background-image para avatar
+  function renderDevsSalon(){
+    const cardsHtml = devs.map((d,i) => `
+      <div class="dev-card" data-idx="${i}" style="display:flex;gap:.6rem;align-items:center;padding:.5rem;border:2px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:.4rem;background:transparent;cursor:pointer;">
+        <div class="dev-avatar" aria-hidden="true"
+             style="
+               width:56px;height:56px;border-radius:50%;overflow:hidden;border:3px solid #c49b46;
+               background-image:url('${d.img}');
+               background-size:cover;
+               background-position:${OBJECT_POSITION};
+               background-repeat:no-repeat;
+               display:block;
+             ">
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px;">${d.name}</div>
+          <div style="font-size:11px;color:#ddd;margin-bottom:2px;">${d.area}</div>
+          <div style="font-size:11px;color:#c49b46;"><a href="${d.instagram}" target="_blank" rel="noopener" style="color:inherit;">WEBSITE</a> • <span style="color:#ddd">Discord</span></div>
+        </div>
+      </div>
+    `).join('');
+
+    const queroHtml = `
+      <div id="quero-ser-dev" style="display:flex;gap:.6rem;align-items:center;padding:.5rem;border:2px dashed rgba(255,255,255,0.08);border-radius:8px;margin-top:.4rem;cursor:pointer;background:transparent;">
+        <div class="dev-avatar" aria-hidden="true" style="display:flex;align-items:center;justify-content:center;border-style:dashed;background:none;width:56px;height:56px;border-radius:50%;">
+          <span style="font-size:26px;color:#c49b46;">+</span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px;">QUERO SER DEV</div>
+          <div style="font-size:11px;color:#ddd;">Toque para ver</div>
+        </div>
+      </div>
+    `;
+
+    modalContent.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="font-size:14px;text-transform:uppercase;margin:0;">Salao dos Devs</h2>
+          <button id="back-to-suporte" style="cursor:pointer;font-family:'Press Start 2P',monospace;">FECHAR</button>
+        </div>
+        <div style="display:flex;flex-direction:column;">
+          ${cardsHtml}
+          ${queroHtml}
+        </div>
+      </div>
+    `;
+
+    modalContent.querySelectorAll('.dev-card').forEach(card => {
+      card.addEventListener('click', ()=> {
+        const idx = Number(card.getAttribute('data-idx'));
+        if (!Number.isNaN(idx)) renderDevDetail(devs[idx]);
+      });
+    });
+
+    const qsd = document.getElementById('quero-ser-dev');
+    if (qsd) qsd.addEventListener('click', e=>{ e.preventDefault(); renderQueroSerDev(); });
+
+    document.getElementById('back-to-suporte')?.addEventListener('click', e=>{ e.preventDefault(); renderSuporteMain(); });
+  }
+
+  // detalhe do dev — também usando background-image
+  function renderDevDetail(dev){
+    modalContent.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:.6rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:.6rem;align-items:center;">
+            <div class="dev-avatar" aria-hidden="true" style="
+              width:56px;height:56px;border-radius:50%;overflow:hidden;border:3px solid #c49b46;
+              background-image:url('${dev.img}');
+              background-size:cover;
+              background-position:${OBJECT_POSITION};
+              background-repeat:no-repeat;">
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#fff;">${dev.name}</div>
+              <div style="font-size:11px;color:#ddd;">${dev.area}</div>
+            </div>
+          </div>
+          <div>
+            <button id="dev-back" style="cursor:pointer;font-family:'Press Start 2P',monospace;">FECHAR</button>
+          </div>
+        </div>
+
+        <div style="font-size:12px;color:#ddd;line-height:1.4;">
+          <!-- espaço reservado caso queira inserir outro texto no futuro -->
+        </div>
+
+        <div style="display:flex;gap:.5rem;">
+          <button id="contact-dev" style="cursor:pointer;padding:.5rem .75rem;text-transform:uppercase;">Contactar pelo discord</button>
+          <a href="${dev.instagram}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;padding:.5rem .75rem;">WEBSITE</a>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('dev-back')?.addEventListener('click', e=>{ e.preventDefault(); renderDevsSalon(); });
+    document.getElementById('contact-dev')?.addEventListener('click', e=>{ e.preventDefault(); window.open('https://discord.gg/68vRsRE5','_blank','noopener'); });
+  }
+
+  // btn Quero Ser Dev 
+  function renderQueroSerDev(){
+    // Note: agora o texto usa um container .qsd-text-wrap com <p> para controle de quebra/justificação
+    modalContent.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:.75rem;height:100%;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="font-size:14px;text-transform:uppercase;margin:0;">Quero ser Dev</h2>
+          <button id="qsd-back" style="cursor:pointer;font-family:'Press Start 2P',monospace;">FECHAR</button>
+        </div>
+        <div class="qsd-text-wrap">
+          <p>
+            Quer levar suas ideias para dentro do Vinhadinho? Você pode criar seus próprios modos de jogo, personagens, histórias e sistemas de monetização integrados ao nosso ecossistema. Você cria, a nossa comunidade joga, e o lucro da sua seção é compartilhado igualmente.
+          </p>
+        </div>
+        <div class="qsd-actions">
+          <button id="more-info" style="cursor:pointer;padding:.6rem;text-transform:uppercase;background:transparent;border:2px solid rgba(255,255,255,0.06);color:#fff;">SAIBA MAIS</button>
+          <button id="buy-pass" style="cursor:pointer;padding:.6rem;text-transform:uppercase;background:#c49b46;border:none;color:#111;">SER GAMEDEV DE VINHADINHO POR R$99,00</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('qsd-back')?.addEventListener('click', e=>{ e.preventDefault(); renderDevsSalon(); });
+
+    // abre overlay com iframe apontando para docwod
+    document.getElementById('more-info')?.addEventListener('click', e=> {
+      e.preventDefault();
+      if (window.__VinhadinhoExternal && typeof window.__VinhadinhoExternal.open === 'function') {
+        window.__VinhadinhoExternal.open('https://docs.google.com/document/d/e/2PACX-1vTEqkF9ttYrx976vLXNJOaCCteXe8YrUYiZ6UETyQL5AxamsIcp32mC_Ed_S8Fp2nYQyvX95W0AINNi/pub?');
+      } else {
+        window.open('https://docs.google.com/document/d/e/2PACX-1vTEqkF9ttYrx976vLXNJOaCCteXe8YrUYiZ6UETyQL5AxamsIcp32mC_Ed_S8Fp2nYQyvX95W0AINNi/pub?', '_blank', 'noopener');
+      }
+    });
+
+    document.getElementById('buy-pass')?.addEventListener('click', e=>{ e.preventDefault(); window.open('https://buy.stripe.com/eVqaEQbTQ0Kv8bU1i52oE06','_blank','noopener'); });
+  }
+
+  // conecta o link
+ suporteLink.addEventListener('click', e => {
+  e.preventDefault();
+
+  // ???? DESLIGA o botão "Abrir" no SUPORTE
+  const openBtn = document.getElementById('modal-open-link');
+  if (openBtn) {
+    openBtn.style.display = 'none';
+    openBtn.onclick = null;
+  }
+
+  renderSuporteMain();
+  openModal();
+});
+
+  // observa mudanças no modal-content para garantir estilos de background-position
+  const mo = new MutationObserver(() => {
+    document.querySelectorAll('.dev-avatar').forEach(el => {
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = OBJECT_POSITION;
+      el.style.backgroundRepeat = 'no-repeat';
+    });
+  });
+  mo.observe(modalContent, { childList: true, subtree: true });
+
+  // tecla ESC fecha modal
+  document.addEventListener('keydown', evt=>{ if (evt.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+})();
+</script>
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+<script>
+(function(){
+  const LINKS = {
+    COLETA: 'https://versaodeluxe.directorioforuns.com/h130-nada',
+    ACAMPAMENTO: 'https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game',
+    CABANA: 'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game'
+  };
+
+  const CENTER_IMAGE = 'https://i.servimg.com/u/f22/19/80/77/63/drone_10.png';
+
+  const PARTICLE_COUNT = 160;
+  const BURST_DURATION = 900;
+  const CANVAS_Z = 15990;
+  const PANEL_SCALE = 1.18;
+
+  if (document.getElementById('vd-drone-ui-root')) return;
+
+  const css = document.createElement('style');
+  css.id = 'vd-drone-ui-css';
+  css.textContent = `
+
+  #vd-drone-ui-root{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:13000;
+    font-family:Inter,system-ui,monospace;
+  }
+
+  /* BOTÃO – RODAPÉ CENTRALIZADO */
+  #vd-drone-footer{
+    position:fixed;
+    left:50%;
+    bottom:42px;
+    transform:translateX(-50%);
+    pointer-events:auto;
+    z-index: -1;
+  }
+
+  #vd-drone-diamond{
+    width:220px;
+    height:72px;
+    background:linear-gradient(180deg,#c99f3f,#b07e2e);
+    clip-path:polygon(10% 0%,90% 0%,100% 50%,90% 100%,10% 100%,0% 50%);
+    border:4px solid rgba(0,0,0,0.14);
+    box-shadow:0 10px 22px rgba(0,0,0,0.32);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    text-transform:uppercase;
+    font-weight:800;
+    font-size:17px;
+    color:#0b0b0b;
+    letter-spacing:0.06em;
+    transition:transform .15s, box-shadow .15s;
+  }
+
+  #vd-drone-diamond:hover{
+    transform:translateX(-0%) translateY(-3px);
+    box-shadow:0 16px 30px rgba(0,0,0,0.42);
+  }
+
+  #vd-drone-diamond:active{
+    transform:translateX(-0%) translateY(1px);
+  }
+
+  /* CANVAS DAS PARTÍCULAS */
+  #vd-particles-canvas{
+    position:fixed; left:0; top:0;
+    pointer-events:none;
+    z-index:${CANVAS_Z};
+  }
+
+  /* PAINEL TRIANGULAR */
+  #vd-drone-panel{
+    position:fixed;
+    left:50%; top:50%;
+    transform:translate(-50%,-50%) scale(0.001);
+    width:min(74vmin,720px);
+    height:min(74vmin,720px);
+    pointer-events:none;
+    transition:transform 760ms cubic-bezier(.2,.9,.2,1), opacity 520ms;
+    opacity:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:16020;
+  }
+  #vd-drone-panel.open{
+    transform:translate(-50%,-50%) scale(${PANEL_SCALE});
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  /* VÉRTICES */
+  .vd-vertex{
+    position:absolute;
+    width:140px; height:64px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    padding:6px;
+    font-size:14px;
+    cursor:pointer;
+    user-select:none;
+    background:linear-gradient(180deg,rgba(255,255,255,0.99),rgba(250,246,240,0.96));
+    border:5px solid rgba(0,0,0,0.12);
+    box-shadow:0 18px 44px rgba(0,0,0,0.30);
+    transition:transform .12s;
+  }
+  .vd-vertex span{
+    font-size:13px; color:#111;
+    text-transform:uppercase;
+    font-weight:800;
+    letter-spacing:.06em;
+  }
+
+  /* IMAGEM CENTRAL */
+  #vd-center-image{
+    position:absolute;
+    width:220px; height:220px;
+    border-radius:14px;
+    background-size:contain;
+    background-position:center;
+    border:6px solid rgba(0,0,0,0.14);
+    box-shadow:0 38px 64px rgba(0,0,0,0.50);
+background-repeat: no-repeat;
+  }
+
+  #vd-drone-svg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  @media(max-width:720px){
+    #vd-drone-diamond{ width:180px; height:60px; font-size:15px; }
+    .vd-vertex{ width:110px; height:54px; font-size:12px; }
+    #vd-center-image{ width:160px; height:160px; }
+  }
+
+  `;
+  document.head.appendChild(css);
+
+  const root = document.createElement('div');
+  root.id = 'vd-drone-ui-root';
+  root.innerHTML = `
+    <div id="vd-drone-footer">
+      <div id="vd-drone-diamond" role="button" tabindex="0" aria-pressed="false">
+        SISTEMA DE DRONES
+      </div>
+    </div>
+
+    <canvas id="vd-particles-canvas"></canvas>
+
+    <div id="vd-drone-panel" aria-hidden="true">
+      <svg id="vd-drone-svg"></svg>
+      <div id="vd-center-image"></div>
+      <div class="vd-vertex" data-key="COLETA" id="vd-vertex-1"><span>COLETA</span></div>
+      <div class="vd-vertex" data-key="ACAMPAMENTO" id="vd-vertex-2"><span>ACAMPAMENTO</span></div>
+      <div class="vd-vertex" data-key="CABANA" id="vd-vertex-3"><span>CABANA</span></div>
+    </div>
+  `;
+  document.body.appendChild(root);
+
+  const diamond = document.getElementById('vd-drone-diamond');
+  const canvas = document.getElementById('vd-particles-canvas');
+  const panel  = document.getElementById('vd-drone-panel');
+  const svg    = document.getElementById('vd-drone-svg');
+  const centerImg = document.getElementById('vd-center-image');
+  const v1 = document.getElementById('vd-vertex-1');
+  const v2 = document.getElementById('vd-vertex-2');
+  const v3 = document.getElementById('vd-vertex-3');
+
+  centerImg.style.backgroundImage = `url('${CENTER_IMAGE}')`;
+
+  function fitCanvas(){
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width  = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width  = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+    canvas.getContext("2d").setTransform(dpr,0,0,dpr,0,0);
+  }
+  fitCanvas();
+  window.addEventListener('resize', fitCanvas);
+
+  const ctx = canvas.getContext('2d');
+  let particles = [], animFrame = null;
+
+  function randomGolden(){
+    const p = ['#fff7d9','#ffe7a3','#ffd46a','#e0a642','#c48f2f','#b07e2e'];
+    return p[(Math.random()*p.length)|0];
+  }
+
+  function spawnBurst(x,y, panelRect){
+    particles = [];
+    const now = performance.now();
+
+    for(let i=0;i<PARTICLE_COUNT;i++){
+      const ang = Math.random()*Math.PI*2;
+      const spd = 120 + Math.random()*420;
+      particles.push({
+        x, y,
+        vx: Math.cos(ang)*spd,
+        vy: Math.sin(ang)*spd,
+        size: 3 + Math.random()*10,
+        lifeStart: now,
+        tx: panelRect.left + panelRect.width /2 + (Math.random()-0.5)*panelRect.width*0.36,
+        ty: panelRect.top  + panelRect.height/2 + (Math.random()-0.5)*panelRect.height*0.36,
+        wob: Math.random()*0.9,
+        color: randomGolden()
+      });
+    }
+
+    if(!animFrame) animFrame = requestAnimationFrame(loop);
+  }
+
+  function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const now = performance.now();
+    let alive = false;
+
+    for(const p of particles){
+      const t = now - p.lifeStart;
+      if(t > BURST_DURATION+420) continue;
+      alive = true;
+
+      const phase = Math.min(1, t/BURST_DURATION);
+
+      p.vx *= 0.96;
+      p.vy *= 0.96;
+
+      const attr = 0.02 + 0.06 * phase;
+      p.vx += (p.tx - p.x) * (attr * 0.002);
+      p.vy += (p.ty - p.y) * (attr * 0.002);
+
+      p.x += p.vx*(1/60) + Math.sin((t*0.02)+p.wob*10)*0.6;
+      p.y += p.vy*(1/60) + Math.cos((t*0.02)+p.wob*8)*0.6;
+
+      const alpha = Math.max(0,1 - (t/(BURST_DURATION+300)));
+      const s = p.size * (0.6 + 0.4*(1-phase));
+
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x-s/2, p.y-s/2, s, s);
+      ctx.globalAlpha = 1;
+    }
+
+    if(alive) animFrame = requestAnimationFrame(loop);
+    else animFrame = null;
+  }
+
+  function computePositions(){
+    const w = panel.offsetWidth;
+    const h = panel.offsetHeight;
+    const cx = w/2, cy = h/2;
+    const r = Math.min(w,h)*0.48;
+    const deg = [-90,150,30];
+    return deg.map(a=>{
+      const rad=a*Math.PI/180;
+      return{ x:cx+Math.cos(rad)*r, y:cy+Math.sin(rad)*r };
+    });
+  }
+
+  function drawLines(){
+    svg.innerHTML="";
+    const pos = computePositions();
+    const cx = panel.offsetWidth/2;
+    const cy = panel.offsetHeight/2;
+
+    function L(x1,y1,x2,y2,w){
+      const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+      l.setAttribute('x1',cx); l.setAttribute('y1',cy);
+      l.setAttribute('x2',cx); l.setAttribute('y2',cy);
+      l.setAttribute('stroke','#c29a45');
+      l.setAttribute('stroke-width',w);
+      l.setAttribute('stroke-linecap','round');
+      l.style.transition="all 560ms cubic-bezier(.2,.9,.2,1)";
+      svg.appendChild(l);
+      requestAnimationFrame(()=>{
+        l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+        l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+      });
+    }
+
+    L(pos[0].x,pos[0].y,pos[1].x,pos[1].y,8);
+    L(pos[1].x,pos[1].y,pos[2].x,pos[2].y,8);
+    L(pos[2].x,pos[2].y,pos[0].x,pos[0].y,8);
+
+    pos.forEach(p=> L(cx,cy,p.x,p.y,4));
+  }
+
+  let openState=false;
+
+  function openPanel(){
+    if(panel.classList.contains('open')) return;
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden','false');
+    diamond.setAttribute('aria-pressed','true');
+
+    const rect = diamond.getBoundingClientRect();
+    const sx = rect.left+rect.width/2;
+    const sy = rect.top+rect.height/2;
+
+    const pr = panel.getBoundingClientRect();
+    spawnBurst(sx,sy,pr);
+
+    setTimeout(()=>{
+      const pos = computePositions();
+      [v1,v2,v3].forEach((el,i)=>{
+        el.style.left = (pos[i].x - el.offsetWidth/2) + "px";
+        el.style.top  = (pos[i].y - el.offsetHeight/2) + "px";
+        el.style.opacity="1";
+        el.style.transform="scale(.92)";
+        setTimeout(()=> el.style.transform="",120+i*40);
+      });
+      drawLines();
+    },250);
+  }
+
+  function closePanel(){
+    if(!panel.classList.contains('open')) return;
+
+    panel.classList.remove('open');
+    diamond.setAttribute('aria-pressed','false');
+
+    const rect = diamond.getBoundingClientRect();
+    const tx = rect.left+rect.width/2;
+    const ty = rect.top+rect.height/2;
+
+    const pr = panel.getBoundingClientRect();
+    spawnBurst(tx,ty,pr);
+
+    const lines=[...svg.querySelectorAll('line')];
+    lines.forEach((l,i)=>{
+      const cx=panel.offsetWidth/2, cy=panel.offsetHeight/2;
+      l.setAttribute("x1",cx); l.setAttribute("y1",cy);
+      l.setAttribute("x2",cx); l.setAttribute("y2",cy);
+      l.style.transition=`all 420ms ease ${i*16}ms`;
+    });
+
+    [v1,v2,v3].forEach((el,i)=>{
+      const r=el.getBoundingClientRect();
+      const dx=tx-(r.left+r.width/2);
+      const dy=ty-(r.top+r.height/2);
+      el.style.transition=`transform 640ms cubic-bezier(.2,.9,.2,1) ${i*16}ms, opacity 420ms`;
+      el.style.transform=`translate(${dx}px,${dy}px) scale(.26)`;
+      el.style.opacity="0";
+      setTimeout(()=>{
+        el.style.transform="";
+        el.style.opacity="";
+        el.style.left="0"; el.style.top="0";
+      },780);
+    });
+
+    setTimeout(()=> svg.innerHTML="",900);
+  }
+
+  diamond.addEventListener('click', ()=>{
+    if(!openState) openPanel();
+    else closePanel();
+    openState=!openState;
+  });
+
+  document.addEventListener('click', e=>{
+    if(!openState) return;
+    if(!panel.contains(e.target) && !diamond.contains(e.target)){
+      closePanel(); openState=false;
+    }
+  });
+
+  v1.addEventListener('click',e=>{ e.stopPropagation(); window.location.href=LINKS.COLETA; });
+  v2.addEventListener('click',e=>{ e.stopPropagation(); window.location.href=LINKS.ACAMPAMENTO; });
+  v3.addEventListener('click',e=>{ e.stopPropagation(); window.location.href=LINKS.CABANA; });
+
+  centerImg.addEventListener('click',(e)=>{ e.stopPropagation(); if(openState){ closePanel(); openState=false; } });
+
+})();
+</script>
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+<!-- ALTERA FUNCAO DOS BOTAO CASO SEJA ACESSADO PELO APP -->
+<script>
+(function () {
+  const btn = document.getElementById('buy-pass');
+  if (!btn) return;
+
+  const ua = navigator.userAgent || '';
+
+  // identifica exatamente o seu app/navegador mobile
+  const isVinhadinhoMobile =
+    ua.includes('Android') &&
+    ua.includes('Mobile') &&
+    ua.includes('Vinhadinho/1.0');
+
+  if (!isVinhadinhoMobile) return;
+
+  // muda o texto
+  btn.textContent = 'DISPONÍVEL APENAS NO PC';
+
+  // remove qualquer ação anterior
+  btn.onclick = null;
+
+  // efeito visual de "piscar"
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    btn.style.transition = 'opacity 120ms';
+    btn.style.opacity = '0.3';
+
+    setTimeout(() => {
+      btn.style.opacity = '1';
+    }, 120);
+  });
+})();
+</script>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script>
+(function () {
+
+  const STORAGE_KEY = 'idioma';
+
+  /* ======================================================
+     DICIONÁRIOS (EN / HI)
+     ====================================================== */
+  const LANG = {
+    en: {
+      LOADING: 'LOADING',
+      WELCOME: 'WELCOME',
+
+      NAV: ['THE CAPITAL', 'THE VALLEY TODAY', 'THE VALLEY TOMORROW', 'THE HYBRID'],
+
+      VOICE: 'THE VOICE',
+      ACCESS: 'ACCESS PORTAL',
+      BACK: 'BACK',
+
+      DAY_ZERO: 'DAY ZERO',
+      YEAR_7: 'YEAR 7',
+      YEAR_69: 'YEAR 69',
+
+      DRONE: 'DRONE SYSTEM',
+      COLETA: 'COLLECT',
+      ACAMPAMENTO: 'CAMP',
+      CABANA: 'CABIN',
+
+      SUPPORT: 'SUPPORT',
+
+      MODAL_TITLE: 'FEDERATION PORTAL',
+      MODAL_TEXT_1: 'You are about to access the Federation of the Valley portal.',
+      MODAL_TEXT_2: 'Proceed with the connection?',
+      MODAL_CONFIRM: 'CONFIRM',
+      MODAL_CANCEL: 'CANCEL'
+    },
+
+    hi: {
+      LOADING: 'लोड हो रहा है',
+      WELCOME: 'स्वागत है',
+
+      NAV: ['राजधानी', 'आज की घाटी', 'कल की घाटी', 'हाइब्रिड'],
+
+      VOICE: 'घाटी की आवाज़',
+      ACCESS: 'पोर्टल खोलें',
+      BACK: 'वापस',
+
+      DAY_ZERO: 'दिन शून्य',
+      YEAR_7: 'वर्ष 7',
+      YEAR_69: 'वर्ष 69',
+
+      DRONE: 'ड्रोन सिस्टम',
+      COLETA: 'संग्रह',
+      ACAMPAMENTO: 'कैंप',
+      CABANA: 'केबिन',
+
+      SUPPORT: 'सहायता',
+
+      MODAL_TITLE: 'संघ पोर्टल',
+      MODAL_TEXT_1: 'आप घाटी महासंघ के पोर्टल तक पहुँचने वाले हैं।',
+      MODAL_TEXT_2: 'क्या आप कनेक्शन जारी रखना चाहते हैं?',
+      MODAL_CONFIRM: 'पुष्टि करें',
+      MODAL_CANCEL: 'रद्द करें'
+    }
+  };
+
+  /* ======================================================
+     IDIOMA ATUAL
+     ====================================================== */
+  function getLang() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return saved;
+
+    const nav = (navigator.language || '').toLowerCase();
+    return nav.startsWith('pt') ? 'pt' : 'en';
+  }
+
+  let currentLang = getLang();
+
+  /* ======================================================
+     UTILITÁRIOS
+     ====================================================== */
+  function setText(el, value) {
+    if (!el) return;
+
+    if (!el.dataset.original) {
+      el.dataset.original = el.textContent;
+    }
+    el.textContent = value;
+  }
+
+  function restoreAll() {
+    document.querySelectorAll('[data-original]').forEach(el => {
+      el.textContent = el.dataset.original;
+    });
+  }
+
+  /* ======================================================
+     APLICA IDIOMA
+     ====================================================== */
+  function applyLanguage() {
+
+    /* PT = texto original */
+    if (currentLang === 'pt') {
+      restoreAll();
+      return;
+    }
+
+    const T = LANG[currentLang];
+    if (!T) return;
+
+    /* LOADING */
+    document.querySelectorAll('.fed-loading-text')
+      .forEach(el => setText(el, T.LOADING));
+
+    /* BEM-VINDO */
+    document.querySelectorAll('.fed-center span')
+      .forEach(el => setText(el, T.WELCOME));
+
+    /* MENU LATERAL */
+    document.querySelectorAll('.sidebar nav a')
+      .forEach((el, i) => {
+        if (T.NAV[i]) setText(el, T.NAV[i]);
+      });
+
+    /* SUPORTE */
+    document.querySelectorAll('[data-index="support"]')
+      .forEach(el => setText(el, T.SUPPORT));
+
+    /* VOZ DO VALE */
+    document.querySelectorAll('#lava-trigger span')
+      .forEach(el => setText(el, T.VOICE));
+
+    /* BOTÃO SISTEMA DE DRONES */
+    setText(
+      document.getElementById('vd-drone-diamond'),
+      T.DRONE
+    );
+
+    /* BOTÕES DO SISTEMA DE DRONES (3) */
+    document.querySelectorAll('.vd-vertex span').forEach(el => {
+      const base = el.dataset.original || el.textContent;
+
+      if (!el.dataset.original) {
+        el.dataset.original = base;
+      }
+
+      if (base.includes('COLE')) setText(el, T.COLETA);
+      if (base.includes('ACAMP')) setText(el, T.ACAMPAMENTO);
+      if (base.includes('CAB')) setText(el, T.CABANA);
+    });
+
+    /* AUDIOS */
+    document.querySelectorAll('.audio-player h3').forEach(el => {
+      const base = el.dataset.original || el.textContent;
+
+      if (!el.dataset.original) {
+        el.dataset.original = base;
+      }
+
+      if (base.includes('ZERO')) setText(el, T.DAY_ZERO);
+      if (base.includes('7')) setText(el, T.YEAR_7);
+      if (base.includes('69')) setText(el, T.YEAR_69);
+    });
+
+    /* MODAL */
+    const modal = document.querySelector('.custom-modal, .fed-modal, #modal');
+    if (modal) {
+
+      modal.querySelectorAll('h1,h2,h3')
+        .forEach(el => setText(el, T.MODAL_TITLE));
+
+      const ps = modal.querySelectorAll('p');
+      if (ps[0]) setText(ps[0], T.MODAL_TEXT_1);
+      if (ps[1]) setText(ps[1], T.MODAL_TEXT_2);
+
+      /* CONFIRMAR / CANCELAR */
+      modal.querySelectorAll('[data-confirm]')
+        .forEach(el => setText(el, T.MODAL_CONFIRM));
+
+      modal.querySelectorAll('[data-cancel]')
+        .forEach(el => setText(el, T.MODAL_CANCEL));
+    }
+
+    /* ACESSAR PORTAL */
+    setText(
+      document.getElementById('modal-open-link'),
+      T.ACCESS
+    );
+
+    /* VOLTAR */
+    setText(
+      document.getElementById('modal-close'),
+      T.BACK
+    );
+  }
+
+  /* ======================================================
+     BOTÃO DE IDIOMA
+     ====================================================== */
+  const style = document.createElement('style');
+  style.textContent = `
+    #lang-btn {
+      position: fixed;
+      top: 20px;
+      right: 10px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #c49b46;
+      border: none;
+      cursor: pointer;
+      z-index: 30000;
+      font-size: 20px;
+      box-shadow: 0 6px 14px rgba(0,0,0,.4);
+    }
+    #lang-balloon {
+      position: fixed;
+      top: 20px;
+      right: 100px;
+      background: rgba(0,0,0,.9);
+      border: 2px solid #c49b46;
+      border-radius: 10px;
+      padding: 8px;
+      display: none;
+      gap: 10px;
+      z-index: 30000;
+    }
+    #lang-balloon.open { display: flex; }
+    .lang-flag { font-size: 26px; cursor: pointer; }
+  `;
+  document.head.appendChild(style);
+
+  const btn = document.createElement('button');
+  btn.id = 'lang-btn';
+  btn.textContent = '\u{1F310}'; // ????
+
+  const balloon = document.createElement('div');
+  balloon.id = 'lang-balloon';
+balloon.innerHTML = `
+  <span class="lang-flag" data-lang="pt">&#x1F1E7;&#x1F1F7;</span> <!-- ???????? -->
+  <span class="lang-flag" data-lang="en">&#x1F1FA;&#x1F1F8;</span> <!-- ???????? -->
+  <span class="lang-flag" data-lang="hi">&#x1F1EE;&#x1F1F3;</span> <!-- ???????? -->
+`;
+
+  document.body.appendChild(btn);
+  document.body.appendChild(balloon);
+
+  btn.onclick = () => balloon.classList.toggle('open');
+
+  balloon.querySelectorAll('.lang-flag').forEach(flag => {
+    flag.onclick = () => {
+      currentLang = flag.dataset.lang;
+      localStorage.setItem(STORAGE_KEY, currentLang);
+      window.dispatchEvent(new Event('idioma:change'));
+      applyLanguage();
+      balloon.classList.remove('open');
+    };
+  });
+
+  document.addEventListener('click', e => {
+    if (!balloon.contains(e.target) && e.target !== btn) {
+      balloon.classList.remove('open');
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', applyLanguage);
+
+})();
+</script>
+
+
+
+</body>
+</html>
