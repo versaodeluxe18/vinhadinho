@@ -1118,5 +1118,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+<script>
+(async () => {
+  const host = window.location.hostname;
+  const isGoogle = host === 'https://versaodeluxe18.github.io/' || host === 'versaodeluxe18.github.io';
+
+  if (!isGoogle) return;
+
+  const sourceUrl = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/modo-dev.html';
+
+  try {
+    const response = await fetch(sourceUrl, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Falha ao carregar HTML: ${response.status}`);
+
+    const html = await response.text();
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    const scripts = parsed.querySelectorAll('script');
+
+    for (const original of scripts) {
+      const script = document.createElement('script');
+
+      for (const attr of original.attributes) {
+        script.setAttribute(attr.name, attr.value);
+      }
+
+      if (!original.src) {
+        script.textContent = original.textContent;
+      }
+
+      document.head.appendChild(script);
+    }
+  } catch (error) {
+    console.error('Erro ao importar scripts do modo-dev.html:', error);
+  }
+})();
+</script>
 </body>
 </html>
