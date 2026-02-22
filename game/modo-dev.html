@@ -1,0 +1,75 @@
+<script>
+(function () {
+  const REDIRECT_MAP = {
+    'https://versaodeluxe.directorioforuns.com/h147-vinhadinho-capital-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Acapital.html',
+    'https://versaodeluxe.directorioforuns.com/h146-vinhadinho-hoje-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Vale-hoje.html',
+    'https://versaodeluxe.directorioforuns.com/h145-vinhadinho-amanha-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Vale-amanha.html',
+    'https://versaodeluxe.directorioforuns.com/h144-vinhadinho-blog-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Lista-hibridos.html',
+    'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Inicio.html',
+    'https://versaodeluxe.directorioforuns.com/h142-vinhadinho-acampamento-scripts': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Acampamento-2.html',
+    'https://versaodeluxe.directorioforuns.com/h142-vinhado-acampamento-2-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Acampamento-2.html',
+    'https://versaodeluxe.directorioforuns.com/h135-vinhadinho-adaptativo-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Adaptativo.html',
+    'https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Acampamento.html',
+    'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Cabana.html',
+    'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Cabana.html',
+    'https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Coletando-processando.html',
+    'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Coleta.html',
+    'https://versaodeluxe.directorioforuns.com/h130-nada': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Coleta.html',
+    'https://versaodeluxe.directorioforuns.com/h148-vinhadinho-politica-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Politica-privacidade.html',
+    'https://versaodeluxe.directorioforuns.com/f13-vinhadinho': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Inicio.html'
+  };
+
+  const normalize = (url) => (url || '').trim().replace(/\/$/, '');
+  const toGitRaw = (url) => REDIRECT_MAP[normalize(url)] || url;
+
+  const originalOpen = window.open;
+  window.open = function (url, ...args) {
+    return originalOpen.call(window, toGitRaw(url), ...args);
+  };
+
+  function patchAnchors(root) {
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll('a[href]').forEach((a) => {
+      const converted = toGitRaw(a.href);
+      if (converted !== a.href) a.href = converted;
+    });
+  }
+
+  patchAnchors(document);
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === 1) {
+          if (node.matches && node.matches('a[href]')) {
+            const converted = toGitRaw(node.href);
+            if (converted !== node.href) node.href = converted;
+          }
+          patchAnchors(node);
+        }
+      });
+    }
+  });
+
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
+  document.addEventListener('click', function (event) {
+    const anchor = event.target.closest && event.target.closest('a[href]');
+    if (!anchor) return;
+
+    const converted = toGitRaw(anchor.href);
+    if (converted === anchor.href) return;
+
+    event.preventDefault();
+
+    if (anchor.target === '_blank') {
+      window.open(converted, '_blank', 'noopener');
+      return;
+    }
+
+    window.location.assign(converted);
+  }, true);
+})();
+</script>
+
+
