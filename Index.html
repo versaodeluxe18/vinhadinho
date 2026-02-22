@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Vinhadinho - Intro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        #container {
+            text-align: center;
+        }
+
+        /* Efeito de digitação */
+        #title {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 50px;
+            border-right: 4px solid white;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+        }
+
+        /* Menu de Botões */
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            opacity: 0; /* Começa invisível */
+            transition: opacity 1s ease-in;
+        }
+
+        button {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: white;
+            color: black;
+            transform: scale(1.1);
+        }
+
+        /* Animação do Cursor */
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        .anim-cursor {
+            animation: blink 0.8s step-end infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1 id="title"></h1>
+        
+        <div class="menu" id="main-menu">
+            <button onclick="jogar()">JOGAR</button>
+            <button onclick="repositorio()">REPOSITÓRIO</button>
+        </div>
+    </div>
+
+    <script>
+        const text = "PROJETO VINHADINHO";
+        const titleElement = document.getElementById('title');
+        const menu = document.getElementById('main-menu');
+        let index = 0;
+
+        function typeWriter() {
+            if (index < text.length) {
+                titleElement.innerHTML += text.charAt(index);
+                index++;
+                // Ajusta a largura dinamicamente para o efeito de cursor
+                titleElement.style.width = (index * 1.05) + "em"; 
+                setTimeout(typeWriter, 150); 
+            } else {
+                titleElement.classList.add('anim-cursor');
+                showMenu();
+            }
+        }
+
+        function showMenu() {
+            menu.style.opacity = "1";
+        }
+
+        function jogar() {
+            // O GitHub Raw não renderiza HTML diretamente no navegador por segurança.
+            // Para rodar o jogo, o ideal é que ele esteja no GitHub Pages.
+            // Vou redirecionar para o link que você pediu:
+            window.location.href = "https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Inicio.html";
+        }
+
+        function repositorio() {
+            window.open("https://github.com/versaodeluxe18/vinhadinho", "_self");
+        }
+
+        // Inicia a animação ao carregar
+        window.onload = typeWriter;
+    </script>
+</body>
+</html>
