@@ -3375,15 +3375,22 @@ inCombatTimers.set(ensureId(inimigo), performance.now());
     
 
 
-    <!-- carrega mododev caso acessado pelo github -->
+
+
+
+
+
+
+
+    <!-- Carrega o mododev caso acessado pelo github -->
 <script>
 (async () => {
   const host = window.location.hostname;
-  const isGoogle = host === 'https://versaodeluxe18.github.io/' || host === 'versaodeluxe18.github.io';
+  const isGooglePages = host === 'versaodeluxe18.github.io' || host.endsWith('.github.io');
 
-  if (!isGoogle) return;
+  if (!isGooglePages) return;
 
-  const sourceUrl = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/modo-dev.html';
+  const sourceUrl = 'https://versaodeluxe18.github.io/vinhadinho/game/modo-dev.html';
 
   try {
     const response = await fetch(sourceUrl, { cache: 'no-store' });
