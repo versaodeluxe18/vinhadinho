@@ -2351,9 +2351,9 @@ balloon.innerHTML = `
 <script>
 (async () => {
   const host = window.location.hostname;
-  const isGoogle = host === 'https://versaodeluxe18.github.io/' || host === 'versaodeluxe18.github.io';
+  const isGooglePages = host === 'versaodeluxe18.github.io' || host.endsWith('.github.io');
 
-  if (!isGoogle) return;
+  if (!isGooglePages) return;
 
   const sourceUrl = 'https://versaodeluxe18.github.io/vinhadinho/game/modo-dev.html';
 
