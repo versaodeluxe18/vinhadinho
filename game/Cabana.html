@@ -2652,7 +2652,7 @@ btnMax.addEventListener("click", () => {
   exitBtn.onclick = () => overlay.style.display = 'flex';
   modal.querySelector('#exit-no').onclick = () => overlay.style.display = 'none';
   modal.querySelector('#exit-yes').onclick = () => {
-    location.href = 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game';
+    location.href = (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html' : 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game');
   };
 
 })();
