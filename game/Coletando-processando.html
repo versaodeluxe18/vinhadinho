@@ -376,7 +376,7 @@
 
     // CAMPO: abre na mesma aba (self)
     optCampo.addEventListener('click', ()=>{
-      window.location.href = 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game';
+      window.location.href = (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game');
     });
 
     // showForbidden agora deixa o overlay aberto e exibe o toast até o usuário fechá-lo
@@ -412,7 +412,7 @@
 
     // CABANA (mesma aba)
     document.getElementById('btn-acampamento').addEventListener('click', ()=>{
-      window.location.href = 'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game';
+      window.location.href = (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Cabana.html' : 'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game');
     });
 
   </script>
@@ -435,9 +435,9 @@
   const KEY = 'taxacoletada';
   const REQUIRED = 2000;
   const MAP = {
-    montanha: 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game',
-    rio:      'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game',
-    floresta: 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game'
+    montanha: (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game'),
+    rio:      (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game'),
+    floresta: (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game')
   };
 
   // ===== CSS injetado: bordas + animação de fundo + modal =====
@@ -1141,11 +1141,11 @@
 <script>
 (async () => {
   const host = window.location.hostname;
-  const isGoogle = host === 'https://versaodeluxe18.github.io/' || host === 'versaodeluxe18.github.io';
+  const isGooglePages = host === 'versaodeluxe18.github.io' || host.endsWith('.github.io');
 
-  if (!isGoogle) return;
+  if (!isGooglePages) return;
 
-  const sourceUrl = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/modo-dev.html';
+  const sourceUrl = 'https://versaodeluxe18.github.io/vinhadinho/game/modo-dev.html';
 
   try {
     const response = await fetch(sourceUrl, { cache: 'no-store' });

@@ -1013,7 +1013,7 @@
       if (!fruitsThisGame || Object.keys(fruitsThisGame).length === 0) {
         console.log('Nenhuma fruta coletada neste jogo. Não há o que salvar.');
         // mesmo sem salvar nada, faz redirecionamento
-        window.location.href = "https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game";
+        window.location.href = (window.location.hostname.endsWith('.github.io') ? "https://versaodeluxe18.github.io/vinhadinho/game/Coletando-processando.html" : "https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game");
         return;
       }
 
@@ -1021,7 +1021,7 @@
         console.log('Tentando salvar frutas no Firebase...', fruitsThisGame);
         await window.FirebaseSaveFruits(uid, fruitsThisGame);
         console.log('Gravação concluída → redirecionando');
-        window.location.href = "https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game";
+        window.location.href = (window.location.hostname.endsWith('.github.io') ? "https://versaodeluxe18.github.io/vinhadinho/game/Coletando-processando.html" : "https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game");
       } catch (error) {
         console.error('Erro ao salvar frutas:', error);
         hideCollectingModal();
@@ -1469,11 +1469,11 @@
 <script>
 (async () => {
   const host = window.location.hostname;
-  const isGoogle = host === 'https://versaodeluxe18.github.io/' || host === 'versaodeluxe18.github.io';
+  const isGooglePages = host === 'versaodeluxe18.github.io' || host.endsWith('.github.io');
 
-  if (!isGoogle) return;
+  if (!isGooglePages) return;
 
-  const sourceUrl = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/modo-dev.html';
+  const sourceUrl = 'https://versaodeluxe18.github.io/vinhadinho/game/modo-dev.html';
 
   try {
     const response = await fetch(sourceUrl, { cache: 'no-store' });
@@ -3915,7 +3915,7 @@ document.addEventListener('DOMContentLoaded', () => {
   exitBtn.onclick = () => overlay.style.display = 'flex';
   modal.querySelector('#exit-no').onclick = () => overlay.style.display = 'none';
   modal.querySelector('#exit-yes').onclick = () => {
-    location.href = 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game';
+    location.href = (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html' : 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game');
   };
 
 })();
