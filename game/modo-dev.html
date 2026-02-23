@@ -1,23 +1,23 @@
 <script>
 (function () {
   const REDIRECT_MAP = {
-    'https://versaodeluxe.directorioforuns.com/h147-vinhadinho-capital-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Acapital.html',
-    'https://versaodeluxe.directorioforuns.com/h146-vinhadinho-hoje-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Vale-hoje.html',
-    'https://versaodeluxe.directorioforuns.com/h145-vinhadinho-amanha-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Vale-amanha.html',
-    'https://versaodeluxe.directorioforuns.com/h144-vinhadinho-blog-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Lista-hibridos.html',
-    'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Inicio.html',
-    'https://versaodeluxe.directorioforuns.com/h142-vinhadinho-acampamento-scripts': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Acampamento-2.html',
-    'https://versaodeluxe.directorioforuns.com/h142-vinhado-acampamento-2-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Acampamento-2.html',
-    'https://versaodeluxe.directorioforuns.com/h135-vinhadinho-adaptativo-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Adaptativo.html',
-    'https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Acampamento.html',
-    'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Cabana.html',
-    'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Cabana.html',
-    'https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Coletando-processando.html',
-    'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Coleta.html',
-    'https://versaodeluxe.directorioforuns.com/h130-nada': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Coleta.html',
-    'https://versaodeluxe.directorioforuns.com/h148-vinhadinho-politica-game': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Politica-privacidade.html',
-    'https://versaodeluxe.directorioforuns.com/f13-vinhadinho': 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/refs/heads/main/game/Inicio.html'
-  };
+    'https://versaodeluxe.directorioforuns.com/h147-vinhadinho-capital-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Acapital.html',
+    'https://versaodeluxe.directorioforuns.com/h146-vinhadinho-hoje-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Vale-hoje.html',
+    'https://versaodeluxe.directorioforuns.com/h145-vinhadinho-amanha-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Vale-amanha.html',
+    'https://versaodeluxe.directorioforuns.com/h144-vinhadinho-blog-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Lista-hibridos.html',
+    'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html',
+    'https://versaodeluxe.directorioforuns.com/h142-vinhadinho-acampamento-scripts': 'https://versaodeluxe18.github.io/vinhadinho/game/Acampamento-2.html',
+    'https://versaodeluxe.directorioforuns.com/h142-vinhado-acampamento-2-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Acampamento-2.html',
+    'https://versaodeluxe.directorioforuns.com/h135-vinhadinho-adaptativo-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Adaptativo.html',
+    'https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Acampamento.html',
+    'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Cabana.html',
+    'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Cabana.html',
+    'https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Coletando-processando.html',
+    'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html',
+    'https://versaodeluxe.directorioforuns.com/h130-nada': 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html',
+    'https://versaodeluxe.directorioforuns.com/h148-vinhadinho-politica-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Politica-privacidade.html',
+    'https://versaodeluxe.directorioforuns.com/f13-vinhadinho': 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html'
+};
 
   const normalize = (url) => (url || '').trim().replace(/\/$/, '');
   const toGitRaw = (url) => REDIRECT_MAP[normalize(url)] || url;
