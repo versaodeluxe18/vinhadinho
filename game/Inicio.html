@@ -984,6 +984,17 @@ Peace is built on trust.
   };
 
   /* ================= LINKS ================= */
+  const DEV_REDIRECT_MAP = {
+    'https://versaodeluxe.directorioforuns.com/h147-vinhadinho-capital-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Acapital.html',
+    'https://versaodeluxe.directorioforuns.com/h146-vinhadinho-hoje-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Vale-hoje.html',
+    'https://versaodeluxe.directorioforuns.com/h145-vinhadinho-amanha-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Vale-amanha.html',
+    'https://versaodeluxe.directorioforuns.com/h144-vinhadinho-blog-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Lista-hibridos.html'
+  };
+  const normalizeUrl = (url) => (url || '').trim().replace(/\/$/, '');
+  const toGithubUrl = (url) => {
+    if (!window.location.hostname.endsWith('.github.io')) return url;
+    return DEV_REDIRECT_MAP[normalizeUrl(url)] || url;
+  };
   const modalLinks = {
     1: 'https://versaodeluxe.directorioforuns.com/h147-vinhadinho-capital-game',
     2: 'https://versaodeluxe.directorioforuns.com/h146-vinhadinho-hoje-game',
@@ -1005,7 +1016,7 @@ Peace is built on trust.
 
     aplicarTextoModal(idx);
 
-    const link = modalLinks[idx];
+    const link = toGithubUrl(modalLinks[idx]);
     if (link) {
       openBtn.style.display = 'inline-block';
       openBtn.onclick = () => window.location.href = link;
@@ -1515,10 +1526,20 @@ Peace is built on trust.
 
 <script>
 (function(){
+  const DEV_REDIRECT_MAP = {
+    'https://versaodeluxe.directorioforuns.com/h130-nada': 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html',
+    'https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Acampamento.html',
+    'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game': 'https://versaodeluxe18.github.io/vinhadinho/game/Cabana.html'
+  };
+  const normalizeUrl = (url) => (url || '').trim().replace(/\/$/, '');
+  const toGithubUrl = (url) => {
+    if (!window.location.hostname.endsWith('.github.io')) return url;
+    return DEV_REDIRECT_MAP[normalizeUrl(url)] || url;
+  };
   const LINKS = {
-    COLETA: 'https://versaodeluxe.directorioforuns.com/h130-nada',
-    ACAMPAMENTO: 'https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game',
-    CABANA: 'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game'
+    COLETA: toGithubUrl('https://versaodeluxe.directorioforuns.com/h130-nada'),
+    ACAMPAMENTO: toGithubUrl('https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game'),
+    CABANA: toGithubUrl('https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game')
   };
 
   const CENTER_IMAGE = 'https://i.servimg.com/u/f22/19/80/77/63/drone_10.png';
