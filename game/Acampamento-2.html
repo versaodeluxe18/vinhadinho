@@ -1984,5 +1984,40 @@ if (laiserBtn) addLaiserHook(laiserBtn);
 
 
 
+  <!-- Carrega o mododev caso acessado pelo github -->
+<script>
+(async () => {
+  const host = window.location.hostname;
+  const isGooglePages = host === 'versaodeluxe18.github.io' || host.endsWith('.github.io');
 
+  if (!isGooglePages) return;
+
+  const sourceUrl = 'https://versaodeluxe18.github.io/vinhadinho/game/modo-dev.html';
+
+  try {
+    const response = await fetch(sourceUrl, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Falha ao carregar HTML: ${response.status}`);
+
+    const html = await response.text();
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    const scripts = parsed.querySelectorAll('script');
+
+    for (const original of scripts) {
+      const script = document.createElement('script');
+
+      for (const attr of original.attributes) {
+        script.setAttribute(attr.name, attr.value);
+      }
+
+      if (!original.src) {
+        script.textContent = original.textContent;
+      }
+
+      document.head.appendChild(script);
+    }
+  } catch (error) {
+    console.error('Erro ao importar scripts do modo-dev.html:', error);
+  }
+})();
+</script>
 
