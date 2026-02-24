@@ -2531,7 +2531,9 @@ inCombatTimers.set(ensureId(inimigo), performance.now());
 <script>
 
 (async () => {
-  const REMOTE_PAGE = 'https://versaodeluxe.directorioforuns.com/h142-vinhadinho-acampamento-scripts';
+  const REMOTE_PAGE = window.location.hostname.endsWith('.github.io')
+    ? 'https://versaodeluxe18.github.io/vinhadinho/game/Acampamento-2.html'
+    : 'https://versaodeluxe.directorioforuns.com/h142-vinhadinho-acampamento-scripts';
 
   async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
