@@ -16,11 +16,26 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             font-family: 'Press Start 2P', cursive;
         }
 
         #container {
+            text-align: center;
+            width: min(96vw, 980px);
+            margin: 28px auto;
+            padding: 20px 16px 36px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .title-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
             text-align: center;
         }
 
@@ -33,6 +48,10 @@
             white-space: nowrap;
             overflow: hidden;
             width: 0;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            display: inline-block;
         }
 
         /* Menu de Botões */
@@ -48,7 +67,9 @@
             display: none;
             margin-top: 35px;
             color: white;
+            width: 100%;
             max-width: 860px;
+            box-sizing: border-box;
         }
 
         .production-panel h2 {
@@ -105,6 +126,7 @@
             text-align: center;
             box-sizing: border-box;
             width: 100%;
+            word-break: break-word;
         }
 
         button {
@@ -132,12 +154,30 @@
         .anim-cursor {
             animation: blink 0.8s step-end infinite;
         }
+
+        @media (max-width: 640px) {
+            #title {
+                font-size: 16px;
+                margin-bottom: 28px;
+            }
+
+            button {
+                font-size: 11px;
+                padding: 12px 18px;
+            }
+
+            .production-panel h2 {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div id="container">
-        <h1 id="title"></h1>
+        <div class="title-wrapper">
+            <h1 id="title"></h1>
+        </div>
         
         <div class="menu" id="main-menu">
             <button onclick="jogar()">JOGAR</button>
@@ -154,7 +194,7 @@
                     <div class="description-box">
                         Repositório oficial no GitHub com backup da versão de produção e documentação técnica para desenvolvedores.
                     </div>
-                    <button onclick="window.open('https://github.com/versaodeluxe18/vinhadinho', '_self')">ACESSAR</button>
+                    <button onclick="window.open('https://github.com/versaodeluxe18/vinhadinho', '_blank', 'noopener')">ACESSAR</button>
                 </article>
 
                 <article class="production-card">
@@ -164,17 +204,17 @@
                     <div class="description-box">
                         Jogo em produção hospedado no Google Sites, integrado a uma plataforma gratuita com experiência otimizada para desktop e mobile.
                     </div>
-                    <button onclick="window.open('https://sites.google.com/view/vinhadinho/federa%C3%A7%C3%A3o', '_self')">ACESSAR</button>
+                    <button onclick="window.open('https://sites.google.com/view/vinhadinho/federa%C3%A7%C3%A3o', '_blank', 'noopener')">ACESSAR</button>
                 </article>
 
                 <article class="production-card">
                     <div class="logo-frame">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/MIT_App_Inventor_Logo.svg" alt="Símbolo do MIT App Inventor">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg" alt="Símbolo Android mobile">
                     </div>
                     <div class="description-box">
                         O jogo também foi integrado à seção de jogos do aplicativo Mundo Gamer, voltado para a comunidade gamer.
                     </div>
-                    <button onclick="window.open('https://play.google.com/store/apps/details?id=io.kodular.versaodeluxe.NOTAICIA_GAMER', '_self')">ACESSAR</button>
+                    <button onclick="window.open('https://play.google.com/store/apps/details?id=io.kodular.versaodeluxe.NOTAICIA_GAMER', '_blank', 'noopener')">ACESSAR</button>
                 </article>
             </div>
         </section>
