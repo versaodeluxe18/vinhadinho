@@ -23,8 +23,12 @@
 
 ---
 
-> 🖥️ **[OPEN-SOURCE]** >  Mais do que um jogo, este projeto é um ambiente colaborativo. Convidamos desenvolvedores a desbravar novos horizontes, criando modos de jogo inéditos e explorando estratégias de monetização próprias. Aqui, a sua criatividade é o ativo principal para expandir as fronteiras deste universo. 
-Este ecossistema foi projetado para ter **custo zero de produção e manutenção**. Utilizamos Firebase para Login, enquanto o Backend reside em painel de Planilhas Google e automações com google appscript. Além disso, é possível colocar o jogo em produção usando plataformas como **GitHub Pages, Google Sites, Blogger, WordPress**.
+> **[OPEN-SOURCE SERVERLESS GAME PLATFORM]** > Mais do que um jogo, este projeto foi concebido como um ecossistema colaborativo e extensível. Desenvolvedores são convidados a criar novos modos de jogo, implementar mecânicas próprias e explorar estratégias independentes de monetização dentro de uma base técnica aberta e sustentável. Aqui, a criatividade é tratada como ativo estratégico para expansão contínua da plataforma.  
+>  
+> Este ecossistema foi arquitetado para operar com **custo zero de produção e manutenção**, eliminando dependência de servidores dedicados e reduzindo complexidade operacional. A autenticação é gerenciada via Firebase, enquanto o backend é implementado em modelo serverless utilizando Google Apps Script, com persistência e administração de dados através de Planilhas Google (TSV).  
+>  
+> A distribuição ocorre de forma totalmente estática, permitindo publicação em plataformas como **GitHub Pages, Google Sites, Blogger ou WordPress**, garantindo portabilidade, replicabilidade e sustentabilidade econômica da infraestrutura.
+
 ---
  
 <br><br>
@@ -63,19 +67,48 @@ Os colaboradores/desenvolvedores responsável por cada modo de jogo:
 <br>
 <br>
 
-## MONETIZAÇÃO DO PROJETO
+## SISTEMA DE APOIO E DOAÇÕES
 
-Você pode apoiar ativamente o projeto através da loja do jogo: (https://sites.google.com/view/vinhadinho/loja)
+Todas as formas de monetização do VINHADINHO seguem o mesmo princípio:
+
+O jogador realiza uma doação voluntária,
+recebe uma contrapartida simbólica ou funcional dentro do jogo,
+e contribui diretamente para a evolução estrutural do projeto.
+Acesse:  https://sites.google.com/view/vinhadinho/loja
 
 ```text
 🛒 LOJA
  ┣ 👾 CESTA BÁSICA
+ ┃   ┗ Doação flexível onde o valor contribuído é convertido em recursos para todos os jogadores.
+ ┃      O apoiador é reconhecido pois durante as partidas jogadores recebem presentes fruto dessa doação.
+ ┃      Os presentes são determinados pela conversão do lavor doado para vegetais do jogo.
+ ┃
  ┣ 👾 ROUPA NFT
+ ┃   ┗ Doação permite que o jogador crie a própria skins através do painel na loja.
+ ┃      Os conjuntos que compõe as skins são criados por jogadores dentro do atelie do jogo.
+ ┃      Parte do valor da skins é entregue ao jogador artista que criou que criou os conjuntos da skins.
+ ┃      As skins podem ser melhoradas por refinamento(f2p) e concedem acessos especiais no jogo.
+ ┃      As skins podem ser colocadas a venda no marketplace, preservando os atributos e toda a história.
+ ┃
  ┣ 👾 IR PESSOALMENTE
+ ┃   ┗ Contribuição que transforma o apoiador em um personagem jogável para outros jogadores in-game.
+ ┃      Após apoiar, o apoiador envia uma foto e cria uma bio. A I.A cria uma ilustração e adiciona como personagem in-game.
+ ┃      A integração da sua identidade/persona incluida ao universo do jogo de forma permanente para todos os jogadores. 
+ ┃
  ┣ 👾 FERRAMENTAS
+ ┃   ┗ Ao apoiar você escolhe o nome de um assistente que se apresenta ao acessar o suporte técnico do jogo.
+ ┃      Esse nome aparece no atendimento automatizado como forma de reconhecimento público pela contribuição.
+ ┃
  ┣ 👾 PC VAQUINHA
- ┗ 👾 DOMINIO
-```
+ ┃   ┗ O apoiador contribui com um valor para fomentar a criação de novos modos de jogo.
+ ┃      O apoiador pode contribuir diretamente na loja ou ativando anúncios dentro do modo de jogo "cabana".
+ ┃      O apoiador recebe agradecimento e a comunidade de jogadores um novo modo de jogo em Vinhadinho.
+ ┃
+ ┗ 👾 DOMÍNIO
+ ┃   ┗ O apoiador contribui para compra do dominio web do site disponível no ambiente de produção.
+ ┃      Todos os jogadores podem ver essa contribuição através dos créditos no jogo disponível no "salão dos dev".
+
+``` 
 <br>
 <br>
 <br>
