@@ -44,6 +44,69 @@
             transition: opacity 1s ease-in;
         }
 
+        .production-panel {
+            display: none;
+            margin-top: 35px;
+            color: white;
+            max-width: 860px;
+        }
+
+        .production-panel h2 {
+            font-size: 18px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .production-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 22px;
+        }
+
+        .production-card {
+            border: 2px solid white;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            min-height: 280px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .logo-frame {
+            width: 82px;
+            height: 82px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+
+        .logo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
+
+        .description-box {
+            border: 2px solid white;
+            min-height: 132px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            font-size: 10px;
+            line-height: 1.5;
+            text-align: center;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
         button {
             background: transparent;
             color: white;
@@ -78,14 +141,50 @@
         
         <div class="menu" id="main-menu">
             <button onclick="jogar()">JOGAR</button>
-            <button onclick="repositorio()">REPOSITÓRIO</button>
+            <button onclick="repositorio()">REPOSITORIO</button>
         </div>
+
+        <section class="production-panel" id="production-panel">
+            <h2>AMBIENTE DE PRODUÇÃO</h2>
+            <div class="production-grid">
+                <article class="production-card">
+                    <div class="logo-frame">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="Logo do GitHub">
+                    </div>
+                    <div class="description-box">
+                        Repositório oficial no GitHub com backup da versão de produção e documentação técnica para desenvolvedores.
+                    </div>
+                    <button onclick="window.open('https://github.com/versaodeluxe18/vinhadinho', '_self')">ACESSAR</button>
+                </article>
+
+                <article class="production-card">
+                    <div class="logo-frame">
+                        <img src="https://www.gstatic.com/images/branding/product/1x/sites_2020q4_48dp.png" alt="Símbolo do Google Sites">
+                    </div>
+                    <div class="description-box">
+                        Jogo em produção hospedado no Google Sites, integrado a uma plataforma gratuita com experiência otimizada para desktop e mobile.
+                    </div>
+                    <button onclick="window.open('https://sites.google.com/view/vinhadinho/federa%C3%A7%C3%A3o', '_self')">ACESSAR</button>
+                </article>
+
+                <article class="production-card">
+                    <div class="logo-frame">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/MIT_App_Inventor_Logo.svg" alt="Símbolo do MIT App Inventor">
+                    </div>
+                    <div class="description-box">
+                        O jogo também foi integrado à seção de jogos do aplicativo Mundo Gamer, voltado para a comunidade gamer.
+                    </div>
+                    <button onclick="window.open('https://play.google.com/store/apps/details?id=io.kodular.versaodeluxe.NOTAICIA_GAMER', '_self')">ACESSAR</button>
+                </article>
+            </div>
+        </section>
     </div>
 
     <script>
         const text = "PROJETO VINHADINHO";
         const titleElement = document.getElementById('title');
         const menu = document.getElementById('main-menu');
+        const productionPanel = document.getElementById('production-panel');
         let index = 0;
 
         function typeWriter() {
@@ -110,7 +209,7 @@
         }
 
         function repositorio() {
-            window.open("https://github.com/versaodeluxe18/vinhadinho", "_self");
+            productionPanel.style.display = "block";
         }
 
         // Inicia a animação ao carregar
