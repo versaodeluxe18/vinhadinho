@@ -10,12 +10,11 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
+            min-height: 100%; /* Mudado de height para min-height */
             background-color: black;
             display: flex;
             justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            /* Removido o align-items: center daqui para evitar o corte no topo */
             overflow-x: hidden;
             overflow-y: auto;
             font-family: 'Press Start 2P', cursive;
@@ -23,9 +22,10 @@
 
         #container {
             text-align: center;
-            width: min(96vw, 980px);
-            margin: 28px auto;
-            padding: 20px 16px 36px;
+            width: min(94vw, 980px);
+            /* O margin: auto vertical garante a centralização sem cortar o topo */
+            margin: 60px auto; 
+            padding: 20px 16px 60px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -39,7 +39,6 @@
             text-align: center;
         }
 
-        /* Efeito de digitação */
         #title {
             color: white;
             font-size: 24px;
@@ -48,40 +47,48 @@
             white-space: nowrap;
             overflow: hidden;
             width: 0;
-            text-align: center;
-            margin-left: auto;
-            margin-right: auto;
             display: inline-block;
         }
 
-        /* Menu de Botões */
         .menu {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            opacity: 0; /* Começa invisível */
+            opacity: 0;
             transition: opacity 1s ease-in;
         }
 
+        /* --- Estilo da Animação do Painel --- */
         .production-panel {
-            display: none;
+            /* Em vez de display: none, usamos visibilidade e opacidade para animar */
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            
             margin-top: 35px;
             color: white;
             width: 100%;
             max-width: 860px;
             box-sizing: border-box;
+            pointer-events: none; /* Impede clicar enquanto invisível */
         }
 
-        .production-panel h2 {
-            font-size: 18px;
-            margin-bottom: 24px;
-            text-transform: uppercase;
+        /* Classe que será adicionada via JS */
+        .production-panel.active {
+            max-height: 2000px; /* Valor alto para permitir expansão */
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+            margin-top: 50px;
         }
 
         .production-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 22px;
+            padding: 10px;
         }
 
         .production-card {
@@ -126,7 +133,6 @@
             text-align: center;
             box-sizing: border-box;
             width: 100%;
-            word-break: break-word;
         }
 
         button {
@@ -146,7 +152,6 @@
             transform: scale(1.1);
         }
 
-        /* Animação do Cursor */
         @keyframes blink {
             50% { border-color: transparent; }
         }
@@ -156,19 +161,8 @@
         }
 
         @media (max-width: 640px) {
-            #title {
-                font-size: 16px;
-                margin-bottom: 28px;
-            }
-
-            button {
-                font-size: 11px;
-                padding: 12px 18px;
-            }
-
-            .production-panel h2 {
-                font-size: 14px;
-            }
+            #title { font-size: 16px; }
+            button { font-size: 11px; }
         }
     </style>
 </head>
@@ -181,40 +175,40 @@
         
         <div class="menu" id="main-menu">
             <button onclick="jogar()">JOGAR</button>
-            <button onclick="repositorio()">REPOSITORIO</button>
+            <button onclick="repositorio()">INFORMAÇÕES</button>
         </div>
 
         <section class="production-panel" id="production-panel">
-            <h2>AMBIENTE DE PRODUÇÃO</h2>
+            <h2 style="font-size: 18px; margin-bottom: 24px;">AMBIENTE DE PRODUÇÃO</h2>
             <div class="production-grid">
                 <article class="production-card">
                     <div class="logo-frame">
-                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="Logo do GitHub">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub">
                     </div>
                     <div class="description-box">
-                        Repositório oficial no GitHub com backup da versão de produção e documentação técnica para desenvolvedores.
+                       Repositório oficial no GitHub com backup da versão de produção e documentação técnica.
                     </div>
-                    <button onclick="window.open('https://github.com/versaodeluxe18/vinhadinho', '_blank', 'noopener')">ACESSAR</button>
+                    <button onclick="window.open('https://github.com/versaodeluxe18/vinhadinho', '_blank')">ACESSAR</button>
                 </article>
 
                 <article class="production-card">
                     <div class="logo-frame">
-                        <img src="https://www.gstatic.com/images/branding/product/1x/sites_2020q4_48dp.png" alt="Símbolo do Google Sites">
+                        <img src="https://www.gstatic.com/images/branding/product/1x/sites_2020q4_48dp.png" alt="Google Sites">
                     </div>
                     <div class="description-box">
-                        Jogo em produção hospedado no Google Sites, integrado a uma plataforma gratuita com experiência otimizada para desktop e mobile.
+                        Jogo em ambiente de produção no Google Sites, integrado a uma plataforma gratuita.
                     </div>
-                    <button onclick="window.open('https://sites.google.com/view/vinhadinho/federa%C3%A7%C3%A3o', '_blank', 'noopener')">ACESSAR</button>
+                    <button onclick="window.open('https://sites.google.com/view/vinhadinho/federa%C3%A7%C3%A3o', '_blank')">ACESSAR</button>
                 </article>
 
                 <article class="production-card">
                     <div class="logo-frame">
-                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg" alt="Símbolo Android mobile">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg" alt="Android">
                     </div>
                     <div class="description-box">
-                        O jogo também foi integrado à seção de jogos do aplicativo Mundo Gamer, voltado para a comunidade gamer.
+                        O jogo foi integrado à seção de jogos do aplicativo Mundo Gamer.
                     </div>
-                    <button onclick="window.open('https://play.google.com/store/apps/details?id=io.kodular.versaodeluxe.NOTAICIA_GAMER', '_blank', 'noopener')">ACESSAR</button>
+                    <button onclick="window.open('https://play.google.com/store/apps/details?id=io.kodular.versaodeluxe.NOTAICIA_GAMER', '_blank')">ACESSAR</button>
                 </article>
             </div>
         </section>
@@ -231,9 +225,8 @@
             if (index < text.length) {
                 titleElement.innerHTML += text.charAt(index);
                 index++;
-                // Ajusta a largura dinamicamente para o efeito de cursor
                 titleElement.style.width = (index * 1.05) + "em"; 
-                setTimeout(typeWriter, 150); 
+                setTimeout(typeWriter, 100); 
             } else {
                 titleElement.classList.add('anim-cursor');
                 showMenu();
@@ -249,104 +242,79 @@
         }
 
         function repositorio() {
-            productionPanel.style.display = "block";
+            // Agora apenas adicionamos a classe que contém a animação CSS
+            productionPanel.classList.add('active');
+            
+            // Scroll suave para mostrar o conteúdo novo
+            setTimeout(() => {
+                productionPanel.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
         }
 
-        // Inicia a animação ao carregar
         window.onload = typeWriter;
     </script>
 
-
-
-
-    
-
-      <!-- cursor animado  -->
     <canvas id="mouse-pixels"></canvas>
-  <script>
-    (() => {
-  const canvas = document.getElementById("mouse-pixels");
-  const ctx = canvas.getContext("2d");
+    <script>
+        (() => {
+            const canvas = document.getElementById("mouse-pixels");
+            const ctx = canvas.getContext("2d");
+            canvas.style.position = "fixed";
+            canvas.style.inset = "0";
+            canvas.style.pointerEvents = "none";
+            canvas.style.zIndex = "9998";
+            canvas.style.imageRendering = "pixelated";
 
-  canvas.style.position = "fixed";
-  canvas.style.inset = "0";
-  canvas.style.pointerEvents = "none";
-  canvas.style.zIndex = "9998";
-  canvas.style.imageRendering = "pixelated";
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener("resize", resize);
+            resize();
 
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener("resize", resize);
-  resize();
+            const pixels = [];
+            const MAX = 220;
+            let mouse = { x: 0, y: 0, vx: 0, vy: 0 };
+            let last = { x: 0, y: 0 };
 
-  const pixels = [];
-  const MAX = 220;
+            window.addEventListener("mousemove", e => {
+                mouse.vx = e.clientX - last.x;
+                mouse.vy = e.clientY - last.y;
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+                last.x = mouse.x;
+                last.y = mouse.y;
+                spawn(mouse.x, mouse.y, mouse.vx, mouse.vy);
+            });
 
-  let mouse = { x: 0, y: 0, vx: 0, vy: 0 };
-  let last = { x: 0, y: 0 };
+            function spawn(x, y, vx, vy) {
+                if (pixels.length > MAX) pixels.shift();
+                const size = 4 + Math.random() * 4;
+                pixels.push({
+                    x, y,
+                    vx: vx * 0.04 + (Math.random() - 0.5),
+                    vy: vy * 0.04 + (Math.random() - 0.5),
+                    life: 1,
+                    size
+                });
+            }
 
-  window.addEventListener("mousemove", e => {
-    mouse.vx = e.clientX - last.x;
-    mouse.vy = e.clientY - last.y;
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-    last.x = mouse.x;
-    last.y = mouse.y;
-
-    spawn(mouse.x, mouse.y, mouse.vx, mouse.vy);
-  });
-
-  function spawn(x, y, vx, vy) {
-    if (pixels.length > MAX) pixels.shift();
-
-    const size = 4 + Math.random() * 4;
-
-    pixels.push({
-      x,
-      y,
-      vx: vx * 0.04 + (Math.random() - 0.5),
-      vy: vy * 0.04 + (Math.random() - 0.5),
-      life: 1,
-      size
-    });
-  }
-
-  function update() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let i = pixels.length - 1; i >= 0; i--) {
-      const p = pixels[i];
-
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= 0.02;
-      p.vx *= 0.92;
-      p.vy *= 0.92;
-
-      if (p.life <= 0) {
-        pixels.splice(i, 1);
-        continue;
-      }
-
-      ctx.globalAlpha = p.life;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(
-        Math.round(p.x / 2) * 2,
-        Math.round(p.y / 2) * 2,
-        p.size,
-        p.size
-      );
-    }
-
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(update);
-  }
-
-  update();
-})();
-
-  </script>
+            function update() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = pixels.length - 1; i >= 0; i--) {
+                    const p = pixels[i];
+                    p.x += p.vx; p.y += p.vy;
+                    p.life -= 0.02;
+                    p.vx *= 0.92; p.vy *= 0.92;
+                    if (p.life <= 0) { pixels.splice(i, 1); continue; }
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(Math.round(p.x / 2) * 2, Math.round(p.y / 2) * 2, p.size, p.size);
+                }
+                requestAnimationFrame(update);
+            }
+            update();
+        })();
+    </script>
 </body>
 </html>
