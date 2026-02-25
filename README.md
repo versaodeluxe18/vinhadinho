@@ -2,17 +2,25 @@
 <div align="center">
 
 # VINHADINHO
-[![HTML5](https://img.shields.io/badge/HTML5-555555?style=for-the-badge&logo=html5&logoColor=white")](#)
+
+[![HTML5](https://img.shields.io/badge/HTML5-555555?style=for-the-badge&logo=html5&logoColor=white)](#)
 [![CSS3](https://img.shields.io/badge/CSS3-555555?style=for-the-badge&logo=css3&logoColor=white)](#)
 [![JavaScript](https://img.shields.io/badge/JavaScript-555555?style=for-the-badge&logo=javascript&logoColor=white)](#)
 [![Open Source](https://img.shields.io/badge/Open%20Source-555555?style=for-the-badge&logo=github&logoColor=white)](#)
-<img src="https://img.shields.io/endpoint?url=https://api.codetabs.com/v1/loc?github=versaodeluxe18/vinhadinho&style=for-the-badge&label=LINHAS&labelColor=555555&color=555555">
-<br>
+![Linhas de Código](https://img.shields.io/tokei/lines/github/versaodeluxe18/vinhadinho?color=555555&label=LINHAS&style=for-the-badge&labelColor=555555)
+
 <br>
 
 <a href="https://versaodeluxe18.github.io/vinhadinho/">
-  <img src="https://img.shields.io/badge/🎮_JOGAR_AGORA_🎮-2ea44f?style=for-the-badge" alt="JOGAR AGORA" width="300">
+  <img src="https://img.shields.io/badge/%F0%9F%8E%AE_JOGAR_AGORA_%F0%9F%8E%AE-2ea44f?style=for-the-badge" alt="JOGAR AGORA" width="300">
 </a>
+
+<br>
+<br>
+
+</div>
+
+
 
 <br>
 <br>
@@ -23,7 +31,7 @@
 
 ---
 
-> **[OPEN-SOURCE SERVERLESS GAME PLATFORM]** > Mais do que um jogo, este projeto foi concebido como um ecossistema colaborativo e extensível. Desenvolvedores são convidados a criar novos modos de jogo, implementar mecânicas próprias e explorar estratégias independentes de monetização dentro de uma base técnica aberta e sustentável. Aqui, a criatividade é tratada como ativo estratégico para expansão contínua da plataforma.  
+> **[OPEN-SOURCE SERVERLESS GAME PLATFORM]** Mais do que um jogo, este projeto foi concebido como um ecossistema colaborativo e extensível. Desenvolvedores são convidados a criar novos modos de jogo, implementar mecânicas próprias e explorar estratégias independentes de monetização dentro de uma base técnica aberta e sustentável. Aqui, a criatividade é tratada como ativo estratégico para expansão contínua da plataforma.  
 >  
 > Este ecossistema foi arquitetado para operar com **custo zero de produção e manutenção**, eliminando dependência de servidores dedicados e reduzindo complexidade operacional. A autenticação é gerenciada via Firebase, enquanto o backend é implementado em modelo serverless utilizando Google Apps Script, com persistência e administração de dados através de Planilhas Google (TSV).  
 >  
