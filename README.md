@@ -56,6 +56,7 @@ O projeto foi organizado para ser (MPA)-Aplicação de Múltiplas Páginas onde 
 📦 vinhadinho
  ┣ 📜 index.html------------------# Inicio.
  ┣ 📂 game/-----------------------# Códigos do jogo
+ ┣ 📂 doc/------------------------# Documentação
  ┗ 📂 arquivos/-------------------# Arquivos e base64
 ```
 
