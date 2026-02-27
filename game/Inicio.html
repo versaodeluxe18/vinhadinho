@@ -1543,6 +1543,11 @@ Peace is built on trust.
   };
 
   const CENTER_IMAGE = 'https://i.servimg.com/u/f22/19/80/77/63/drone_10.png';
+  const TRANSITION_IMAGES = {
+    first: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg5dselS4JptXm-oWiTXi00rTNr7-yMlWrdECT3oo9vE4-34bqyMXBDcaRBJLX6Te_0m1nt6ko6DuApVmS4gMtVvg4XAPfjlvb8UyzMUxKU8_7kWM8GniGhC_j47DMHr2HvKnx6doCxJOuiLNwQT95OXE57O4VfrfTVdLhHKhkdeBkdENa0Cau-NGiM3Q0/s1600/Gemini_Generated_Image_rciqz2rciqz2rciq.png',
+    second: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhnn1YPgqRVZ0TUfCeHNxbcggoOQf_RbW8YehJ9K9TA3tSmUr3CJks3-BV6-oP-SlLtR3YoSM9pkOn_cPtZS9E3t83quSsUFvR_F5UBDYMzkBz2_msxxZfs47PbiZsTjyB0JgfjJmaW6nqmuEF8XQJ8NRdsgJI-MlivjC8pGcvfGwqE5EM8ddoEAouCKqc/s1600/Gemini_Generated_Image_v3uhxbv3uhxbv3uh.png'
+  };
+  const TRANSITION_SOUND = 'https://raw.githubusercontent.com/versaodeluxe18/vinhadinho/main/arquivos/transicao_max.mp3';
 
   const PARTICLE_COUNT = 160;
   const BURST_DURATION = 900;
@@ -1672,6 +1677,30 @@ background-repeat: no-repeat;
     .vd-vertex{ width:110px; height:54px; font-size:12px; }
     #vd-center-image{ width:160px; height:160px; }
   }
+
+  #vd-transition-overlay{
+    position:fixed;
+    inset:0;
+    z-index:17000;
+    background:#000;
+    overflow:hidden;
+  }
+
+  .vd-transition-scene{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:0;
+    transition:transform 1s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.2s ease-in-out;
+    will-change:transform, opacity;
+    transform:scale(1);
+  }
+
+  .vd-transition-scene.active{ opacity:1; }
+  .vd-transition-scene.zoomed{ transform:scale(2.5); }
+  .vd-transition-scene.normal{ transform:scale(1); }
 
   `;
   document.head.appendChild(css);
@@ -1891,6 +1920,61 @@ background-repeat: no-repeat;
     setTimeout(()=> svg.innerHTML="",900);
   }
 
+  function wait(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function playTransitionSound(){
+    const sound = new Audio(TRANSITION_SOUND);
+    sound.playbackRate = 2;
+    sound.volume = 1;
+    sound.play().catch(()=>{});
+  }
+
+  async function runDroneTransition(url){
+    if(document.getElementById('vd-transition-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'vd-transition-overlay';
+    overlay.innerHTML = `
+      <img id="vd-transition-img-1" class="vd-transition-scene active zoomed" src="${TRANSITION_IMAGES.first}" alt="">
+      <img id="vd-transition-img-2" class="vd-transition-scene" src="${TRANSITION_IMAGES.second}" alt="">
+    `;
+
+    document.body.appendChild(overlay);
+    const img1 = document.getElementById('vd-transition-img-1');
+    const img2 = document.getElementById('vd-transition-img-2');
+
+    await wait(800);
+    playTransitionSound();
+    img1.classList.remove('zoomed');
+    img1.classList.add('normal');
+
+    await wait(1000);
+    img2.classList.add('active');
+    await wait(50);
+    img1.classList.remove('active');
+
+    await wait(2250);
+
+    playTransitionSound();
+    img2.classList.remove('zoomed');
+    img2.classList.add('normal');
+    void img2.offsetWidth;
+    img2.classList.remove('normal');
+    img2.classList.add('zoomed');
+
+    await wait(1000);
+    window.location.href = url;
+  }
+
+  function handleDroneDestination(e, destination){
+    e.stopPropagation();
+    closePanel();
+    openState=false;
+    runDroneTransition(destination);
+  }
+
   diamond.addEventListener('click', ()=>{
     if(!openState) openPanel();
     else closePanel();
@@ -1904,9 +1988,9 @@ background-repeat: no-repeat;
     }
   });
 
-  v1.addEventListener('click',e=>{ e.stopPropagation(); window.location.href=LINKS.COLETA; });
-  v2.addEventListener('click',e=>{ e.stopPropagation(); window.location.href=LINKS.ACAMPAMENTO; });
-  v3.addEventListener('click',e=>{ e.stopPropagation(); window.location.href=LINKS.CABANA; });
+  v1.addEventListener('click',e=> handleDroneDestination(e, LINKS.COLETA));
+  v2.addEventListener('click',e=> handleDroneDestination(e, LINKS.ACAMPAMENTO));
+  v3.addEventListener('click',e=> handleDroneDestination(e, LINKS.CABANA));
 
   centerImg.addEventListener('click',(e)=>{ e.stopPropagation(); if(openState){ closePanel(); openState=false; } });
 
