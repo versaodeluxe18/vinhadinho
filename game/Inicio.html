@@ -1584,7 +1584,11 @@ Peace is built on trust.
     clip-path:polygon(10% 0%,90% 0%,100% 50%,90% 100%,10% 100%,0% 50%);
     border:4px solid rgba(0,0,0,0.14);
     box-shadow:0 10px 22px rgba(0,0,0,0.32);
-    display:flex; align-items:center; justify-content:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
     cursor:pointer;
     text-transform:uppercase;
     font-weight:800;
@@ -1592,6 +1596,7 @@ Peace is built on trust.
     color:#0b0b0b;
     letter-spacing:0.06em;
     transition:transform .15s, box-shadow .15s;
+    padding:10px 16px;
   }
 
   #vd-drone-diamond:hover{
@@ -1601,6 +1606,47 @@ Peace is built on trust.
 
   #vd-drone-diamond:active{
     transform:translateX(-0%) translateY(1px);
+  }
+  #vd-drone-title{
+    font-size:15px;
+    line-height:1;
+    text-align:center;
+  }
+
+  #vd-drone-loading{
+    display:none;
+    width:100%;
+    max-width:150px;
+    margin-top:2px;
+  }
+
+  #vd-drone-loading.active{
+    display:block;
+  }
+
+  #vd-drone-loading-text{
+    display:block;
+    font-size:8px;
+    line-height:1;
+    letter-spacing:0.08em;
+    color:rgba(0,0,0,0.8);
+    text-align:center;
+    margin-bottom:3px;
+  }
+
+  #vd-drone-loading-bar{
+    width:100%;
+    height:6px;
+    border-radius:999px;
+    background:rgba(0,0,0,0.2);
+    overflow:hidden;
+  }
+
+  #vd-drone-loading-fill{
+    width:0%;
+    height:100%;
+    background:rgba(0,0,0,0.7);
+    transition:width .18s ease;
   }
 
   /* CANVAS DAS PARTÍCULAS */
@@ -1710,7 +1756,11 @@ background-repeat: no-repeat;
   root.innerHTML = `
     <div id="vd-drone-footer">
       <div id="vd-drone-diamond" role="button" tabindex="0" aria-pressed="false">
-        SISTEMA DE DRONES
+        <span id="vd-drone-title">SISTEMA DE DRONES</span>
+        <div id="vd-drone-loading" aria-live="polite">
+          <small id="vd-drone-loading-text">carregando 0%</small>
+          <div id="vd-drone-loading-bar"><div id="vd-drone-loading-fill"></div></div>
+        </div>
       </div>
     </div>
 
@@ -1734,6 +1784,9 @@ background-repeat: no-repeat;
   const v1 = document.getElementById('vd-vertex-1');
   const v2 = document.getElementById('vd-vertex-2');
   const v3 = document.getElementById('vd-vertex-3');
+  const loadingWrap = document.getElementById('vd-drone-loading');
+  const loadingText = document.getElementById('vd-drone-loading-text');
+  const loadingFill = document.getElementById('vd-drone-loading-fill');
 
   centerImg.style.backgroundImage = `url('${CENTER_IMAGE}')`;
 
@@ -1855,6 +1908,9 @@ background-repeat: no-repeat;
   }
 
   let openState=false;
+  let isAssetsLoaded=false;
+  let isLoadingAssets=false;
+  let isTransitionRunning=false;
 
   function openPanel(){
     if(panel.classList.contains('open')) return;
@@ -1924,6 +1980,76 @@ background-repeat: no-repeat;
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  function setLoadingProgress(value){
+    const pct = Math.max(0, Math.min(100, Math.round(value)));
+    loadingFill.style.width = pct + "%";
+    loadingText.textContent = `carregando ${pct}%`;
+  }
+
+  function showLoadingUI(){
+    loadingWrap.classList.add('active');
+    setLoadingProgress(0);
+  }
+
+  function hideLoadingUI(){
+    loadingWrap.classList.remove('active');
+  }
+
+  function preloadImage(src){
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      img.src = src;
+    });
+  }
+
+  function preloadAudio(src){
+    return new Promise(resolve => {
+      const audio = new Audio();
+      let done = false;
+      const finish = () => {
+        if(done) return;
+        done = true;
+        audio.removeEventListener('canplaythrough', finish);
+        audio.removeEventListener('error', finish);
+        resolve();
+      };
+
+      audio.preload = 'auto';
+      audio.addEventListener('canplaythrough', finish, { once:true });
+      audio.addEventListener('error', finish, { once:true });
+      audio.src = src;
+      audio.load();
+      setTimeout(finish, 3000);
+    });
+  }
+
+  async function ensureTransitionAssets(){
+    if(isAssetsLoaded || isLoadingAssets) return;
+
+    isLoadingAssets = true;
+    showLoadingUI();
+
+    let loaded = 0;
+    const total = 3;
+    const stepDone = () => {
+      loaded += 1;
+      setLoadingProgress((loaded / total) * 100);
+    };
+
+    await preloadImage(TRANSITION_IMAGES.first);
+    stepDone();
+    await preloadImage(TRANSITION_IMAGES.second);
+    stepDone();
+    await preloadAudio(TRANSITION_SOUND);
+    stepDone();
+
+    isAssetsLoaded = true;
+    isLoadingAssets = false;
+    setTimeout(hideLoadingUI, 180);
+  }
+
   function playTransitionSound(){
     const sound = new Audio(TRANSITION_SOUND);
     sound.playbackRate = 2;
@@ -1932,7 +2058,8 @@ background-repeat: no-repeat;
   }
 
   async function runDroneTransition(url){
-    if(document.getElementById('vd-transition-overlay')) return;
+    if(isTransitionRunning || document.getElementById('vd-transition-overlay')) return;
+    isTransitionRunning = true;
 
     const overlay = document.createElement('div');
     overlay.id = 'vd-transition-overlay';
@@ -1968,6 +2095,21 @@ background-repeat: no-repeat;
     window.location.href = url;
   }
 
+  function resetTransitionState(){
+    isTransitionRunning = false;
+    const overlay = document.getElementById('vd-transition-overlay');
+    if(overlay) overlay.remove();
+    hideLoadingUI();
+
+    if(panel.classList.contains('open')){
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden','true');
+      diamond.setAttribute('aria-pressed','false');
+      svg.innerHTML = "";
+      openState = false;
+    }
+  }
+
   function handleDroneDestination(e, destination){
     e.stopPropagation();
     closePanel();
@@ -1975,7 +2117,18 @@ background-repeat: no-repeat;
     runDroneTransition(destination);
   }
 
-  diamond.addEventListener('click', ()=>{
+  diamond.addEventListener('click', async ()=>{
+    if(isTransitionRunning || isLoadingAssets) return;
+
+    if(!isAssetsLoaded){
+      await ensureTransitionAssets();
+      if(!openState){
+        openPanel();
+        openState = true;
+      }
+      return;
+    }
+
     if(!openState) openPanel();
     else closePanel();
     openState=!openState;
@@ -1993,6 +2146,9 @@ background-repeat: no-repeat;
   v3.addEventListener('click',e=> handleDroneDestination(e, LINKS.CABANA));
 
   centerImg.addEventListener('click',(e)=>{ e.stopPropagation(); if(openState){ closePanel(); openState=false; } });
+
+  window.addEventListener('pageshow', resetTransitionState);
+  window.addEventListener('pagehide', resetTransitionState);
 
 })();
 </script>
