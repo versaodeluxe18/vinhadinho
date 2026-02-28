@@ -1279,7 +1279,7 @@ Peace is built on trust.
 
   // dados (edite conforme quiser)
   const devs = [
-    { name: 'W.F.Fukuta', area: 'Desenvolveu os primeiros modos de jogo sendo eles: Coletar, Cabana e Acampamento.', img: 'https://lh3.googleusercontent.com/a/ACg8ocJ0id7x8HEHHe49qeDOn0HANTh3_73x9GyrpcobgJf51g76r9lD=s96-c', WEBSITE: 'https://www.instagram.com/w.f.fukuta/', discord: 'w.f.fukuta' }
+    { name: 'W.F.Fukuta', area: 'Desenvolveu os primeiros modos de jogo sendo eles: Coletar, Cabana e Acampamento.', img: 'https://lh3.googleusercontent.com/a/ACg8ocJ0id7x8HEHHe49qeDOn0HANTh3_73x9GyrpcobgJf51g76r9lD=s96-c', website: 'https://www.instagram.com/w.f.fukuta/', discordUrl: 'https://discord.gg/NgPyCEaR' }
   ];
 
   // Render principal do Suporte
@@ -1362,7 +1362,7 @@ Peace is built on trust.
         <div style="flex:1;">
           <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px;">${d.name}</div>
           <div style="font-size:11px;color:#ddd;margin-bottom:2px;">${d.area}</div>
-          <div style="font-size:11px;color:#c49b46;"><a href="${d.instagram}" target="_blank" rel="noopener" style="color:inherit;">WEBSITE</a> • <span style="color:#ddd">Discord</span></div>
+          <div style="font-size:11px;color:#c49b46;"><a href="${d.website}" target="_blank" rel="noopener" style="color:inherit;" onclick="event.stopPropagation()">WEBSITE</a> • <a href="${d.discordUrl}" target="_blank" rel="noopener" style="color:#ddd;" onclick="event.stopPropagation()">Discord</a></div>
         </div>
       </div>
     `).join('');
@@ -1434,13 +1434,13 @@ Peace is built on trust.
 
         <div style="display:flex;gap:.5rem;">
           <button id="contact-dev" style="cursor:pointer;padding:.5rem .75rem;text-transform:uppercase;">Contactar pelo discord</button>
-          <a href="https://wffukuta.github.io/personal-site/" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;padding:.5rem .75rem;">WEBSITE</a>
+          <a href="${dev.website}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;padding:.5rem .75rem;">WEBSITE</a>
         </div>
       </div>
     `;
 
     document.getElementById('dev-back')?.addEventListener('click', e=>{ e.preventDefault(); renderDevsSalon(); });
-    document.getElementById('contact-dev')?.addEventListener('click', e=>{ e.preventDefault(); window.open('https://discord.gg/NgPyCEaR','_blank','noopener'); });
+    document.getElementById('contact-dev')?.addEventListener('click', e=>{ e.preventDefault(); window.open(dev.discordUrl,'_blank','noopener'); });
   }
 
   // btn Quero Ser Dev 
