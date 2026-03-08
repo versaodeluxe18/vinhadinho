@@ -1,41 +1,48 @@
-MIT License
+CONTRATO DE LICENÇA DE USO E CONTRIBUIÇÃO - VINHADINHO
+1. PROPRIEDADE E DIREITOS AUTORAIS
+Este software e todos os seus componentes, incluindo, mas não se limitando a: código-fonte, artes visuais, personagens, diálogos, história, trilha sonora e nomes, são de propriedade exclusiva da Versão Deluxe. Todos os direitos são reservados.
 
-Copyright (c) 2026 Versão DEluxe
+2. ACESSO E CONTRIBUIÇÃO
+O código é disponibilizado publicamente para fins de visualização, estudo e contribuição.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Contribuições: Ao enviar melhorias ou correções (Pull Requests), o colaborador entende que o código enviado passa a integrar o projeto oficial sob a mesma propriedade da Versão Deluxe.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Modos (Mods): É permitida a criação de novos modos ou modificações por terceiros, desde que funcionem estritamente como um complemento ao jogo original.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+3. MONETIZAÇÃO E USO COMERCIAL
 
--------------------------------------------------------------------------------
+Monetização de Mods: Criadores de modos têm permissão para monetizar suas criações (ex: doações, parcerias ou anúncios) desde que essa monetização ocorra dentro do ambiente de execução do jogo ou em plataformas de criação de conteúdo (YouTube/Twitch), associada ao uso do jogo original.
 
-SPECIAL INTELLECTUAL PROPERTY RESTRICTION:
+Proibição de Uso Externo: É terminantemente proibido o uso de qualquer personagem, elemento da história ou código deste projeto para criar produtos independentes (Standalone), novos jogos, ou para gerar lucro direto fora do ambiente de produção e distribuição oficial da Versão Deluxe.
 
-The MIT License granted above applies EXCLUSIVELY to the software source code 
-and technical structure of this project.
+Venda de Ativos: É proibida a venda isolada de qualquer arquivo, arte ou parte do código contido neste repositório.
 
-All creative assets, including but not limited to:
-- Characters and character names;
-- Narrative, lore, and dialogue;
-- The "Federação do Vale" universe;
-- Artwork, soundtracks, and environmental design elements;
+4. LIMITAÇÃO DE RESPONSABILIDADE
+O software é fornecido "no estado em que se encontra", sem garantias de qualquer tipo. A Versão Deluxe não se responsabiliza por danos decorrentes do uso de modificações de terceiros.
 
-Are the exclusive property (Copyright) of versaodeluxe18. The use, reproduction, 
-or derivation of these assets in external, commercial, or independent projects 
-is STRICTLY PROHIBITED without prior written authorization from the author.
 
-The use of these assets is permitted only within the context of direct 
-contributions to this official repository.
+________________________________
+
+
+LICENSE AND TERMS OF USE - VINHADINHO PROJECT
+1. OWNERSHIP AND COPYRIGHT
+This software and all its components—including, but not limited to, source code, visual arts, characters, storylines, dialogues, and sound assets—are the exclusive property of Versão Deluxe. All rights reserved.
+
+2. ACCESS AND CONTRIBUTIONS
+The source code is made publicly available for viewing, educational purposes, and community contribution.
+
+Contributions: By submitting improvements or bug fixes (via Pull Requests), the contributor acknowledges that the submitted code becomes part of the official project under the ownership of Versão Deluxe.
+
+Mods: Users are permitted to create "Mods" (modifications) or new game modes, provided they function strictly as add-ons to the original game.
+
+3. MONETIZATION AND COMMERCIAL USE
+
+Mod Monetization: Mod creators are permitted to monetize their own original work (e.g., through donations, sponsorships, or content creation on platforms like YouTube/Twitch), provided such monetization is associated with the use of the original game.
+
+Prohibition of External Use: It is strictly prohibited to use any characters, story elements, or code from this project to create independent (standalone) products, derivative games, or any form of commercial profit outside of the official Versão Deluxe production and distribution environment.
+
+Asset Sale: The isolated sale of any file, artwork, or part of the source code contained in this repository is strictly forbidden.
+
+4. NO WARRANTY
+The software is provided "as is", without warranty of any kind, express or implied. Versão Deluxe shall not be held liable for any damages arising from the use of third-party modifications.
+
