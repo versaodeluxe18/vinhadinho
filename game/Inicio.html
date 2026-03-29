@@ -533,10 +533,95 @@
 
 
 
+
+
+
+
+  
+
 <!-- Bloqueio de orientação para mobile (exige horizontal) -->
 <script>
 (() => {
-  const LOCK_ID = "vd-mobile-orientation-lock";
+  const LOCK_ID = "premium-orientation-lock";
+
+  // Injeta o CSS necessário para a animação
+  const style = document.createElement('style');
+  style.textContent = `
+    #${LOCK_ID} {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(10px);
+      color: #ffffff;
+      font-family: system-ui, -apple-system, sans-serif;
+      transition: opacity 0.4s ease, visibility 0.4s;
+      opacity: 0;
+      visibility: hidden;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #${LOCK_ID}.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .device-wrapper {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .phone-icon {
+      width: 50px;
+      height: 80px;
+      border: 3px solid #fff;
+      border-radius: 6px;
+      position: absolute;
+      left: 25%;
+      animation: rotateDevice 2s ease-in-out infinite;
+    }
+
+    .phone-icon::after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+    }
+
+    @keyframes rotateDevice {
+      0% { transform: rotate(0deg); }
+      30% { transform: rotate(-90deg); }
+      70% { transform: rotate(-90deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .lock-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.02em;
+    }
+
+    .lock-text {
+      font-size: 1rem;
+      opacity: 0.7;
+      max-width: 250px;
+      line-height: 1.4;
+    }
+  `;
+  document.head.appendChild(style);
 
   function ensureLockOverlay() {
     let lock = document.getElementById(LOCK_ID);
@@ -544,61 +629,38 @@
 
     lock = document.createElement("div");
     lock.id = LOCK_ID;
-    lock.setAttribute("aria-live", "assertive");
-    lock.setAttribute("aria-hidden", "true");
-    lock.style.cssText = `
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      text-align: center;
-      background: rgba(0,0,0,0.92);
-      color: #fff;
-      pointer-events: auto;
-      font-family: 'Press Start 2P', monospace;
-    `;
-
     lock.innerHTML = `
-      <div style="max-width: 520px; line-height: 1.8;">
-        <div style="font-size: 16px; margin-bottom: 18px;">VIRE O CELULAR</div>
-        <div style="font-size: 11px; opacity: 0.95;">
-          Para jogar, coloque o dispositivo na horizontal (paisagem).
-        </div>
+      <div class="device-wrapper">
+        <div class="phone-icon"></div>
       </div>
+      <h2 class="lock-title">Gire seu aparelho</h2>
+      <p class="lock-text">Para uma melhor experiência, utilize o modo paisagem.</p>
     `;
 
     document.body.appendChild(lock);
     return lock;
   }
 
-  function isMobileDevice() {
-    const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobi/i.test(navigator.userAgent);
-    const touchMobile = navigator.maxTouchPoints > 1 && window.matchMedia("(max-width: 1024px)").matches;
-    return uaMobile || touchMobile;
-  }
-
-  function isPortrait() {
-    if (window.matchMedia) return window.matchMedia("(orientation: portrait)").matches;
-    return window.innerHeight >= window.innerWidth;
-  }
-
-  function updateOrientationLock() {
+  function checkOrientation() {
     const lock = ensureLockOverlay();
-    const mustLock = isMobileDevice() && isPortrait();
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                     || (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+    
+    const isPortrait = window.innerHeight > window.innerWidth;
 
-    lock.style.display = mustLock ? "flex" : "none";
-    lock.setAttribute("aria-hidden", mustLock ? "false" : "true");
-    document.body.style.overflow = mustLock ? "hidden" : "";
+    if (isMobile && isPortrait) {
+      lock.classList.add("active");
+      document.body.style.overflow = "hidden";
+    } else {
+      lock.classList.remove("active");
+      document.body.style.overflow = "";
+    }
   }
 
-  window.addEventListener("resize", updateOrientationLock, { passive: true });
-  window.addEventListener("orientationchange", updateOrientationLock, { passive: true });
-  document.addEventListener("visibilitychange", updateOrientationLock);
-  window.addEventListener("DOMContentLoaded", updateOrientationLock);
-  updateOrientationLock();
+  window.addEventListener("resize", checkOrientation);
+  window.addEventListener("orientationchange", checkOrientation);
+  document.addEventListener("DOMContentLoaded", checkOrientation);
+  checkOrientation();
 })();
 </script>
 
