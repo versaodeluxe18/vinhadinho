@@ -530,6 +530,85 @@
   </div>
 
 
+
+
+
+<!-- Bloqueio de orientação para mobile (exige horizontal) -->
+<script>
+(() => {
+  const LOCK_ID = "vd-mobile-orientation-lock";
+
+  function ensureLockOverlay() {
+    let lock = document.getElementById(LOCK_ID);
+    if (lock) return lock;
+
+    lock = document.createElement("div");
+    lock.id = LOCK_ID;
+    lock.setAttribute("aria-live", "assertive");
+    lock.setAttribute("aria-hidden", "true");
+    lock.style.cssText = `
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      background: rgba(0,0,0,0.92);
+      color: #fff;
+      pointer-events: auto;
+      font-family: 'Press Start 2P', monospace;
+    `;
+
+    lock.innerHTML = `
+      <div style="max-width: 520px; line-height: 1.8;">
+        <div style="font-size: 16px; margin-bottom: 18px;">VIRE O CELULAR</div>
+        <div style="font-size: 11px; opacity: 0.95;">
+          Para jogar, coloque o dispositivo na horizontal (paisagem).
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(lock);
+    return lock;
+  }
+
+  function isMobileDevice() {
+    const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobi/i.test(navigator.userAgent);
+    const touchMobile = navigator.maxTouchPoints > 1 && window.matchMedia("(max-width: 1024px)").matches;
+    return uaMobile || touchMobile;
+  }
+
+  function isPortrait() {
+    if (window.matchMedia) return window.matchMedia("(orientation: portrait)").matches;
+    return window.innerHeight >= window.innerWidth;
+  }
+
+  function updateOrientationLock() {
+    const lock = ensureLockOverlay();
+    const mustLock = isMobileDevice() && isPortrait();
+
+    lock.style.display = mustLock ? "flex" : "none";
+    lock.setAttribute("aria-hidden", mustLock ? "false" : "true");
+    document.body.style.overflow = mustLock ? "hidden" : "";
+  }
+
+  window.addEventListener("resize", updateOrientationLock, { passive: true });
+  window.addEventListener("orientationchange", updateOrientationLock, { passive: true });
+  document.addEventListener("visibilitychange", updateOrientationLock);
+  window.addEventListener("DOMContentLoaded", updateOrientationLock);
+  updateOrientationLock();
+})();
+</script>
+
+
+
+
+
+
+
+  
       
   <script>
 (function () {
