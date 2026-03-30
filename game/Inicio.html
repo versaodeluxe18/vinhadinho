@@ -2233,6 +2233,7 @@ background-repeat: no-repeat;
     img2.classList.add('zoomed');
 
     await wait(1000);
+    sessionStorage.setItem('vd_transition_in', '1');
     window.location.href = url;
   }
 
