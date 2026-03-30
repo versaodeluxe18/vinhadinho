@@ -1738,6 +1738,8 @@ Peace is built on trust.
     letter-spacing:0.06em;
     transition:transform .15s, box-shadow .15s;
     padding:10px 16px;
+    position:relative;
+    overflow:hidden;
   }
 
   #vd-drone-diamond:hover{
@@ -1752,6 +1754,23 @@ Peace is built on trust.
     font-size:15px;
     line-height:1;
     text-align:center;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  #vd-drone-title-text{
+    display:inline-block;
+  }
+
+  #vd-drone-spinner{
+    width:12px;
+    height:12px;
+    border:2px solid rgba(11,11,11,0.25);
+    border-top-color:#0b0b0b;
+    border-radius:50%;
+    display:none;
+    animation:vdSpin .7s linear infinite;
   }
 
   #vd-drone-loading{
@@ -1763,6 +1782,26 @@ Peace is built on trust.
 
   #vd-drone-loading.active{
     display:block;
+  }
+
+  #vd-drone-diamond.is-loading{
+    box-shadow:0 0 0 2px rgba(255,255,255,0.18), 0 0 24px rgba(255,221,130,0.65), 0 10px 22px rgba(0,0,0,0.32);
+    animation:vdDronePulse 1s ease-in-out infinite;
+    cursor:progress;
+  }
+
+  #vd-drone-diamond.is-loading #vd-drone-spinner{
+    display:inline-block;
+  }
+
+  #vd-drone-diamond.is-loading::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.35) 40%, transparent 60%);
+    transform:translateX(-120%);
+    animation:vdDroneSweep 1.2s linear infinite;
+    pointer-events:none;
   }
 
   #vd-drone-loading-text{
@@ -1788,6 +1827,20 @@ Peace is built on trust.
     height:100%;
     background:rgba(0,0,0,0.7);
     transition:width .18s ease;
+  }
+
+  @keyframes vdSpin{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+  }
+
+  @keyframes vdDronePulse{
+    0%,100%{ filter:saturate(1); }
+    50%{ filter:saturate(1.2) brightness(1.08); }
+  }
+
+  @keyframes vdDroneSweep{
+    to{ transform:translateX(120%); }
   }
 
   /* CANVAS DAS PARTÍCULAS */
@@ -1897,7 +1950,7 @@ background-repeat: no-repeat;
   root.innerHTML = `
     <div id="vd-drone-footer">
       <div id="vd-drone-diamond" role="button" tabindex="0" aria-pressed="false">
-        <span id="vd-drone-title">SISTEMA DE DRONES</span>
+        <span id="vd-drone-title"><span id="vd-drone-spinner" aria-hidden="true"></span><span id="vd-drone-title-text">SISTEMA DE DRONES</span></span>
         <div id="vd-drone-loading" aria-live="polite">
           <small id="vd-drone-loading-text">carregando 0%</small>
           <div id="vd-drone-loading-bar"><div id="vd-drone-loading-fill"></div></div>
@@ -2128,11 +2181,13 @@ background-repeat: no-repeat;
   }
 
   function showLoadingUI(){
+    diamond.classList.add('is-loading');
     loadingWrap.classList.add('active');
     setLoadingProgress(0);
   }
 
   function hideLoadingUI(){
+    diamond.classList.remove('is-loading');
     loadingWrap.classList.remove('active');
   }
 
@@ -2495,7 +2550,7 @@ background-repeat: no-repeat;
 
     /* BOTÃO SISTEMA DE DRONES */
     setText(
-      document.getElementById('vd-drone-diamond'),
+      document.getElementById('vd-drone-title-text'),
       T.DRONE
     );
 
