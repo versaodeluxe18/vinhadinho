@@ -2488,8 +2488,7 @@ background-repeat: no-repeat;
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return saved;
 
-    const nav = (navigator.language || '').toLowerCase();
-    return nav.startsWith('pt') ? 'pt' : 'en';
+    return 'pt';
   }
 
   let currentLang = getLang();
