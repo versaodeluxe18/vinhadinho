@@ -24,6 +24,96 @@
     background: black;
   }
 
+  /*Carregamento da pagina*/
+  /* ===== Oculta tudo, exceto o loading ===== */
+  body.loading > #loading-screen {
+    display: flex !important;
+  }
+
+  body.loading > *:not(#loading-screen) {
+    display: none !important;
+  }
+
+  /* Classe que dispara a animação: círculo encolhe até 0% no centro */
+  #loading-screen.reveal {
+    clip-path: circle(0% at 50% 50%);
+  }
+
+  /* ===== Loading Screen ===== */
+  #loading-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: white;
+    padding: 20px;
+    clip-path: circle(150% at 50% 50%);
+    transition: clip-path 0.8s ease-in-out;
+    background-image: url('https://i.servimg.com/u/f22/19/80/77/63/chatgp10.jpg');
+    background-size: cover;
+    no-repeat center center fixed;
+  }
+
+  #drone-loader {
+    width: 20vw;
+    animation: shake 0.5s infinite alternate;
+  }
+
+  @keyframes shake {
+    0%   { transform: translateX(-10px); }
+    100% { transform: translateX(10px); }
+  }
+
+  #loading-text {
+    margin-top: 20px;
+    font-size: 2rem;
+  }
+
+  #progress-container {
+    width: 80%;
+    height: 16px;
+    background-color: #ddd;
+    border-radius: 10px;
+    margin: 30px auto;
+    overflow: hidden;
+  }
+
+  #progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #ff00ff, #00ffff);
+    transition: width 0.3s ease;
+  }
+
+  #progress-detail {
+    font-size: 1rem;
+    margin-top: 10px;
+  }
+
+  #start-button {
+    font-size: 1rem;
+    padding: 12px 24px;
+    margin-top: 20px;
+    border: none;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 10px;
+    background: linear-gradient(to right, #ff00ff, #00ffff);
+  }
+
+  #start-button:hover {
+    opacity: 0.9;
+  }
+
+  .janela-transparente {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.8);
+  }
+
   /* === Wrapper ================================================== */
   #app {
     position: relative;
@@ -701,7 +791,28 @@
 
   </style>
 </head>
-<body>
+<body class="loading">
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <img id="drone-loader" src="https://i.servimg.com/u/f22/19/80/77/63/drone_10.png" alt="Drone">
+
+    <div class="janela-transparente"><div id="loading-text">
+      <span id="initial-message">VOCÊ SOLICITOU O ENVIO DE UM DRONE</span>
+      <span id="final-message" hidden>
+        O DRONE DISPONIBILIZADO PELA <strong>FEDERAÇÃO DO VALE</strong> JÁ CHEGOU AO DESTINO E ESTÁ SOBRE O ACAMPAMENTO DE VINHADINHO NESSE MOMENTO
+        <br><br>
+        <button id="start-button" style="display:block; margin:20px auto 0;">
+          VER TRANSMISSÃO DO DRONE AO VIVO
+        </button>
+      </span>
+    </div>
+
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="progress-detail"></div>
+  </div></div>
+
   <div class="monitor-overlay"></div>
   <div id="app">
     <div id="background"></div>
@@ -1034,6 +1145,81 @@
     closeGeladeira.addEventListener("click", () => geladeiraOverlay.style.display="none");
     geladeiraOverlay.addEventListener("click", e => { if(e.target===geladeiraOverlay) geladeiraOverlay.style.display="none"; });
   </script>
+
+<script>
+(() => {
+  const screen     = document.getElementById('loading-screen');
+  const initM      = document.getElementById('initial-message');
+  const finalM     = document.getElementById('final-message');
+  const container  = document.getElementById('progress-container');
+  const detail     = document.getElementById('progress-detail');
+  const bar        = document.getElementById('progress-bar');
+  const startBtn   = document.getElementById('start-button');
+
+  const imgMap     = { planta1: "https://via.placeholder.com/50", planta2: "https://via.placeholder.com/50" };
+  const characters = [ { img: "https://via.placeholder.com/100" } ];
+  const TSV_URL    = "https://jsonplaceholder.typicode.com/posts";
+
+  function preloadImage(src) {
+    return new Promise(res => {
+      const img = new Image();
+      img.onload  = res;
+      img.onerror = res;
+      img.src     = src;
+    });
+  }
+
+  function delay(ms) {
+    return new Promise(res => setTimeout(res, ms));
+  }
+
+  const steps = [
+    { text: 'Carregando imagens do drone ao vivo…', load: () => preloadImage('https://i.servimg.com/u/f22/19/80/77/63/drone_10.png') },
+    { text: 'Carregando sprites de plantas…',       load: () => Promise.all(Object.values(imgMap).map(preloadImage)) },
+    { text: 'Carregando personagens iniciais…',     load: () => preloadImage(characters[0].img) },
+    { text: 'Procurando moradores e cabanas…',      load: () => fetch(TSV_URL).then(r => r.text()) }
+  ];
+  const total = steps.length;
+
+  async function runLoading() {
+    initM.hidden = false;
+    finalM.hidden = true;
+    container.style.display = 'block';
+    detail.style.display = 'block';
+    bar.style.width = '0%';
+
+    detail.textContent = 'Preparando voo do drone…';
+    await delay(7000);
+
+    for (let i = 0; i < total; i++) {
+      detail.textContent = steps[i].text;
+      try { await steps[i].load(); } catch {}
+      bar.style.width = `${((i + 1) / total) * 100}%`;
+    }
+
+    container.style.display = 'none';
+    detail.style.display = 'none';
+
+    initM.hidden = true;
+    finalM.hidden = false;
+  }
+
+  startBtn.addEventListener('click', () => {
+    screen.classList.add('reveal');
+
+    screen.addEventListener('transitionend', () => {
+      document.body.classList.remove('loading');
+      screen.style.display = 'none';
+    }, { once: true });
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runLoading);
+  } else {
+    runLoading();
+  }
+})();
+</script>
 
 
 
