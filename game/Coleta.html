@@ -6,6 +6,40 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    (function () {
+      if (sessionStorage.getItem('vd_transition_in') !== '1') return;
+
+      const style = document.createElement('style');
+      style.textContent = `
+        #vd-page-cover{
+          position: fixed;
+          inset: 0;
+          background: #000;
+          z-index: 2147483647;
+          opacity: 1;
+          transition: opacity 450ms ease;
+        }
+        #vd-page-cover.hide{
+          opacity: 0;
+          pointer-events: none;
+        }
+      `;
+      document.head.appendChild(style);
+
+      const cover = document.createElement('div');
+      cover.id = 'vd-page-cover';
+      document.documentElement.appendChild(cover);
+
+      window.addEventListener('load', () => {
+        requestAnimationFrame(() => {
+          cover.classList.add('hide');
+          setTimeout(() => cover.remove(), 500);
+          sessionStorage.removeItem('vd_transition_in');
+        });
+      });
+    })();
+  </script>
 
 
   <title>VINHADINHO</title>
