@@ -1756,9 +1756,14 @@ Peace is built on trust.
 
   #vd-drone-loading{
     display:none;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
     width:100%;
     max-width:150px;
-    margin-top:2px;
+    z-index:2;
+    pointer-events:none;
   }
 
   #vd-drone-loading.active{
@@ -1898,10 +1903,6 @@ background-repeat: no-repeat;
     <div id="vd-drone-footer">
       <div id="vd-drone-diamond" role="button" tabindex="0" aria-pressed="false">
         <span id="vd-drone-title">SISTEMA DE DRONES</span>
-        <div id="vd-drone-loading" aria-live="polite">
-          <small id="vd-drone-loading-text">carregando 0%</small>
-          <div id="vd-drone-loading-bar"><div id="vd-drone-loading-fill"></div></div>
-        </div>
       </div>
     </div>
 
@@ -1910,6 +1911,10 @@ background-repeat: no-repeat;
     <div id="vd-drone-panel" aria-hidden="true">
       <svg id="vd-drone-svg"></svg>
       <div id="vd-center-image"></div>
+      <div id="vd-drone-loading" aria-live="polite">
+        <small id="vd-drone-loading-text">carregando 0%</small>
+        <div id="vd-drone-loading-bar"><div id="vd-drone-loading-fill"></div></div>
+      </div>
       <div class="vd-vertex" data-key="COLETA" id="vd-vertex-1"><span>COLETA</span></div>
       <div class="vd-vertex" data-key="ACAMPAMENTO" id="vd-vertex-2"><span>ACAMPAMENTO</span></div>
       <div class="vd-vertex" data-key="CABANA" id="vd-vertex-3"><span>CABANA</span></div>
@@ -2252,24 +2257,20 @@ background-repeat: no-repeat;
     }
   }
 
-  function handleDroneDestination(e, destination){
+  async function handleDroneDestination(e, destination){
     e.stopPropagation();
+    if(isLoadingAssets || isTransitionRunning) return;
     closePanel();
     openState=false;
+    if(!isAssetsLoaded){
+      await ensureTransitionAssets();
+    }
+    if(isTransitionRunning || isLoadingAssets || !isAssetsLoaded) return;
     runDroneTransition(destination);
   }
 
-  diamond.addEventListener('click', async ()=>{
+  diamond.addEventListener('click', ()=>{
     if(isTransitionRunning || isLoadingAssets) return;
-
-    if(!isAssetsLoaded){
-      await ensureTransitionAssets();
-      if(!openState){
-        openPanel();
-        openState = true;
-      }
-      return;
-    }
 
     if(!openState) openPanel();
     else closePanel();
