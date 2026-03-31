@@ -1884,13 +1884,35 @@ document.addEventListener('touchend', stopDrag);
       }
     };
 
-    const startButtons = intro.querySelectorAll('.start-btn123');
-    startButtons.forEach(btn => { btn.disabled = true; btn.style.opacity = '0.55'; });
-    const canContinueAge123 = await checkAdultValidation123();
-    if (!canContinueAge123) return;
-    startButtons.forEach(btn => { btn.disabled = false; btn.style.opacity = '1'; });
+    const btnAcompanharMeta123 = intro.querySelector('.start-btn123');
+    const btnDoarAnuncio123 = intro.querySelector('#doaranuncio');
 
-    intro.querySelector('.start-btn123').onclick = async () => {
+    if (btnDoarAnuncio123) {
+      btnDoarAnuncio123.addEventListener('click', async (e) => {
+        if (btnDoarAnuncio123.dataset.ageValidatedClick === '1') {
+          btnDoarAnuncio123.dataset.ageValidatedClick = '0';
+          return;
+        }
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        btnDoarAnuncio123.disabled = true;
+        btnDoarAnuncio123.style.opacity = '0.55';
+
+        const canContinueAge123 = await checkAdultValidation123();
+
+        btnDoarAnuncio123.disabled = false;
+        btnDoarAnuncio123.style.opacity = '1';
+
+        if (!canContinueAge123) return;
+
+        btnDoarAnuncio123.dataset.ageValidatedClick = '1';
+        btnDoarAnuncio123.click();
+      });
+    }
+
+    btnAcompanharMeta123.onclick = async () => {
 
       intro.style.display = 'none';
 modal.style.height = 'auto';
