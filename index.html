@@ -84,13 +84,6 @@
             margin-top: 50px;
         }
 
-        .production-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 22px;
-            padding: 10px;
-        }
-
         .server-status-wrapper {
             margin-top: 34px;
             border: 2px solid white;
@@ -129,70 +122,6 @@
         .online { color: #61ff90; }
         .offline { color: #ff6b6b; }
         .checking { color: #ffe66d; }
-
-        .info-button {
-            width: 100%;
-            margin-top: 14px;
-            font-size: 10px;
-            padding: 12px;
-        }
-
-        #info-box {
-            margin-top: 14px;
-            border: 2px dashed white;
-            padding: 12px;
-            font-size: 10px;
-            line-height: 1.6;
-            display: none;
-            text-align: left;
-        }
-
-        .warning-text { color: #ffe66d; }
-        .success-text { color: #61ff90; }
-
-        .production-card {
-            border: 2px solid white;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            min-height: 280px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .logo-frame {
-            width: 82px;
-            height: 82px;
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-            box-sizing: border-box;
-        }
-
-        .logo-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: brightness(0) invert(1);
-        }
-
-        .description-box {
-            border: 2px solid white;
-            min-height: 132px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px;
-            font-size: 10px;
-            line-height: 1.5;
-            text-align: center;
-            box-sizing: border-box;
-            width: 100%;
-        }
 
         button {
             background: transparent;
@@ -238,38 +167,7 @@
         </div>
 
         <section class="production-panel" id="production-panel">
-            <h2 style="font-size: 18px; margin-bottom: 24px;">AMBIENTE DE PRODUÇAO</h2>
-            <div class="production-grid">
-                <article class="production-card">
-                    <div class="logo-frame">
-                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub">
-                    </div>
-                    <div class="description-box">
-                       Repositório oficial no GitHub com backup da versão de produção e documentação técnica.
-                    </div>
-                    <button onclick="window.open('https://github.com/versaodeluxe18/vinhadinho', '_blank')">ACESSAR</button>
-                </article>
-
-                <article class="production-card">
-                    <div class="logo-frame">
-                        <img src="https://www.gstatic.com/images/branding/product/1x/sites_2020q4_48dp.png" alt="Google Sites">
-                    </div>
-                    <div class="description-box">
-                        Jogo em ambiente de produção no Google Sites, integrado a uma plataforma gratuita.
-                    </div>
-                    <button onclick="window.open('https://sites.google.com/view/vinhadinho/federa%C3%A7%C3%A3o', '_blank')">ACESSAR</button>
-                </article>
-
-                <article class="production-card">
-                    <div class="logo-frame">
-                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg" alt="Android">
-                    </div>
-                    <div class="description-box">
-                        O jogo foi integrado à seção de jogos do aplicativo Mundo Gamer.
-                    </div>
-                    <button onclick="window.open('https://play.google.com/store/apps/details?id=io.kodular.versaodeluxe.NOTAICIA_GAMER', '_blank')">ACESSAR</button>
-                </article>
-            </div>
+            <h2 style="font-size: 18px; margin-bottom: 24px;">STATUS DO SERVIDOR</h2>
 
             <div class="server-status-wrapper">
                 <h3 class="status-title">STATUS DO SERVIDOR</h3>
@@ -289,8 +187,6 @@
                     <span id="status-github" class="checking">Escaneando...</span>
                 </div>
 
-                <button class="info-button" onclick="mostrarInformacoes()">RELATÓRIO DE DIAGNÓSTICO</button>
-                <div id="info-box"></div>
             </div>
         </section>
     </div>
@@ -304,7 +200,6 @@
         const titleElement = document.getElementById('title');
         const menu = document.getElementById('main-menu');
         const productionPanel = document.getElementById('production-panel');
-        const infoBox = document.getElementById('info-box');
         let index = 0;
         let statusVerificado = false;
 
@@ -393,30 +288,6 @@
                     el.className = "offline";
                     statusMap.github = false;
                 });
-        }
-
-        function mostrarInformacoes() {
-            infoBox.style.display = "block";
-            let mensagens = [];
-
-            if (statusMap.blogger && statusMap.forum && statusMap.github) {
-                infoBox.innerHTML = '<span class="success-text">Todos os servidores do ecossistema Vinhadinho estão operando em plena capacidade. Experiência de jogo estável e todos os recursos (NFT, PBE e Produção) estão habilitados. Boa diversão!</span>';
-                return;
-            }
-
-            if (!statusMap.github) {
-                mensagens.push("<span class='warning-text'>[LOG DE ERRO GITHUB]:</span> Instabilidade detectada na infraestrutura de repositórios. Isso compromete a execução de arquivos de som/imagem e resulta em perda total de acesso à versão de testes (PBE).");
-            }
-
-            if (!statusMap.blogger) {
-                mensagens.push("<span class='warning-text'>[FALHA DE ATIVOS BLOGGER]:</span> Servidor de banco de mídia offline. Falha crítica detectada no carregamento de imagens, sons e na integração do sistema de Marketplace e NFT.");
-            }
-
-            if (!statusMap.forum) {
-                mensagens.push("<span class='warning-text'>[MANUTENÇÃO FORUMEIROS]:</span> O ambiente de produção e o suporte comunitário estão inacessíveis. Integradora externa apresentando latência crítica ou modo de manutenção ativo.");
-            }
-
-            infoBox.innerHTML = mensagens.join("<br><br>");
         }
 
         window.onload = typeWriter;
