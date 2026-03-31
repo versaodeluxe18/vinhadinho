@@ -123,6 +123,25 @@
         .offline { color: #ff6b6b; }
         .checking { color: #ffe66d; }
 
+        .failure-messages {
+            margin-top: 16px;
+            border: 2px solid #ff6b6b;
+            padding: 14px;
+            text-align: left;
+            font-size: 10px;
+            line-height: 1.8;
+            background: rgba(255, 60, 60, 0.08);
+            display: none;
+        }
+
+        .failure-messages.visible {
+            display: block;
+        }
+
+        .warning-text {
+            color: #ff6b6b;
+        }
+
         button {
             background: transparent;
             color: white;
@@ -188,6 +207,8 @@
                 </div>
 
             </div>
+
+            <div id="failure-messages" class="failure-messages" aria-live="polite"></div>
         </section>
     </div>
 
@@ -200,10 +221,17 @@
         const titleElement = document.getElementById('title');
         const menu = document.getElementById('main-menu');
         const productionPanel = document.getElementById('production-panel');
+        const failureMessagesElement = document.getElementById('failure-messages');
         let index = 0;
         let statusVerificado = false;
 
         let statusMap = {
+            blogger: false,
+            forum: false,
+            github: false
+        };
+
+        let checksConcluidos = {
             blogger: false,
             forum: false,
             github: false
@@ -245,6 +273,7 @@
         }
 
         function verificarTudo() {
+            checksConcluidos = { blogger: false, forum: false, github: false };
             verificarSite(BLOGGER_URL, 'status-blogger', 'blogger');
             verificarSite(FORUM_URL, 'status-forum', 'forum');
             verificarGitHub();
@@ -259,12 +288,16 @@
                 el.innerHTML = "● ONLINE";
                 el.className = "online";
                 statusMap[key] = true;
+                checksConcluidos[key] = true;
+                atualizarMensagensFalha();
             };
 
             img.onerror = () => {
                 el.innerHTML = "○ OFFLINE";
                 el.className = "offline";
                 statusMap[key] = false;
+                checksConcluidos[key] = true;
+                atualizarMensagensFalha();
             };
         }
 
@@ -282,12 +315,44 @@
                         el.className = "offline";
                         statusMap.github = false;
                     }
+                    checksConcluidos.github = true;
+                    atualizarMensagensFalha();
                 })
                 .catch(() => {
                     el.innerHTML = "○ SEM RESPOSTA";
                     el.className = "offline";
                     statusMap.github = false;
+                    checksConcluidos.github = true;
+                    atualizarMensagensFalha();
                 });
+        }
+
+        function atualizarMensagensFalha() {
+            const terminou = checksConcluidos.blogger && checksConcluidos.forum && checksConcluidos.github;
+            if (!terminou) return;
+
+            const mensagens = [];
+
+            if (!statusMap.github) {
+                mensagens.push("<span class='warning-text'>[LOG DE ERRO GITHUB]:</span> Instabilidade detectada na infraestrutura de repositórios. Isso compromete a execução de arquivos de som/imagem e resulta em perda total de acesso à versão de testes (PBE).");
+            }
+
+            if (!statusMap.blogger) {
+                mensagens.push("<span class='warning-text'>[FALHA DE ATIVOS BLOGGER]:</span> Servidor de banco de mídia offline. Falha crítica detectada no carregamento de imagens, sons e na integração do sistema de Marketplace e NFT.");
+            }
+
+            if (!statusMap.forum) {
+                mensagens.push("<span class='warning-text'>[MANUTENÇÃO FORUMEIROS]:</span> O ambiente de produção e o suporte comunitário estão inacessíveis. Integradora externa apresentando latência crítica ou modo de manutenção.");
+            }
+
+            if (mensagens.length === 0) {
+                failureMessagesElement.innerHTML = "";
+                failureMessagesElement.classList.remove("visible");
+                return;
+            }
+
+            failureMessagesElement.innerHTML = mensagens.join("<br><br>");
+            failureMessagesElement.classList.add("visible");
         }
 
         window.onload = typeWriter;
