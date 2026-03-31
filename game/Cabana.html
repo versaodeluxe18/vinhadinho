@@ -1352,7 +1352,7 @@ document.addEventListener('DOMContentLoaded', () => {
       z-index: 1;
     }
 
-    .loading-text123 {
+   .loading-text123 {
       position: absolute;
       bottom: 20px; left: 50%;
       transform: translateX(-50%);
@@ -1360,6 +1360,37 @@ document.addEventListener('DOMContentLoaded', () => {
       font-size: 1.2rem;
       font-weight: bold;
       z-index: 2;
+    }
+
+    .age-check-wrap123 {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.84);
+      color: #fff;
+      text-align: center;
+      font-weight: 700;
+      image-rendering: pixelated;
+    }
+
+    .pixel-dot123 {
+      width: 18px;
+      height: 18px;
+      background: #fff200;
+      box-shadow: 0 0 0 4px #111, 0 0 0 8px #fff20055;
+      animation: pixelBounce123 1s steps(2, end) infinite;
+    }
+
+    @keyframes pixelBounce123 {
+      0%   { transform: translateY(0) scale(1); }
+      50%  { transform: translateY(-12px) scale(1.08); }
+      100% { transform: translateY(0) scale(1); }
     }
 
   .live-overlay123 {
@@ -1772,7 +1803,95 @@ document.addEventListener('touchend', stopDrag);
     modal.appendChild(intro);
     document.body.appendChild(modal);
 
+    const isBrazilTimezone123 = () => {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      const brazilTzs = new Set([
+        'America/Sao_Paulo', 'America/Rio_Branco', 'America/Manaus',
+        'America/Belem', 'America/Fortaleza', 'America/Recife',
+        'America/Araguaina', 'America/Bahia', 'America/Campo_Grande',
+        'America/Cuiaba', 'America/Porto_Velho', 'America/Maceio',
+        'America/Noronha', 'America/Santarem'
+      ]);
+      return brazilTzs.has(tz);
+    };
+
+    const userHasMundoGamer123 = () => {
+      const ua = (navigator.userAgent || '').toUpperCase();
+      return ua.includes('MUNDO GAMER');
+    };
+
+    const showAgeValidationError123 = () => {
+      intro.innerHTML = `
+        <div style="max-width:320px; line-height:1.4;">
+          Você precisa confirmar maioridade (+18) através do sistema robusto de verificação de idade para usuários Brasileiros.
+          A verificação deve ser feita através do nosso aplicativo seguindo todas as exigencias.
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="start-btn123" id="abrir-app-idade">ABRIR APLICATIVO</button>
+          <button class="start-btn123" id="nao-quero-idade">NÃO QUERO</button>
+        </div>
+      `;
+
+      const btnOpen = intro.querySelector('#abrir-app-idade');
+      const btnCancel = intro.querySelector('#nao-quero-idade');
+      if (btnOpen) btnOpen.onclick = () => window.open('https://www.google.com', '_blank');
+      if (btnCancel) btnCancel.onclick = () => modal.remove();
+    };
+
+    const checkAdultValidation123 = async () => {
+      const checkingUi = document.createElement('div');
+      checkingUi.className = 'age-check-wrap123';
+      checkingUi.innerHTML = `
+        <div class="pixel-dot123"></div>
+        <div>VERIFICANDO MAIORIDADE</div>
+      `;
+      intro.appendChild(checkingUi);
+
+      const removeCheckingUi = () => checkingUi.remove();
+
+      try {
+        if (!isBrazilTimezone123()) {
+          removeCheckingUi();
+          return true;
+        }
+
+        const user = auth.currentUser;
+        const uid = user?.uid;
+        let adultoRaw = null;
+
+        if (uid) {
+          const adultoSnap = await firebase.database().ref(`users/${uid}/adulto`).once('value');
+          adultoRaw = adultoSnap.exists() ? String(adultoSnap.val() || '').trim().toLowerCase() : null;
+        }
+
+        if (adultoRaw === 'sim') {
+          removeCheckingUi();
+          return true;
+        }
+
+        if (userHasMundoGamer123()) {
+          removeCheckingUi();
+          return true;
+        }
+
+        removeCheckingUi();
+        showAgeValidationError123();
+        return false;
+      } catch (e) {
+        removeCheckingUi();
+        showAgeValidationError123();
+        return false;
+      }
+    };
+
+    const startButtons = intro.querySelectorAll('.start-btn123');
+    startButtons.forEach(btn => { btn.disabled = true; btn.style.opacity = '0.55'; });
+    const canContinueAge123 = await checkAdultValidation123();
+    if (!canContinueAge123) return;
+    startButtons.forEach(btn => { btn.disabled = false; btn.style.opacity = '1'; });
+
     intro.querySelector('.start-btn123').onclick = async () => {
+
       intro.style.display = 'none';
 modal.style.height = 'auto';
 modal.style.maxHeight = 'calc(100dvh - 24px)';
