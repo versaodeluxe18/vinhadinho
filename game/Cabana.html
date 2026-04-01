@@ -726,8 +726,25 @@
    
    
    .live-modal-ajuda123 {
-  background: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg6PhsW3RXEv-sP2SQ2XO1k1MZMALuVNBFn5vTvwkldOuWovO8DJHJaXK-BTjh_FgTnxtJFxnPCJpmIF6Jc8FlBku2ZITPwA8-5WFe7O7uUGr81rLZ5nkV7rfIuakxtl1l5TPzta1yCnkxp7GueRjQiM3wD0BgNcUcNPeyCFqSh0oHDIpE557b8iL44wz8/s1600/fundologopreto.jpg") 
-  no-repeat center/cover;
+  position: fixed;
+  background: transparent;
+  isolation: isolate;
+}
+
+.live-modal-ajuda123::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg6PhsW3RXEv-sP2SQ2XO1k1MZMALuVNBFn5vTvwkldOuWovO8DJHJaXK-BTjh_FgTnxtJFxnPCJpmIF6Jc8FlBku2ZITPwA8-5WFe7O7uUGr81rLZ5nkV7rfIuakxtl1l5TPzta1yCnkxp7GueRjQiM3wD0BgNcUcNPeyCFqSh0oHDIpE557b8iL44wz8/s1600/fundologopreto.jpg") no-repeat center/cover;
+  filter: blur(6px) brightness(0.75);
+  transform: scale(1.08);
+  transform-origin: center;
+  z-index: 0;
+}
+
+.live-modal-ajuda123 > * {
+  position: relative;
+  z-index: 1;
 }
    
    
@@ -1705,7 +1722,6 @@ modal.style.maxHeight = 'calc(100dvh - 24px)';
 
     const modal = document.createElement('div');
 modal.className = 'live-modal123 live-modal-ajuda123';
-modal.style.background = 'url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi7H8DIyBBTRJdW6XHMoZ4O6Qf63LMcS9BXPw8HN04byeSLS49xS6Nm0Al3FqSZuc3oyYv8PoUtRKSCVSuQg02N8K2jxpGuMWP479lzCDPgrEL3FGhtUz6wPWpRA8TXmJjx4mWBMSw_q51it3ogiLfSw0CmdHhItRqIY8zAsbMvAlfCvEGVJSxKjc3M2i4/s600/ChatGPT%20Image%20Nov%2029,%202025,%2008_10_25%20AM.png") no-repeat center/cover';
 
 
     const titleBar = document.createElement('div');
@@ -2271,7 +2287,7 @@ if (loading) loading.remove();
     const okBtn = document.createElement('button');
     okBtn.type = 'button';
     okBtn.className = '_anuncio_btn _anuncio_btn_ok';
-    okBtn.textContent = 'OK';
+    okBtn.textContent = 'X';
     okBtn.style.cursor = 'pointer';
     okBtn.style.border = 'none';
     okBtn.style.padding = '8px 12px';
