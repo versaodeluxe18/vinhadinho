@@ -1226,10 +1226,13 @@
   }
 
   startBtn.addEventListener('click', () => {
-    screen.classList.add('reveal');
+    document.body.classList.remove('loading');
+
+    requestAnimationFrame(() => {
+      screen.classList.add('reveal');
+    });
 
     screen.addEventListener('transitionend', () => {
-      document.body.classList.remove('loading');
       screen.style.display = 'none';
     }, { once: true });
   });
