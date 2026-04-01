@@ -1788,14 +1788,14 @@ document.addEventListener('touchend', stopDrag);
     intro.className = 'live-intro123';
    intro.innerHTML = `
     <div style="max-width:300px; text-align:left; margin:0 auto 12px 0; display:block;">
-      Você pode ajudar o Vinhadinho ativando os anúncios da federação. Eles serão exibidos enquanto você joga. <br><br> Quando a meta for alcançada toda a comunidade ganha um novo modo de jogo gratuitamente <br><br>  
+      Você pode ajudar o Vinhadinho ativando os anúncios da federação. Esses anuncios serão exibidos enquanto você estiver jogando. <br><br> Quando a meta for alcançada toda a comunidade ganha um novo modo de jogo gratuitamente <br><br>  
     </div>
 
    
 
     <div style="display:flex; gap:8px;">
   <button class="start-btn123">ACOMPANHAR META</button>
-  <button class="start-btn123" id="doaranuncio">AJUDAR</button>
+  <button class="start-btn123" id="doaranuncio">AJUDAR NA META</button>
 </div>
 `;
 
@@ -2352,7 +2352,7 @@ if (loading) loading.remove();
           removeModal();
           if (ok) {
             showQuickMessage(
-              'Os anúncios foram desativados. A nossa comunidade não conta mais com a sua ajuda, infelizmente você abandonou a nossa causa.'
+              'Os anúncios foram desativados. Sentiremos falta da sua contribuição! Lembre-se que cada visualização faz a diferença para a nossa causa comunitária. Se mudar de ideia, basta reativá-los a qualquer momento.'
             );
           } else {
             showQuickMessage(
@@ -2364,14 +2364,14 @@ if (loading) loading.remove();
     } else {
       showModal({
         message:
-          'Atualmente os anúncios da federação estão desativados isso significa que você não está ajudando vinhadinho a alcaçar a meta.',
+          'Você está prestes a ativar os anúncios. Eles serão exibidos discretamente no canto da tela durante a partida, e toda a receita gerada será contabilizada como doação comunitária. Acompanhe o progresso em Verificar Meta. ',
         primaryLabel: 'Ativar anúncios',
         primaryAction: function () {
           const ok = setStatus('s');
           removeModal();
           if (ok) {
             showQuickMessage(
-              'Obrigado!!! Os anúncios foram ativados e vinhadinho vai receber a sua ajuda conforme os anúncios forem exibidos durante o jogo. Os anuncios são escolhidos por uma empresa tercerizada, portanto não forneça informações pessoais ao interagir com a publicidade'
+              'Anúncios ativados! O Vinhadinho agora receberá sua ajuda conforme eles forem exibidos durante a partida. Vale lembrar: as propagandas são geridas por uma empresa terceirizada, por isso, recomendamos que você não forneça informações pessoais ao interagir com elas'
             );
           } else {
             showQuickMessage(
