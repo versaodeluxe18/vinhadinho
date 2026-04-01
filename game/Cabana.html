@@ -2286,27 +2286,30 @@ if (loading) loading.remove();
       if (typeof options.onClose === 'function') options.onClose();
     });
 
-    const primaryBtn = document.createElement('button');
-    primaryBtn.type = 'button';
-    primaryBtn.className = '_anuncio_btn _anuncio_btn_toggle';
-    if (options.primaryId) primaryBtn.id = options.primaryId; // permite definir #doaranuncio
-    primaryBtn.textContent = options.primaryLabel || '';
-    primaryBtn.style.cursor = 'pointer';
-    primaryBtn.style.border = 'none';
-    primaryBtn.style.padding = '8px 12px';
-    primaryBtn.style.borderRadius = '8px';
-    primaryBtn.style.fontSize = '14px';
-    primaryBtn.style.background = 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)';
-    primaryBtn.style.backgroundSize = '600% 600%';
-    primaryBtn.style.animation = 'lava123 8s ease infinite';
-    primaryBtn.style.color = '#111';
-
-    primaryBtn.addEventListener('click', () => {
-      if (typeof options.primaryAction === 'function') options.primaryAction();
-    });
-
     actions.appendChild(okBtn);
-    actions.appendChild(primaryBtn);
+
+    if (options.primaryLabel) {
+      const primaryBtn = document.createElement('button');
+      primaryBtn.type = 'button';
+      primaryBtn.className = '_anuncio_btn _anuncio_btn_toggle';
+      if (options.primaryId) primaryBtn.id = options.primaryId; // permite definir #doaranuncio
+      primaryBtn.textContent = options.primaryLabel;
+      primaryBtn.style.cursor = 'pointer';
+      primaryBtn.style.border = 'none';
+      primaryBtn.style.padding = '8px 12px';
+      primaryBtn.style.borderRadius = '8px';
+      primaryBtn.style.fontSize = '14px';
+      primaryBtn.style.background = 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)';
+      primaryBtn.style.backgroundSize = '600% 600%';
+      primaryBtn.style.animation = 'lava123 8s ease infinite';
+      primaryBtn.style.color = '#111';
+
+      primaryBtn.addEventListener('click', () => {
+        if (typeof options.primaryAction === 'function') options.primaryAction();
+      });
+
+      actions.appendChild(primaryBtn);
+    }
     box.appendChild(actions);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
@@ -2327,11 +2330,7 @@ if (loading) loading.remove();
 
   function showQuickMessage(text) {
     showModal({
-      message: text,
-      primaryLabel: 'Fechar',
-      primaryAction: function () {
-        removeModal();
-      }
+      message: text
     });
   }
 
