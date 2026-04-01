@@ -12,7 +12,7 @@
 <br>
 
 <a href="https://versaodeluxe18.github.io/vinhadinho/">
-  <img src="https://img.shields.io/badge/%F0%9F%8E%AE_JOGAR_AGORA_%F0%9F%8E%AE-2ea44f?style=for-the-badge" alt="JOGAR AGORA" width="300">
+  <img src="https://img.shields.io/badge/%F0%9F%8E%AE_JOGAR_PBE_AGORA_%F0%9F%8E%AE-2ea44f?style=for-the-badge" alt="JOGAR AGORA" width="300">
 </a>
 
 <br>
