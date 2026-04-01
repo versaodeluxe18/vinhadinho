@@ -1506,10 +1506,9 @@ document.addEventListener('DOMContentLoaded', () => {
     height: '100%',
     transform: 'translateX(100%) skewX(-15deg) scaleX(1.05)',
     filter: 'blur(5px)',
-    transition: 'transform 1s cubic-bezier(0.4,0,0.2,1), filter 1s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease',
+    transition: 'transform 1s cubic-bezier(0.4,0,0.2,1), filter 1s cubic-bezier(0.4,0,0.2,1)',
     zIndex: '90',
     visibility: 'hidden',
-    opacity: '0',
     background: 'url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrw6F03JXkLmzyoVbF77aJJVrfTErmbWhAmiva6iZ-f4dL51BJpp5XtGvzBkXdD3iqF0Afu0eSUXE_ia2LwZ6stZx7FSUv5bS8VYq-nQcMs3855x6HxjRLU7gCxiWG3RhhrwGSHaqfWKZhs14gotzel4nSJWEI5cYL4iMWC7qVYGb1jaEGvleSnd12Jds/s1600/pcdedia.png") no-repeat center/cover'
   });
 
@@ -1558,7 +1557,6 @@ document.getElementById('app').appendChild(ajudarBtn);
       firstScreen.style.transform    = 'translateX(-100%) skewX(15deg) scaleX(1.05)';
       firstScreen.style.filter       = 'blur(5px)';
       secondScreen.style.visibility  = 'visible';
-      secondScreen.style.opacity     = '1';
       secondScreen.style.transform   = 'translateX(0) skewX(0deg) scaleX(1)';
       secondScreen.style.filter      = 'blur(0px)';
       arrowBtn.style.left            = '20px';
@@ -1573,8 +1571,7 @@ document.getElementById('app').appendChild(ajudarBtn);
     } else {
       firstScreen.style.transform    = 'translateX(0) skewX(0deg) scaleX(1)';
       firstScreen.style.filter       = 'blur(0px)';
-      secondScreen.style.opacity     = '0';
-      setTimeout(() => { secondScreen.style.visibility = 'hidden'; }, 600);
+      setTimeout(() => { secondScreen.style.visibility = 'hidden'; }, 1000);
       secondScreen.style.transform   = 'translateX(100%) skewX(-15deg) scaleX(1.05)';
       secondScreen.style.filter      = 'blur(5px)';
       arrowBtn.style.right           = '20px';
