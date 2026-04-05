@@ -2633,17 +2633,13 @@ window.addEventListener('DOMContentLoaded', () => {
   // cooldowns (ms) - ajuste aqui se quiser
   const COOLDOWN_MESSAGE_MS = 10000; // mensagens genéricas
 
-  /* =============================
-     ESTADO INTERNO
-     ============================= */
-  let soundEnabled = false;     // true depois do gesto do usuário
-  let bgAudio = null;           // Audio da música de fundo (loop)
-  const audioCache = new Map(); // url -> HTMLAudioElement (pré-carregado)
-  const lastPlayed = new Map(); // url -> timestamp(ms) do último play
+ 
+  let soundEnabled = false;     
+  let bgAudio = null;           
+  const audioCache = new Map(); 
+  const lastPlayed = new Map(); 
 
-  /* =============================
-     ESTILO + BOTÃO
-     ============================= */
+
   const style = document.createElement('style');
   style.textContent = `
     .bg-audio-toggle {
@@ -2703,9 +2699,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   updateUI();
 
-  /* =============================
-     PRELOAD / CACHE
-     ============================= */
+  
   function preloadAudio(url){
     if(!url) return Promise.reject(new Error('url inválida'));
     if(audioCache.has(url)) return Promise.resolve(audioCache.get(url));
@@ -2755,10 +2749,7 @@ window.addEventListener('DOMContentLoaded', () => {
     return Promise.resolve();
   }
 
-  /* =============================
-     PLAY GENÉRICO (com cooldown & clone)
-     - se cooldownMs === 0 -> ignora sistema de cooldown (bypass)
-     ============================= */
+
   async function playAudio(url, cooldownMs = COOLDOWN_MESSAGE_MS, opts = {}) {
     if(!url) return;
     if(!soundEnabled) return; // não tocar quando desativado
@@ -2797,9 +2788,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* =============================
-     FUNÇÕES ESPECÍFICAS DO JOGO (agora NO-OPS se não for fala/bg)
-     ============================= */
+  
   // Essas funções foram mantidas para compatibilidade com resto do jogo,
   // mas não tocam sons de queda/combinação conforme solicitado.
   async function playSwapAttempt(){ /* no-op: som de swap removido */ return; }
@@ -2807,9 +2796,7 @@ window.addEventListener('DOMContentLoaded', () => {
   async function playDropRandom(){ /* no-op: sons de queda removidos */ return; }
   async function playCollectFourFruit(fruitName){ /* no-op: sons de 4-frutas removidos */ return; }
 
-  /* =============================
-     Mapeamento de mensagem -> áudio (simples)
-     ============================= */
+
   function normalizeKey(s){
     if(!s) return '';
     const trimmed = String(s).trim().toUpperCase();
@@ -2847,9 +2834,7 @@ window.addEventListener('DOMContentLoaded', () => {
     await playAudio(url, cooldownToUse, { volume: 1.0 });
   }
 
-  /* =============================
-     OBSERVER UTILITY (opcional)
-     ============================= */
+
   function attachComboObserver(selector = '.combo-bubble'){
     const bubble = document.querySelector(selector);
     if(!bubble) return null;
@@ -2869,9 +2854,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // tenta anexar automaticamente (se existir)
   const comboObserver = attachComboObserver();
 
-  /* =============================
-     BOTÃO: clique ativa/desativa e dispara preload
-     ============================= */
+
   btn.addEventListener('click', async function(e){
     e.preventDefault();
     e.stopPropagation();
@@ -2908,7 +2891,7 @@ window.addEventListener('DOMContentLoaded', () => {
      EXPOSIÇÃO PÚBLICA
      ============================= */
   window.AudioManager = {
-    // funções que não tocam sons de queda/combinação (no-op)
+   
     playSwapAttempt,
     playSwapFail,
     playDropRandom,
@@ -3395,7 +3378,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const MIN_SEC = 30;
   const MAX_SEC = 60;
   let currentCharge = 100;
-  let timerSeconds = 120; // primeira vez
+  let timerSeconds = 120; 
   let firstRun = true;
   let intervalId = null;
   let lastTickTime = Date.now();
@@ -3405,7 +3388,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function randSec(){ return Math.floor(MIN_SEC + Math.random() * (MAX_SEC - MIN_SEC + 1)); }
 
-  // === estilos (painel inicia com display:none) ===
+  
   const style = document.createElement('style');
   style.textContent = `
     @keyframes vin-impact {
@@ -3427,7 +3410,7 @@ window.addEventListener('DOMContentLoaded', () => {
       transform-origin: center;
     }
 
-    /* Painel informativo: hidden por padrão (display:none) */
+    
     #vin-info-panel {
       position: fixed;
       left: 12px;
@@ -3502,7 +3485,7 @@ window.addEventListener('DOMContentLoaded', () => {
   `;
   document.head.appendChild(style);
 
-  // === cronômetro UI ===
+  
   const el = document.createElement('div');
   el.id = 'vin-cronometro';
   Object.assign(el.style, {
@@ -3553,7 +3536,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const secEl = document.getElementById('vin-cronometro-seg');
   const valEl = document.getElementById('vin-cronometro-val');
 
-  // === painel informativo (inicia hidden com display:none) ===
+ 
   const panel = document.createElement('div');
   panel.id = 'vin-info-panel';
   panel.innerHTML = `
@@ -3573,14 +3556,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const closeBtn = document.getElementById('vin-close-info');
 
-  // Abre o painel: torna display:block e aplica classe visible (para animação) e marca cronômetro
+  
   function openPanel(){
     if (panel.classList.contains('visible')) return;
     panel.style.display = 'block';
     requestAnimationFrame(() => {
       panel.classList.add('visible');
     });
-    // aplica destaque visual no cronômetro (feedback de "selecionado")
+    
     el.classList.add('vin-selected');
   }
 
@@ -3758,7 +3741,7 @@ window.addEventListener('DOMContentLoaded', () => {
       targetEl.style.backgroundImage = '';
       return;
     }
-    // se for um arquivo relativo, deixamos como está; se quiser prefixo, ajuste aqui
+    
     targetEl.style.backgroundImage = `url("${url}")`;
     targetEl.style.backgroundRepeat = 'no-repeat';
     targetEl.style.backgroundPosition = 'center center';
@@ -3834,7 +3817,7 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   const specialButton = document.getElementById('special-button');
 
-  // Adiciona evento extra ao botão "Coletar Agora"
+  
   specialButton.addEventListener('click', () => {
     // Lê o valor atual de acué (score)
     const scoreElement = document.getElementById('score');
@@ -3842,7 +3825,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const valorAtual = parseInt(scoreElement.textContent) || 0;
 
-    // Se for válido e maior que 0, salva no localStorage
+   
     if (valorAtual > 0) {
       localStorage.setItem('taxacoletada', valorAtual);
       console.log(`Salvo no localStorage: ${valorAtual} ACUÉ`);
@@ -3865,7 +3848,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 (function () {
 
-  /* ===== KEYFRAMES DA LAVA (INJETADOS LOCALMENTE) ===== */
+  
   const style = document.createElement('style');
   style.textContent = `
     @keyframes lavaExit {
@@ -3876,7 +3859,7 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   document.head.appendChild(style);
 
-  /* ===== BOTÃO ===== */
+ 
   const exitBtn = document.createElement('button');
   exitBtn.innerHTML = '✖';
   exitBtn.title = 'Sair';
@@ -3894,12 +3877,12 @@ document.addEventListener('DOMContentLoaded', () => {
     fontWeight: 'bold',
     color: '#000',
 
-    /* === LAVA === */
+  
     background: 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)',
     backgroundSize: '600% 600%',
     animation: 'lavaExit 8s ease infinite',
 
-    /* === SOMBRA PADRÃO DO JOGO === */
+    
     boxShadow: '0 4px 10px rgba(0,0,0,0.35)',
     transition: 'transform .2s, box-shadow .2s',
     zIndex: 9999
@@ -3916,7 +3899,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.body.appendChild(exitBtn);
 
-  /* ===== OVERLAY ===== */
+  
   const overlay = document.createElement('div');
   Object.assign(overlay.style, {
     position: 'fixed',
@@ -3928,7 +3911,7 @@ document.addEventListener('DOMContentLoaded', () => {
     zIndex: 10000
   });
 
-  /* ===== MODAL ===== */
+
   const modal = document.createElement('div');
   Object.assign(modal.style, {
     background: 'rgba(255,255,255,0.9)',
@@ -3952,7 +3935,7 @@ document.addEventListener('DOMContentLoaded', () => {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  /* ===== BOTÕES DO MODAL (LAVA EMBUTIDA) ===== */
+  
   modal.querySelectorAll('button').forEach(btn => {
     Object.assign(btn.style, {
       padding: '10px 18px',
@@ -3978,7 +3961,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
-  /* ===== AÇÕES ===== */
+  
   exitBtn.onclick = () => overlay.style.display = 'flex';
   modal.querySelector('#exit-no').onclick = () => overlay.style.display = 'none';
   modal.querySelector('#exit-yes').onclick = () => {
