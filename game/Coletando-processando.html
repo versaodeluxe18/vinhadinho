@@ -223,6 +223,15 @@
     
 
   <script>
+    const MUNDOGAMER_HASH_FRAGMENT = '#mundogamer';
+    function isMundoGamerMode() {
+      return window.location.href.toLowerCase().includes(MUNDOGAMER_HASH_FRAGMENT);
+    }
+    function appendMundoGamerHash(url) {
+      if (!isMundoGamerMode()) return url;
+      return url.includes(MUNDOGAMER_HASH_FRAGMENT) ? url : `${url}${MUNDOGAMER_HASH_FRAGMENT}`;
+    }
+
     const frases = [[
       "Eu até gosto dos drones.",
       "Me lembra que não estou sozinho...",
@@ -376,7 +385,10 @@
 
     // CAMPO: abre na mesma aba (self)
     optCampo.addEventListener('click', ()=>{
-      window.location.href = (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game');
+      const targetUrl = (window.location.hostname.endsWith('.github.io')
+        ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html'
+        : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game');
+      window.location.href = appendMundoGamerHash(targetUrl);
     });
 
     // showForbidden agora deixa o overlay aberto e exibe o toast até o usuário fechá-lo
@@ -412,7 +424,10 @@
 
     // CABANA (mesma aba)
     document.getElementById('btn-acampamento').addEventListener('click', ()=>{
-      window.location.href = (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Cabana.html' : 'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game');
+      const targetUrl = (window.location.hostname.endsWith('.github.io')
+        ? 'https://versaodeluxe18.github.io/vinhadinho/game/Cabana.html'
+        : 'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game');
+      window.location.href = appendMundoGamerHash(targetUrl);
     });
 
   </script>
@@ -432,12 +447,15 @@
     
     <script>
 (function () {
+  const appendHash = (typeof window.appendMundoGamerHash === 'function')
+    ? window.appendMundoGamerHash.bind(window)
+    : (url => url);
   const KEY = 'taxacoletada';
   const REQUIRED = 2000;
   const MAP = {
-    montanha: (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game'),
-    rio:      (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game'),
-    floresta: (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game')
+    montanha: appendHash(window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game'),
+    rio:      appendHash(window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game'),
+    floresta: appendHash(window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Coleta.html' : 'https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game')
   };
 
   // ===== CSS injetado: bordas + animação de fundo + modal =====
