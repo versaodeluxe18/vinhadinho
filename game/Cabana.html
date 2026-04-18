@@ -937,6 +937,76 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const MUNDOGAMER_HASH_REGEX = /#mundogamer$/i;
+    const GAME_NAME = "vinhadinho";
+    const GAME_MODE = "cabana";
+    const MUNDOGAMER_FAKE_USER = {
+      uid: "mundogamer-local-user",
+      displayName: "Jogador Mundo Gamer",
+      photoURL: "https://i.imgur.com/WwW4j87.png"
+    };
+
+    function isMundoGamerMode() {
+      return MUNDOGAMER_HASH_REGEX.test(window.location.href);
+    }
+
+    function getSessionUser() {
+      if (isMundoGamerMode()) return MUNDOGAMER_FAKE_USER;
+      return auth.currentUser;
+    }
+
+    const idbState = { db: null };
+    function openGameIndexedDB() {
+      if (idbState.db) return Promise.resolve(idbState.db);
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open("vinhadinho-local-db", 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains("gameData")) {
+            db.createObjectStore("gameData", { keyPath: "id" });
+          }
+        };
+        req.onsuccess = () => {
+          idbState.db = req.result;
+          resolve(idbState.db);
+        };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function buildIndexedKey(type) {
+      return `${GAME_NAME}:${GAME_MODE}:${type}`;
+    }
+
+    async function saveGameDataToIndexedDB(type, dados) {
+      const db = await openGameIndexedDB();
+      const id = buildIndexedKey(type);
+      const payload = {
+        id,
+        jogo: GAME_NAME,
+        modo: GAME_MODE,
+        tipo: type,
+        dados,
+        updatedAt: Date.now()
+      };
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("gameData", "readwrite");
+        tx.objectStore("gameData").put(payload);
+        tx.oncomplete = () => resolve(payload);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function readGameDataFromIndexedDB(type) {
+      const db = await openGameIndexedDB();
+      const id = buildIndexedKey(type);
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("gameData", "readonly");
+        const req = tx.objectStore("gameData").get(id);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
 
     // ========== DOM Refs ==========
     const loginContainer    = document.getElementById("login-container");
@@ -1002,14 +1072,22 @@
 
     // ========== Login Google ==========
     loginButton.addEventListener("click", () => {
+      if (isMundoGamerMode()) {
+        iniciarAnimacoesPosLogin();
+        return;
+      }
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider).catch(err => alert(err.message));
     });
 
-    auth.onAuthStateChanged(user => {
-      if (user) iniciarAnimacoesPosLogin();
-      else    mostrarTelaLogin();
-    });
+    if (isMundoGamerMode()) {
+      iniciarAnimacoesPosLogin();
+    } else {
+      auth.onAuthStateChanged(user => {
+        if (user) iniciarAnimacoesPosLogin();
+        else    mostrarTelaLogin();
+      });
+    }
 
     function mostrarTelaLogin() {
       loginContainer.classList.remove("hidden");
@@ -1055,7 +1133,7 @@
       if (last === raw) return;
       let d;
       try { d = parseSaved(raw); } catch { return; }
-      const user = auth.currentUser;
+      const user = getSessionUser();
       if (!user) return alert("Faça login para ver notificações.");
       notifPhoto.src = user.photoURL;
       notifText.textContent = `O usuário ${user.displayName} curtiu o seu blog Vinhadinho às ${formatDate(d)}.`;
@@ -1088,7 +1166,7 @@
 
     // ========== Geladeira ==========
     btnLock2.addEventListener("click", async () => {
-      const user = auth.currentUser;
+      const user = getSessionUser();
       if (!user) return alert("Você precisa fazer login primeiro.");
       const uid = user.uid;
       const key = `geladeira_${uid}`;
@@ -1100,12 +1178,24 @@
         } catch {}
       }
       if (!data) {
-        try {
-          const snap = await firebase.database().ref(`users/${uid}/frutas`).once("value");
-          data = snap.val() || {};
-          localStorage.setItem(key, JSON.stringify({ timestamp:Date.now(), data }));
-        } catch {
-          return alert("Não foi possível carregar as frutas.");
+        if (isMundoGamerMode()) {
+          try {
+            const registro = await readGameDataFromIndexedDB("geladeira");
+            data = registro?.dados || {};
+            await saveGameDataToIndexedDB("geladeira", data);
+            localStorage.setItem(key, JSON.stringify({ timestamp:Date.now(), data }));
+          } catch {
+            return alert("Não foi possível carregar as frutas locais.");
+          }
+        } else {
+          try {
+            const snap = await firebase.database().ref(`users/${uid}/frutas`).once("value");
+            data = snap.val() || {};
+            localStorage.setItem(key, JSON.stringify({ timestamp:Date.now(), data }));
+            await saveGameDataToIndexedDB("geladeira", data);
+          } catch {
+            return alert("Não foi possível carregar as frutas.");
+          }
         }
       }
       renderGeladeira(data);
@@ -1838,9 +1928,7 @@ document.addEventListener('touchend', stopDrag);
       return brazilTzs.has(tz);
     };
 
-    const userHasMundoGamer123 = () => {
-      return /#mundogamer$/i.test(window.location.href);
-    };
+    const userHasMundoGamer123 = () => isMundoGamerMode();
 
     const showAgeValidationError123 = () => {
       intro.innerHTML = `
@@ -1877,13 +1965,17 @@ document.addEventListener('touchend', stopDrag);
           return true;
         }
 
-        const user = auth.currentUser;
+        const user = getSessionUser();
         const uid = user?.uid;
         let adultoRaw = null;
 
-        if (uid) {
+        if (userHasMundoGamer123()) {
+          const adultoData = await readGameDataFromIndexedDB("adulto");
+          adultoRaw = adultoData?.dados ? String(adultoData.dados || '').trim().toLowerCase() : null;
+        } else if (uid) {
           const adultoSnap = await firebase.database().ref(`users/${uid}/adulto`).once('value');
           adultoRaw = adultoSnap.exists() ? String(adultoSnap.val() || '').trim().toLowerCase() : null;
+          await saveGameDataToIndexedDB("adulto", adultoRaw || "");
         }
 
         if (adultoRaw === 'sim') {
