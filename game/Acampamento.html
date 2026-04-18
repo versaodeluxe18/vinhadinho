@@ -988,9 +988,74 @@ if (charactersChanged) {
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
   const db       = getDatabase(app);
+  const MUNDOGAMER_HASH_FRAGMENT = "#mundogamer";
+  const GAME_NAME = "vinhadinho";
+  const GELADEIRA_MODE = "cabana";
+  const MUNDOGAMER_FAKE_USER = {
+    uid: "mundogamer-local-user",
+    displayName: "Jogador Mundo Gamer"
+  };
+  const idbState = { db: null };
+
+  function isMundoGamerMode() {
+    return window.location.href.toLowerCase().includes(MUNDOGAMER_HASH_FRAGMENT);
+  }
+
+  function openGameIndexedDB() {
+    if (idbState.db) return Promise.resolve(idbState.db);
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open("vinhadinho-local-db", 1);
+      req.onupgradeneeded = () => {
+        const database = req.result;
+        if (!database.objectStoreNames.contains("gameData")) {
+          database.createObjectStore("gameData", { keyPath: "id" });
+        }
+      };
+      req.onsuccess = () => {
+        idbState.db = req.result;
+        resolve(idbState.db);
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function buildIndexedKey(type) {
+    return `${GAME_NAME}:${GELADEIRA_MODE}:${type}`;
+  }
+
+  async function saveGameDataToIndexedDB(type, dados) {
+    const database = await openGameIndexedDB();
+    const id = buildIndexedKey(type);
+    const payload = {
+      id,
+      jogo: GAME_NAME,
+      modo: GELADEIRA_MODE,
+      tipo: type,
+      dados,
+      updatedAt: Date.now()
+    };
+    return new Promise((resolve, reject) => {
+      const tx = database.transaction("gameData", "readwrite");
+      tx.objectStore("gameData").put(payload);
+      tx.oncomplete = () => resolve(payload);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function readGameDataFromIndexedDB(type) {
+    const database = await openGameIndexedDB();
+    const id = buildIndexedKey(type);
+    return new Promise((resolve, reject) => {
+      const tx = database.transaction("gameData", "readonly");
+      const req = tx.objectStore("gameData").get(id);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  }
 
   // 4) Funções utilitárias
   async function loginWithGoogle() {
+    if (isMundoGamerMode()) return MUNDOGAMER_FAKE_USER;
     try {
       const res = await signInWithPopup(auth, provider);
       return res.user;
@@ -1106,9 +1171,15 @@ if (charactersChanged) {
       }
 
   
-      const userRef  = ref(db, `users/${user.uid}`);
-      const snapshot = await get(child(userRef, 'frutas'));
-      const oldData  = snapshot.exists() ? snapshot.val() : {};
+      let oldData = {};
+      const userRef = ref(db, `users/${user.uid}`);
+      if (isMundoGamerMode()) {
+        const localRecord = await readGameDataFromIndexedDB('geladeira');
+        oldData = localRecord?.dados || {};
+      } else {
+        const snapshot = await get(child(userRef, 'frutas'));
+        oldData = snapshot.exists() ? snapshot.val() : {};
+      }
 
      
       const vegData = vegIds.reduce((acc, id) => {
@@ -1122,7 +1193,11 @@ if (charactersChanged) {
       }, {});
 
     
-      await update(child(userRef, 'frutas'), vegData);
+      if (isMundoGamerMode()) {
+        await saveGameDataToIndexedDB('geladeira', vegData);
+      } else {
+        await update(child(userRef, 'frutas'), vegData);
+      }
 
       
       showMessage('TUDO CERTO! Leve seus vegetais para a sua cabana e divirta-se.', () => {

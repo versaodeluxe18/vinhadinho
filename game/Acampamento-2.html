@@ -6,6 +6,7 @@
 <!-- botao comunidade -->
 <script>
 (function () {
+  const MUNDOGAMER_HASH_FRAGMENT = '#mundogamer';
   const FIREBASE_COMPAT_URLS = [
     'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js',
     'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js',
@@ -21,6 +22,10 @@
     messagingSenderId: "686319490018",
     appId: "1:686319490018:web:6ddafcdf61d4e830789fbb"
   };
+
+  function isMundoGamerMode() {
+    return window.location.href.toLowerCase().includes(MUNDOGAMER_HASH_FRAGMENT);
+  }
 
   function loadScriptUrl(url, timeout = 10000) {
     return new Promise((resolve, reject) => {
@@ -96,6 +101,10 @@
   }
 
   async function bootstrapChat() {
+    if (isMundoGamerMode()) {
+      return;
+    }
+
     const fb = await ensureFirebaseCompat();
     if (!fb) {
       console.error('Não foi possível inicializar Firebase. Veja console.');
@@ -2022,4 +2031,3 @@ if (laiserBtn) addLaiserHook(laiserBtn);
   }
 })();
 </script>
-
