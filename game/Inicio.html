@@ -2693,7 +2693,8 @@ balloon.innerHTML = `
  <!-- Esconde botão dev no mundogamer  -->
 <script>
 (function () {
-  if (!/Mundo Gamer/i.test(navigator.userAgent)) return;
+  const hasMundoGamerHash = () => /#mundogamer$/i.test(window.location.href);
+  if (!hasMundoGamerHash()) return;
 
   const hideIfExists = () => {
     const btn = document.getElementById('sp-devs');

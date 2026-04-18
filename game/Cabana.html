@@ -1839,8 +1839,7 @@ document.addEventListener('touchend', stopDrag);
     };
 
     const userHasMundoGamer123 = () => {
-      const ua = (navigator.userAgent || '').toUpperCase();
-      return ua.includes('MUNDO GAMER');
+      return /#mundogamer$/i.test(window.location.href);
     };
 
     const showAgeValidationError123 = () => {
