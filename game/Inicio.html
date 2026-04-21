@@ -1136,6 +1136,11 @@ Peace is built on trust.
     if (!window.location.hostname.endsWith('.github.io')) return url;
     return DEV_REDIRECT_MAP[normalizeUrl(url)] || url;
   };
+  const hasMundoGamerHash = () => /#mundogamer$/i.test(window.location.href);
+  const appendMundoGamerHash = (url) => {
+    if (!url || !hasMundoGamerHash()) return url;
+    return /#mundogamer$/i.test(url) ? url : `${url}#mundogamer`;
+  };
   const modalLinks = {
     1: 'https://versaodeluxe.directorioforuns.com/h147-vinhadinho-capital-game',
     2: 'https://versaodeluxe.directorioforuns.com/h146-vinhadinho-hoje-game',
@@ -1157,7 +1162,7 @@ Peace is built on trust.
 
     aplicarTextoModal(idx);
 
-    const link = toGithubUrl(modalLinks[idx]);
+    const link = appendMundoGamerHash(toGithubUrl(modalLinks[idx]));
     if (link) {
       openBtn.style.display = 'inline-block';
       openBtn.onclick = () => window.location.href = link;
@@ -1677,10 +1682,15 @@ Peace is built on trust.
     if (!window.location.hostname.endsWith('.github.io')) return url;
     return DEV_REDIRECT_MAP[normalizeUrl(url)] || url;
   };
+  const hasMundoGamerHash = () => /#mundogamer$/i.test(window.location.href);
+  const appendMundoGamerHash = (url) => {
+    if (!url || !hasMundoGamerHash()) return url;
+    return /#mundogamer$/i.test(url) ? url : `${url}#mundogamer`;
+  };
   const LINKS = {
-    COLETA: toGithubUrl('https://versaodeluxe.directorioforuns.com/h130-nada'),
-    ACAMPAMENTO: toGithubUrl('https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game'),
-    CABANA: toGithubUrl('https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game')
+    COLETA: appendMundoGamerHash(toGithubUrl('https://versaodeluxe.directorioforuns.com/h130-nada')),
+    ACAMPAMENTO: appendMundoGamerHash(toGithubUrl('https://versaodeluxe.directorioforuns.com/h134-vinhado-acampamento-game')),
+    CABANA: appendMundoGamerHash(toGithubUrl('https://versaodeluxe.directorioforuns.com/h132-vinhadinho-start-game'))
   };
 
   const CENTER_IMAGE = 'https://i.servimg.com/u/f22/19/80/77/63/drone_10.png';
