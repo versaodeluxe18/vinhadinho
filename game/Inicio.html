@@ -678,6 +678,9 @@
   /* ================= CONFIG ================= */
   const STORAGE_KEY = 'fed_intro_last_shown';
   const SKIP_TIME_MS = 3 * 60 * 60 * 1000;
+  const INTRO_DB_NAME = 'vd_intro_db';
+  const INTRO_DB_VERSION = 1;
+  const INTRO_STORE = 'meta';
 
   const IMAGE_1 = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg2530hQgeaQ_aBHIvx5pb6kt46ha322elP3ft5GAE5pE31_KviZkKmMKIjZ5QTQZqFIFPsCtfn2kPcgaenvTaVL8SPwhGWEyBex46ZvRnUZRh2hLJzU2G-3gJ-WBZT_B4ZFK0pm02FnRCSPWwh64umTND5rO-jK0OVUXyxx2wJdF7DIkHDI196Og70KYo/s1600/versaodleuxelogoentrada.png';
   const IMAGE_2 = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiI-c_gKTKV2W9z24RnBE2j9rYc2fhO3kVjXyqBDYF_L1TRahpJ5IT1RtcJcuRUdUFpac7s2Dc5536DGnmrk4Kd-nLAAm_mYYz1H4bUDXHTD5Tvl3qEbvuaK3WUODUU79OoCI2pQ07juJ6pDTv11o0m91r9X9k4hyphenhyphenqVER2YiH2CA4SwgXCajSmAJBDiL3k/s1600/vinhadinhologoentrada.png';
@@ -694,13 +697,62 @@
   /* ================= HELPERS ================= */
   const wait = ms => new Promise(r => setTimeout(r, ms));
 
-  function shouldSkipIntro() {
-    const last = Number(localStorage.getItem(STORAGE_KEY));
-    return last && (Date.now() - last) < SKIP_TIME_MS;
+  function openIntroDB() {
+    return new Promise((resolve, reject) => {
+      if (!('indexedDB' in window)) {
+        reject(new Error('IndexedDB não suportado'));
+        return;
+      }
+
+      const request = indexedDB.open(INTRO_DB_NAME, INTRO_DB_VERSION);
+
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(INTRO_STORE)) {
+          db.createObjectStore(INTRO_STORE);
+        }
+      };
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('Falha ao abrir IndexedDB'));
+    });
   }
 
-  function saveIntroTimestamp() {
-    try { localStorage.setItem(STORAGE_KEY, Date.now()); } catch(e){}
+  async function getIntroTimestamp() {
+    try {
+      const db = await openIntroDB();
+      return await new Promise((resolve) => {
+        const tx = db.transaction(INTRO_STORE, 'readonly');
+        const store = tx.objectStore(INTRO_STORE);
+        const req = store.get(STORAGE_KEY);
+
+        req.onsuccess = () => resolve(Number(req.result) || 0);
+        req.onerror = () => resolve(0);
+        tx.oncomplete = () => db.close();
+        tx.onabort = () => db.close();
+      });
+    } catch {
+      return 0;
+    }
+  }
+
+  async function saveIntroTimestamp() {
+    try {
+      const db = await openIntroDB();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(INTRO_STORE, 'readwrite');
+        tx.objectStore(INTRO_STORE).put(Date.now(), STORAGE_KEY);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error || new Error('Falha ao salvar timestamp da intro'));
+      });
+      db.close();
+    } catch {}
+  }
+
+  async function shouldSkipIntro() {
+    const last = await getIntroTimestamp();
+    return last && (Date.now() - last) < SKIP_TIME_MS;
   }
 
   function preloadImages(urls) {
@@ -713,8 +765,6 @@
       })
     ));
   }
-
-  if (shouldSkipIntro()) return;
 
   /* ================= CSS ================= */
   const style = document.createElement('style');
@@ -841,7 +891,6 @@
       </div>
     </div>
   `;
-  document.body.appendChild(loader);
 
   /* ================= INTRO ================= */
   const intro = document.createElement('div');
@@ -892,10 +941,14 @@
     intro.remove();
     document.body.style.overflow = '';
 
-    saveIntroTimestamp();
+    await saveIntroTimestamp();
   }
 
-  startIntro();
+  (async function initIntro() {
+    if (await shouldSkipIntro()) return;
+    document.body.appendChild(loader);
+    startIntro();
+  })();
 
 })();
 </script>
