@@ -1346,9 +1346,13 @@ Peace is built on trust.
       #modal-content .qsd-actions {
         display:flex;
         justify-content:flex-end;
+        flex-wrap: wrap;
         gap:.5rem;
         padding-top:.5rem;
         flex-shrink:0;
+      }
+      #modal-content .qsd-actions button {
+        flex: 1 1 220px;
       }
 
       /* overlay externo (iframe) */
@@ -1607,7 +1611,7 @@ Peace is built on trust.
       <div style="display:flex;flex-direction:column;gap:0.6rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <h2 style="font-size:14px;text-transform:uppercase;margin:0;">Salao dos Devs</h2>
-          <button id="back-to-suporte" style="cursor:pointer;font-family:'Press Start 2P',monospace;">FECHAR</button>
+          <button id="back-to-suporte" aria-label="Fechar" title="Fechar" style="cursor:pointer;font-family:'Press Start 2P',monospace;min-width:2.2rem;line-height:1;">✕</button>
         </div>
         <div style="display:flex;flex-direction:column;">
           ${cardsHtml}
@@ -1648,7 +1652,7 @@ Peace is built on trust.
             </div>
           </div>
           <div>
-            <button id="dev-back" style="cursor:pointer;font-family:'Press Start 2P',monospace;">FECHAR</button>
+            <button id="dev-back" aria-label="Fechar" title="Fechar" style="cursor:pointer;font-family:'Press Start 2P',monospace;min-width:2.2rem;line-height:1;">✕</button>
           </div>
         </div>
 
@@ -1685,7 +1689,7 @@ Peace is built on trust.
       <div style="display:flex;flex-direction:column;gap:.75rem;height:100%;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <h2 style="font-size:14px;text-transform:uppercase;margin:0;">Quero ser Dev</h2>
-          <button id="qsd-back" style="cursor:pointer;font-family:'Press Start 2P',monospace;">FECHAR</button>
+          <button id="qsd-back" aria-label="Fechar" title="Fechar" style="cursor:pointer;font-family:'Press Start 2P',monospace;min-width:2.2rem;line-height:1;">✕</button>
         </div>
         <div class="qsd-text-wrap">
           <p>
@@ -1694,7 +1698,7 @@ Peace is built on trust.
         </div>
         <div class="qsd-actions">
           <button id="more-info" style="cursor:pointer;padding:.6rem;text-transform:uppercase;background:transparent;border:2px solid rgba(255,255,255,0.06);color:#fff;">SAIBA MAIS</button>
-          <button id="buy-pass" style="cursor:pointer;padding:.6rem;text-transform:uppercase;background:#c49b46;border:none;color:#111;">SER GAMEDEV DE VINHADINHO</button>
+          <button id="buy-pass" style="cursor:pointer;padding:.6rem;text-transform:uppercase;background:#c49b46;border:none;color:#111;">QUERO SER DEV</button>
         </div>
       </div>
     `;
