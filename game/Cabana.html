@@ -950,6 +950,11 @@
       return MUNDOGAMER_HASH_REGEX.test(window.location.href);
     }
 
+    function appendMundoGamerHash(url) {
+      if (!isMundoGamerMode()) return url;
+      return MUNDOGAMER_HASH_REGEX.test(url) ? url : `${url}#mundogamer`;
+    }
+
     function getSessionUser() {
       if (isMundoGamerMode()) return MUNDOGAMER_FAKE_USER;
       return auth.currentUser;
@@ -3097,7 +3102,10 @@ btnMax.addEventListener("click", () => {
   exitBtn.onclick = () => overlay.style.display = 'flex';
   modal.querySelector('#exit-no').onclick = () => overlay.style.display = 'none';
   modal.querySelector('#exit-yes').onclick = () => {
-    location.href = (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html' : 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game');
+    const inicioUrl = (window.location.hostname.endsWith('.github.io')
+      ? 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html'
+      : 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game');
+    location.href = appendMundoGamerHash(inicioUrl);
   };
 
 })();

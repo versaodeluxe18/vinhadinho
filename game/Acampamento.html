@@ -1001,6 +1001,13 @@ if (charactersChanged) {
     return window.location.href.toLowerCase().includes(MUNDOGAMER_HASH_FRAGMENT);
   }
 
+  function appendMundoGamerHash(url) {
+    if (!isMundoGamerMode()) return url;
+    return url.toLowerCase().includes(MUNDOGAMER_HASH_FRAGMENT)
+      ? url
+      : `${url}${MUNDOGAMER_HASH_FRAGMENT}`;
+  }
+
   function openGameIndexedDB() {
     if (idbState.db) return Promise.resolve(idbState.db);
     return new Promise((resolve, reject) => {
@@ -1201,7 +1208,10 @@ if (charactersChanged) {
 
       
       showMessage('TUDO CERTO! Leve seus vegetais para a sua cabana e divirta-se.', () => {
-        window.location.href = (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Cabana.html' : 'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game');
+        const cabanaUrl = (window.location.hostname.endsWith('.github.io')
+          ? 'https://versaodeluxe18.github.io/vinhadinho/game/Cabana.html'
+          : 'https://versaodeluxe.directorioforuns.com/h132-vinhadinho-cabana-game');
+        window.location.href = appendMundoGamerHash(cabanaUrl);
       });
 
     } catch (err) {
