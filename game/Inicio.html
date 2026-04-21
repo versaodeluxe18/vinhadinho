@@ -464,10 +464,10 @@
         <img src="https://i.servimg.com/u/f22/19/80/77/63/emblem12.png" alt="Logo">
       </div> 
       <nav>
-        <a data-index="1">A CAPITAL</a>
-        <a data-index="2">O VALE HOJE</a>
-        <a data-index="3">O VALE AMANHA</a>
-        <a data-index="4">O HIBRIDO</a>
+        <a href="#capital" data-index="1">A CAPITAL</a>
+        <a href="#vale-hoje" data-index="2">O VALE HOJE</a>
+        <a href="#vale-amanha" data-index="3">O VALE AMANHA</a>
+        <a href="#hibrido" data-index="4">O HIBRIDO</a>
       </nav>
     </div>
       
@@ -1457,11 +1457,19 @@ Peace is built on trust.
   const existing = Array.from(nav.querySelectorAll('a')).find(a => (a.textContent||'').trim().toUpperCase() === 'SUPORTE');
   if (existing) existing.remove();
 
+  const isMundoGamerMode = () => /#mundogamer$/i.test(window.location.href);
+
   const suporteLink = document.createElement('a');
   suporteLink.setAttribute('href', '#suporte');
   suporteLink.setAttribute('data-index', 'support');
   suporteLink.textContent = 'SUPORTE';
   nav.appendChild(suporteLink);
+
+  function syncSupportVisibility() {
+    suporteLink.style.display = isMundoGamerMode() ? 'none' : '';
+  }
+  syncSupportVisibility();
+  window.addEventListener('hashchange', syncSupportVisibility);
 
   const modal = document.getElementById('custom-modal');
   const modalContent = document.getElementById('modal-content');
@@ -1681,6 +1689,7 @@ Peace is built on trust.
   // conecta o link
  suporteLink.addEventListener('click', e => {
   e.preventDefault();
+  if (isMundoGamerMode()) return;
 
   // ???? DESLIGA o botão "Abrir" no SUPORTE
   const openBtn = document.getElementById('modal-open-link');
