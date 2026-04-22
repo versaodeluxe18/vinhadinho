@@ -1,4 +1,4 @@
- <!-- PRODUÇÃO EM: https://versaodeluxe.directorioforuns.com/h130-vinhadinho-game -->
+ <!-- PRODUÇÃO EM: https:
 
 
 
@@ -532,7 +532,7 @@
       }
     }
 
-    // Lê o objeto "frutas" do Firebase para um determinado usuário (retorna {} se não existir)
+
     async function readUserFruits(uid) {
       if (isMundoGamerMode()) {
         try {
@@ -556,7 +556,7 @@
       }
     }
 
-    // Salva (ou atualiza) o objeto "frutas" no Firebase, somando ao que já existe
+
     async function saveUserFruits(uid, collectedThisGame) {
       if (isMundoGamerMode()) {
         try {
@@ -588,7 +588,7 @@
         console.log("Frutas atualizadas para:", updated);
       } catch (error) {
         console.error("Erro ao salvar frutas do usuário:", error);
-        throw error; // repassa para o caller tratar
+        throw error;
       }
     }
 
@@ -680,9 +680,9 @@
     let selectedId = null;
     let isAnimating = false;
     let history = [];
-    let collectedFruits = {}; // { 'cenoura': 5, 'banana': 2, ... }
+    let collectedFruits = {};
 
-    // mapeamento de entidade HTML para nome e vice-versa
+
     const entityToName = {
       "&#x1F34C;": "banana",
       "&#x1F952;": "pepino",
@@ -698,16 +698,16 @@
       "cenoura": "&#x1F955;"
     };
 
-    // array com entidades HTML dos emojis
+
     const emojiFruits = [
-      "&#x1F34C;", // banana
-      "&#x1F952;", // pepino
-      "&#x1F346;", // berinjela
-      "&#x1F351;", // pessego
-      "&#x1F955;"  // cenoura
+      "&#x1F34C;",
+      "&#x1F952;",
+      "&#x1F346;",
+      "&#x1F351;",
+      "&#x1F955;"
     ];
     
-    // — Expor funções seguras para o dropBox externo —
+
     window.incrementScore = () => {
       score++;
       updateScoreDisplay();
@@ -761,7 +761,7 @@
         this.classList.remove('selected');
         selectedId = null;
       } else {
-        // Validação de movimento sem "wrap" entre linhas
+
         const validMoves = [];
         const selRow = Math.floor(selectedId / width);
         const selCol = selectedId % width;
@@ -794,7 +794,7 @@
 
       setTimeout(() => {
         if (!hasMatchAfterSwap()) {
-          // reverte troca
+
           [board[fromId], board[toId]] = [board[toId], board[fromId]];
           delete specialFruits[fromId];
           delete specialFruits[toId];
@@ -802,7 +802,7 @@
           if (wasSpecialTo) specialFruits[toId] = wasSpecialTo;
           renderBoard();
         } else {
-          // passa o índice de destino para priorizar criação de especial naquele tile
+
           const anyMatch = checkAllMatches(toId);
           if (anyMatch) {
             updateScoreDisplay();
@@ -813,19 +813,19 @@
       }, 150);
     }
 
-    // nova versão: simplesmente usa checkAllMatches em modo dryRun (não altera estado)
+
     function hasMatchAfterSwap() {
       return checkAllMatches(null, { dryRun: true });
     }
 
     function checkAllMatches(lastMovedIndex = null, options = {}) {
-      // options.dryRun = true -> detecta sem modificar score/history/UI
+
       const dryRun = !!options.dryRun;
       let found = false;
       const toMark = new Array(size).fill(false);
       const newSpecials = [];
 
-      // helper para registrar combo (faz score/history só se !dryRun)
+
       function recordCombo(typeLabel, pontos) {
         if (!dryRun) {
           score += pontos;
@@ -833,7 +833,7 @@
         }
       }
 
-      // ---------- SCAN HORIZONTAL por linhas (runs) ----------
+
       for (let r = 0; r < width; r++) {
         let c = 0;
         while (c < width) {
@@ -846,7 +846,7 @@
             found = true;
             const indices = Array.from({length: len}, (_, k) => r * width + c + k);
             if (len >= 5) {
-              // cria especial (preferir lastMovedIndex se estiver no run)
+
               const specialPos = (lastMovedIndex !== null && indices.includes(lastMovedIndex))
                 ? lastMovedIndex
                 : indices[Math.floor(len / 2)];
@@ -859,7 +859,7 @@
                 collectFruits(v, indices);
                 recordCombo('4 horizontais', 4);
               }
-            } else { // len === 3
+            } else {
               indices.forEach(idx => toMark[idx] = true);
               if (!dryRun) recordCombo('3 horizontais', 3);
             }
@@ -868,7 +868,7 @@
         }
       }
 
-      // ---------- SCAN VERTICAL por colunas (runs) ----------
+
       for (let col = 0; col < width; col++) {
         let row = 0;
         while (row < width) {
@@ -893,7 +893,7 @@
                 collectFruits(v, indices);
                 recordCombo('4 verticais', 4);
               }
-            } else { // len === 3
+            } else {
               indices.forEach(idx => toMark[idx] = true);
               if (!dryRun) recordCombo('3 verticais', 3);
             }
@@ -903,13 +903,13 @@
       }
 
       if (found && !dryRun) {
-        // aplica especiais novos
+
         newSpecials.forEach(obj => {
           const { pos, tipo } = obj;
           if (!specialFruits[pos]) specialFruits[pos] = tipo;
         });
 
-        // se um especial estiver marcado para remoção, dispare explosão imediatamente
+
         Object.keys(specialFruits).forEach(key => {
           const idx = parseInt(key);
           if (toMark[idx]) {
@@ -920,7 +920,7 @@
           }
         });
 
-        // remove / anima os restantes marcados
+
         for (let i = 0; i < size; i++) {
           if (toMark[i]) {
             createFirework(i);
@@ -1118,11 +1118,11 @@
       collectingModal.style.display = 'none';
     }
 
-    // Quando clica no botão especial, agora mostra modal, salva "frutas" em vez de pontos e redireciona
+
     specialButton.addEventListener('click', async () => {
       if (score < 1000) return;
 
-      // Exibe modal "COLETANDO" antes de iniciar o salvamento
+
       showCollectingModal();
 
       const auth = window.FirebaseAuth;
@@ -1142,7 +1142,7 @@
 
       if (!fruitsThisGame || Object.keys(fruitsThisGame).length === 0) {
         console.log('Nenhuma fruta coletada neste jogo. Não há o que salvar.');
-        // mesmo sem salvar nada, faz redirecionamento
+
         const fallbackUrl = (window.location.hostname.endsWith('.github.io')
           ? "https://versaodeluxe18.github.io/vinhadinho/game/Coletando-processando.html"
           : "https://versaodeluxe.directorioforuns.com/h131-vinhadinho-coleta-game");
@@ -1192,7 +1192,7 @@
       specialButton.style.width = `${newSize}px`;
       specialButton.style.height = `${newSize}px`;
 
-      // Código alterado para usar innerHTML e referência de emoji
+
       if (score >= 1000) {
         specialButton.classList.add('enabled');
         specialButton.innerHTML = '<span class="emoji">&#x1F45C;</span> COLETAR AGORA';
@@ -1211,15 +1211,15 @@
 <script>
 /* ===== Combo Feedback: cresce + treme + sobe (apenas durante a jogada atual) ===== */
 (function(){
-  const INACTIVITY_MS = 700; // considera fim da cadeia
+  const INACTIVITY_MS = 700;
   const FADE_OUT_MS = 500;
 
-  // posição vertical (em vh)
-  const BASE_BOTTOM_VH = 8;      // posição inicial (próximo ao rodapé)
-  const MAX_BOTTOM_VH  = 80;     // sobe até este limite
-  const PER_COMBO_VH   = 7;      // quanto sobe por combo (multiplicador)
 
-  // estilos
+  const BASE_BOTTOM_VH = 8;
+  const MAX_BOTTOM_VH  = 80;
+  const PER_COMBO_VH   = 7;
+
+
   const css = `
   .combo-feedback {
     position: fixed;
@@ -1274,7 +1274,7 @@
   style.textContent = css;
   document.head.appendChild(style);
 
-  // DOM
+
   const wrapper = document.createElement('div');
   wrapper.className = 'combo-feedback';
   const bubble = document.createElement('div');
@@ -1282,7 +1282,7 @@
   wrapper.appendChild(bubble);
   document.body.appendChild(wrapper);
 
-  // mensagem
+
   function comboMessage(n) {
   if (n >= 10) return 'AÍ QUE DELÍCIAAAAAA';
   if (n >= 9)  return 'É BABADEIRAAAA';
@@ -1296,19 +1296,19 @@
   return `${n} COMBO`;
 }
 
-  // elementos do jogo
+
   const historyList = document.getElementById('history-list');
   const grid = document.querySelector('.grid');
   if (!historyList || !grid) return;
 
-  // estado
+
   let watching = false;
   let lastHistoryLen = historyList.children.length;
   let displayCount = 0;
   let lastChangeTs = 0;
   let hideTimeout = null;
 
-  // mostra/oculta
+
   function showBubble() {
     if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; }
     wrapper.style.display = 'flex';
@@ -1324,36 +1324,36 @@
         wrapper.style.display = 'none';
         bubble.className = 'combo-bubble';
         bubble.style.transform = 'translateX(0)';
-        // reset posição vertical
+
         wrapper.style.bottom = BASE_BOTTOM_VH + 'vh';
       }, FADE_OUT_MS + 40);
     }, INACTIVITY_MS);
   }
 
-  // aplica visuais conforme n (cresce a partir do 2º combo)
+
   function applyVisuals(n) {
     bubble.classList.remove('big','huge');
     if (n >= 7) bubble.classList.add('huge');
     else if (n >= 5) bubble.classList.add('big');
 
-    // amplitude e rotação crescentes
-    const amp = Math.min(22, 1 + Math.max(0, n - 1) * 1.8); // cresce desde o 2º combo
+
+    const amp = Math.min(22, 1 + Math.max(0, n - 1) * 1.8);
     const rot = Math.min(9, 0.6 + Math.max(0, n - 1) * 0.95);
     const vtime = Math.max(60, 240 - Math.max(0, n - 1) * 12);
     bubble.style.setProperty('--amp', amp + 'px');
     bubble.style.setProperty('--rot', rot + 'deg');
     bubble.style.setProperty('--vtime', vtime + 'ms');
 
-    // escala: começa a aumentar já no 2º combo
+
     const scale = 1 + Math.min(0.75, Math.max(0, n - 1) * 0.08);
     bubble.style.transform = `scale(${scale})`;
 
-    // move verticalmente para cima conforme n (dados em vh, capping)
+
     const bottomVh = Math.min(MAX_BOTTOM_VH, BASE_BOTTOM_VH + Math.max(0, n - 1) * PER_COMBO_VH);
     wrapper.style.bottom = bottomVh + 'vh';
   }
 
-  // anima incremento (pop + shake)
+
   function animateIncrement() {
     bubble.classList.remove('pop','shake');
     void bubble.offsetWidth;
@@ -1362,7 +1362,7 @@
     setTimeout(() => { bubble.classList.remove('pop'); }, 520);
   }
 
-  // atualiza display
+
   function updateDisplay() {
     if (displayCount < 1) {
       bubble.textContent = '';
@@ -1377,7 +1377,7 @@
     hideBubbleSoon();
   }
 
-  // OBSERVER: detecta novas entradas no history em tempo real, só quando watching === true
+
   const observer = new MutationObserver((mutations) => {
     if (!watching) return;
     let changed = false;
@@ -1389,7 +1389,7 @@
     const curLen = historyList.children.length;
     const added = curLen - lastHistoryLen;
     if (added > 0) {
-      // acumula apenas para a jogada atual
+
       displayCount += added;
       lastHistoryLen = curLen;
       lastChangeTs = Date.now();
@@ -1400,7 +1400,7 @@
   });
   observer.observe(historyList, { childList: true, subtree: false });
 
-  // finaliza observação (jogada terminou)
+
   function finalizeWatching() {
     watching = false;
     if (displayCount > 0) {
@@ -1412,9 +1412,9 @@
     displayCount = 0;
   }
 
-  // inicia observação para UMA NOVA JOGADA — zera contagem anterior
+
   function startWatching() {
-    // esconde rapidamente bolha anterior e reseta visuais
+
     if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; }
     bubble.classList.remove('pop','shake');
     bubble.style.opacity = '0';
@@ -1422,36 +1422,36 @@
     wrapper.style.bottom = BASE_BOTTOM_VH + 'vh';
 
     watching = true;
-    lastHistoryLen = historyList.children.length; // referência passa a ser o estado AGORA
-    displayCount = 0; // começa a contar só as novas entradas daqui pra frente
+    lastHistoryLen = historyList.children.length;
+    displayCount = 0;
     lastChangeTs = Date.now();
 
     wrapper.style.display = 'flex';
     setTimeout(() => { bubble.style.opacity = '1'; }, 30);
 
-    // fallback safety
+
     setTimeout(() => {
       if (Date.now() - lastChangeTs > 3800) finalizeWatching();
     }, 4000);
   }
 
-  // inicia com pointerdown (mouse/touch) — jogador começa a jogada
+
   grid.addEventListener('pointerdown', () => {
     startWatching();
   }, { passive: true });
 
-  // também inicia com teclas (opcional)
+
   document.addEventListener('keydown', (e) => {
     const keys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter',' '];
     if (keys.includes(e.key)) startWatching();
   });
 
-  // clique dentro da grid
+
   document.addEventListener('click', (e) => {
     if (e.target.closest('.grid')) startWatching();
   });
 
-  // limpeza
+
   window.addEventListener('beforeunload', () => {
     observer.disconnect();
   });
@@ -1722,7 +1722,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // 1) Criar o modal e esconder
+
   const modal = document.createElement('div');
   modal.id = 'custom-modal';
   Object.assign(modal.style, {
@@ -1762,25 +1762,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnOk        = modal.querySelector('#modal-ok');
   const btnSaiba     = modal.querySelector('#modal-saiba');
 
-  // 2) Quando clica no “Coletar Agora”
+
   btnSpecial.addEventListener('click', e => {
-    // pega o score atual do DOM
+
     const currentScore = parseInt(document.getElementById('score').textContent, 10) || 0;
     if (currentScore < 1000) {
       modal.style.display = 'flex';
     }
   });
 
-  // 3) Botão OK (fecha sempre)
+
   btnOk.addEventListener('click', () => {
     modal.style.display = 'none';
-    // reset caso volte do "saiba como"
+
     modalText.textContent = 'Precisa de 1.000 Acué';
     btnSaiba.style.display = '';
     btnOk.textContent    = 'OK';
   });
 
-  // 4) Botão “Saiba como”
+
   btnSaiba.addEventListener('click', () => {
     modalText.textContent = ' Vinhadinho precisa pagar 1.000 ACUÉ em impostos para receber uma autorização da FEDERAÇÃO DO VALE permitindo o armazenamento das doações coletadas';
     btnSaiba.style.display = 'none';
@@ -1798,15 +1798,15 @@ document.addEventListener('DOMContentLoaded', () => {
  <script>
     function resizeGame() {
       const wrapper = document.getElementById('game-content');
-      const MAX_RATIO = 0.8;  // 90%
-      const gameSize = 498;   // altura/largura fixa do .grid
+      const MAX_RATIO = 0.8;
+      const gameSize = 498;
 
-      // calcula o scale que cabe 90% da viewport em Y ou X, o menor
+
       const scaleY = window.innerHeight * MAX_RATIO / gameSize;
       const scaleX = window.innerWidth  * MAX_RATIO / gameSize;
       const scale = Math.min(scaleX, scaleY);
 
-      // aplica transform: primeiro centraliza (translate), depois escala
+
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
       wrapper.style.display = 'block';
     }
@@ -1840,7 +1840,7 @@ window.addEventListener('DOMContentLoaded', () => {
     return btn.getAttribute('aria-pressed') === 'true';
   }
 
-  // --- som da batida ao clicar na caixa ---
+
   const CLICK_SOUND_URL =
     'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/batida.mp3';
 
@@ -1850,7 +1850,7 @@ window.addEventListener('DOMContentLoaded', () => {
   try { clickSound.crossOrigin = 'anonymous'; } catch (e) {}
 
   function playClickSound() {
-    if (!isSoundEnabled()) return; // ???? CORREÇÃO AQUI
+    if (!isSoundEnabled()) return;
 
     try {
       const s = clickSound.cloneNode(true);
@@ -1862,7 +1862,7 @@ window.addEventListener('DOMContentLoaded', () => {
       } catch (e) {}
     }
   }
-  // --- fim do bloco de áudio ---
+
 
 
   const PATH_COUNT   = 5;
@@ -1910,7 +1910,7 @@ window.addEventListener('DOMContentLoaded', () => {
     box.addEventListener('click', () => {
       if (box.dataset.clicked === 'true') return;
 
-      playClickSound(); // ✅ agora respeita o botão de som
+      playClickSound();
 
       box.dataset.clicked = 'true';
       box.removeEventListener('transitionend', onFallEnd);
@@ -2073,7 +2073,7 @@ window.addEventListener('DOMContentLoaded', () => {
 <!-- QUEBRAR CAIXA -->
 <script>
 (function() {
-  // injeta todo o CSS via JS
+
   const css = `
     #game-container {
       position: fixed;
@@ -2206,11 +2206,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const boxImg    = 'https://i.servimg.com/u/f22/19/80/77/63/caixa_10.png';
   const pcKeys    = ['A','S','D','F'];
 
-  // ---------- SONS (adicionei aqui) ----------
+
   const HIT_AUDIO_URL   = 'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/batida.mp3';
   const BREAK_AUDIO_URL = 'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/caixaquebrada.mp3';
 
-  // pool para permitir sobreposição de batidas rápidas
+
   const HIT_POOL_SIZE = 6;
   const hitPool = new Array(HIT_POOL_SIZE).fill(null).map(() => {
     const a = new Audio(HIT_AUDIO_URL);
@@ -2228,12 +2228,12 @@ window.addEventListener('DOMContentLoaded', () => {
     try {
       const a = hitPool[hitPoolIndex];
       hitPoolIndex = (hitPoolIndex + 1) % HIT_POOL_SIZE;
-      // reinicia e toca
+
       a.currentTime = 0;
       const p = a.play();
       if (p && p.catch) p.catch(()=>{/* autoplay blocked or other error */});
     } catch (err) {
-      // degrade silently
+
       console.warn('playHit error', err);
     }
   }
@@ -2247,7 +2247,7 @@ window.addEventListener('DOMContentLoaded', () => {
       console.warn('playBreak error', err);
     }
   }
-  // -------------------------------------------
+
 
   function isMobile() {
     return /Mobi|Android/i.test(navigator.userAgent);
@@ -2278,7 +2278,7 @@ window.addEventListener('DOMContentLoaded', () => {
       hitArea.className = 'hit-area';
       container.appendChild(hitArea);
 
-      // ELEMENTO DO CONTADOR / BARRA DE 'VIDAS'
+
       const lifeEl = document.createElement('div');
       lifeEl.className = 'life';
       lifeEl.innerHTML = `<div class="life-bar"><div class="life-fill"></div></div><div class="life-text"></div>`;
@@ -2294,7 +2294,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const txt = lifeEl.querySelector('.life-text');
         fill.style.width = pct + '%';
         txt.textContent = remaining;
-        // pequeno pulso quando acerta
+
         lifeEl.style.transform = 'scale(1.06)';
         clearTimeout(lifeEl._pulse);
         lifeEl._pulse = setTimeout(()=> lifeEl.style.transform = 'scale(1)', 140);
@@ -2302,7 +2302,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
       function positionLife() {
         const r = box.getBoundingClientRect();
-        // coloca no canto superior-direito da caixa, com pequena margem
+
         const margin = 12;
         const left = Math.min(window.innerWidth - lifeEl.offsetWidth - 8, r.right - lifeEl.offsetWidth - margin);
         const top  = Math.max(8, r.top + margin);
@@ -2320,7 +2320,7 @@ window.addEventListener('DOMContentLoaded', () => {
         y = Math.min(Math.max(0, y), window.innerHeight - sH);
         hitArea.style.left = x + 'px';
         hitArea.style.top  = y + 'px';
-        // reposiciona o contador junto com a caixa
+
         positionLife();
       }
 
@@ -2335,25 +2335,25 @@ window.addEventListener('DOMContentLoaded', () => {
         placeHitArea();
       }
 
-      // inicializa a vida já visível
+
       updateLife();
-      // chama nextInstr só após garantir que elementos têm tamanho (pequeno timeout)
+
       requestAnimationFrame(nextInstr);
 
       function doHit() {
-        // toca som da batida
+
         playHit();
 
         hitArea.classList.add('blink');
         setTimeout(() => hitArea.classList.remove('blink'), 400);
 
-        // APLICA A TREMIDA NA CAIXA (mantendo animação do personagem exatamente igual)
+
         box.classList.remove('shake');
         box.classList.add('tremble');
-        // remove a classe tremble após a duração da animação
+
         setTimeout(() => box.classList.remove('tremble'), 380);
 
-        // personagem continua igualzinho ao que você tinha
+
         character.src = charHit;
         character.style.transform = 'scaleX(-1) translateX(-50px)';
         setTimeout(() => {
@@ -2396,15 +2396,15 @@ window.addEventListener('DOMContentLoaded', () => {
         hitArea.removeEventListener('mousedown', touchOrClickHandler);
         window.removeEventListener('resize', positionLife);
 
-        // remove a hit area e a barra imediatamente (visual)
+
         hitArea.remove();
 
         if (lifeEl) lifeEl.remove();
 
-        // toca som da caixa quebrando
+
         playBreak();
 
-        // pequenos ajustes: espera curtinho para o som "casar" com a explosão visual
+
         setTimeout(() => {
           const rows=2, cols=3, w=box.clientWidth/cols, h=box.clientHeight/rows;
           for (let r=0; r<rows; r++) {
@@ -2436,13 +2436,13 @@ window.addEventListener('DOMContentLoaded', () => {
             container.style.pointerEvents = 'none';
             scheduleNext();
           }, { once:true });
-        }, 80); // 80ms dá tempo pro início do som — ajuste se quiser outro timing
+        }, 80);
       }
 
     }, 1000);
   }
 
-  // primeira chamada após delay aleatório
+
   scheduleNext();
 
 })();
@@ -2462,12 +2462,12 @@ window.addEventListener('DOMContentLoaded', () => {
  <!-- SINAL DO DRONE -->
 <script>
 (function(){
-  const MIN_DURATION = 60;   // 1 minuto
-  const MAX_DURATION = 180;  // 3 minutos
+  const MIN_DURATION = 60;
+  const MAX_DURATION = 180;
   let intervalId, remaining;
   const disabledCells = new Set();
 
-  // injeta CSS atualizado
+
   const style = document.createElement('style');
   style.textContent = `
     .fruit-timer {
@@ -2560,7 +2560,7 @@ window.addEventListener('DOMContentLoaded', () => {
   `;
   document.head.appendChild(style);
 
-  // observa recriações de célula e reaplica bloqueio
+
   const grid = document.querySelector('.grid');
   const observer = new MutationObserver(muts => {
     muts.forEach(m => {
@@ -2600,7 +2600,7 @@ window.addEventListener('DOMContentLoaded', () => {
     return timerEl;
   }
 
-  // painel no canto inferior esquerdo
+
   function createInfoPanel() {
     if (document.getElementById('fruit-info-panel')) return document.getElementById('fruit-info-panel');
     const panel = document.createElement('div');
@@ -2738,11 +2738,11 @@ window.addEventListener('DOMContentLoaded', () => {
     'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando3.mp3',
     'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando7.mp3',
     'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/lobocoletando8.mp3',
-    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/combosimples.mp3' // index 8 (usado para 1/2 COMBO)
+    'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/combosimples.mp3'
   ];
 
-  // cooldowns (ms) - ajuste aqui se quiser
-  const COOLDOWN_MESSAGE_MS = 10000; // mensagens genéricas
+
+  const COOLDOWN_MESSAGE_MS = 10000;
 
  
   let soundEnabled = false;     
@@ -2836,7 +2836,7 @@ window.addEventListener('DOMContentLoaded', () => {
         a.addEventListener('canplaythrough', onLoaded, { once: true });
         a.addEventListener('error', onErr, { once: true });
         try { a.load(); } catch(e){}
-        // fallback: resolve após timeout
+
         setTimeout(() => {
           if(!audioCache.has(url)){
             audioCache.set(url, a);
@@ -2855,7 +2855,7 @@ window.addEventListener('DOMContentLoaded', () => {
     await Promise.all(promises);
   }
 
-  // NÃO pré-carregamos mais sons de queda/combinação; função mantida para compatibilidade
+
   async function preloadGameSounds(){
     return Promise.resolve();
   }
@@ -2863,26 +2863,26 @@ window.addEventListener('DOMContentLoaded', () => {
 
   async function playAudio(url, cooldownMs = COOLDOWN_MESSAGE_MS, opts = {}) {
     if(!url) return;
-    if(!soundEnabled) return; // não tocar quando desativado
+    if(!soundEnabled) return;
     try {
-      // apenas checa/define cooldown se cooldownMs > 0
+
       if(cooldownMs > 0){
         const last = lastPlayed.get(url);
         if(last && (Date.now() - last) < cooldownMs) return;
-        // registra timestamp provisório para bloquear repetição até tentar tocar
+
         lastPlayed.set(url, Date.now());
       }
 
       const base = await preloadAudio(url);
-      // clone para poder tocar múltiplas instâncias
+
       const player = base.cloneNode(true);
       player.loop = false;
       player.volume = (typeof opts.volume === 'number') ? opts.volume : 1.0;
 
-      // tentar tocar
+
       await player.play().catch(err => {
         console.warn('Falha ao play:', err);
-        // liberar cooldown para permitir nova tentativa futura (aplica apenas se foi registrado)
+
         if(cooldownMs > 0) lastPlayed.delete(url);
       });
 
@@ -2892,16 +2892,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
     } catch(err){
       console.warn('Erro playAudio:', err);
-      // só limpa registro se registramos
-      // (no caso de cooldownMs===0 nada foi registrado)
-      // para segurança, removemos qualquer registro existente
+
+
+
       try { lastPlayed.delete(url); } catch(e){}
     }
   }
 
   
-  // Essas funções foram mantidas para compatibilidade com resto do jogo,
-  // mas não tocam sons de queda/combinação conforme solicitado.
+
+
   async function playSwapAttempt(){ /* no-op: som de swap removido */ return; }
   async function playSwapFail(){ /* no-op: som de falha removido */ return; }
   async function playDropRandom(){ /* no-op: sons de queda removidos */ return; }
@@ -2924,22 +2924,22 @@ window.addEventListener('DOMContentLoaded', () => {
     if(key.includes('KARAMBA')) return MESSAGE_AUDIO_LIST[5];
     if(key.includes('AMEII') || key.includes('AMEI')) return MESSAGE_AUDIO_LIST[0];
     if(key.includes('BOAAA') || key.includes('BOA')) return MESSAGE_AUDIO_LIST[6];
-    // 1 COMBO / 2 COMBO continuam apontando para index 8 (combosimples.mp3)
+
     if(key.includes('1 COMBO')) return MESSAGE_AUDIO_LIST[8];
     if(key.includes('2 COMBO')) return MESSAGE_AUDIO_LIST[8];
-    // fallback hash simples
+
     let sum = 0;
     for(let i=0;i<key.length;i++) sum += key.charCodeAt(i);
     return MESSAGE_AUDIO_LIST[sum % MESSAGE_AUDIO_LIST.length];
   }
 
-  // playMessageAudioOnce agora permite bypass de cooldown para 1/2 COMBO
+
   async function playMessageAudioOnce(msg){
     if(!msg) return;
     const key = normalizeKey(msg);
     const url = msgToAudioUrl(msg);
     if(!url) return;
-    // se for 1 COMBO ou 2 COMBO -> cooldown = 0 (bypass), caso contrário usa COOLDOWN_MESSAGE_MS
+
     const isComboBypass = key.includes('1 COMBO') || key.includes('2 COMBO');
     const cooldownToUse = isComboBypass ? 0 : COOLDOWN_MESSAGE_MS;
     await playAudio(url, cooldownToUse, { volume: 1.0 });
@@ -2962,32 +2962,32 @@ window.addEventListener('DOMContentLoaded', () => {
     obs.observe(bubble, { characterData: true, childList: true, subtree: true });
     return obs;
   }
-  // tenta anexar automaticamente (se existir)
+
   const comboObserver = attachComboObserver();
 
 
   btn.addEventListener('click', async function(e){
     e.preventDefault();
     e.stopPropagation();
-    // primeira ativação: cria bgAudio e tenta tocar (pode falhar em ambientes restritos)
+
     if(!bgAudio){
       const idx = Math.floor(Math.random() * BG_MUSIC_LIST.length);
       const chosen = BG_MUSIC_LIST[idx];
       bgAudio = new Audio(chosen);
       bgAudio.loop = true;
-      bgAudio.volume = 0.08; // música de fundo baixa
+      bgAudio.volume = 0.08;
       soundEnabled = true;
       try { await bgAudio.play(); } catch(err) { console.warn('bgAudio play falhou:', err); }
-      // pré-carrega apenas as falas/messages
+
       preloadAllMessageAudios().catch(err => console.warn('preloadAllMessageAudios erro', err));
       updateUI();
       return;
     }
-    // toggle
+
     if(!soundEnabled){
       soundEnabled = true;
       try{ if(bgAudio.paused) await bgAudio.play(); } catch(e){ console.warn('bgAudio play falhou ao resumir', e); }
-      // tentar carregar se ainda não carregado
+
       if(audioCache.size < MESSAGE_AUDIO_LIST.length) {
         preloadAllMessageAudios().catch(err => console.warn('preloadAllMessageAudios erro', err));
       }
@@ -3007,12 +3007,12 @@ window.addEventListener('DOMContentLoaded', () => {
     playSwapFail,
     playDropRandom,
     playCollectFourFruit,
-    // mensagens e préloads
+
     playMessageAudioOnce,
     preloadAudio,
-    preloadGameSounds, // agora é noop
+    preloadGameSounds,
     preloadAllMessageAudios,
-    // utilitários
+
     setSoundEnabled(value){
       soundEnabled = !!value;
       updateUI();
@@ -3023,12 +3023,12 @@ window.addEventListener('DOMContentLoaded', () => {
     isSoundEnabled(){ return !!soundEnabled; }
   };
 
-  // cleanup observer ao sair
+
   window.addEventListener('beforeunload', () => {
     try{ comboObserver && comboObserver.disconnect(); }catch(e){}
   });
 
-  // fim do IIFE
+
 })();
 </script>
 
@@ -3065,8 +3065,8 @@ window.addEventListener('DOMContentLoaded', () => {
     special: 'https://raw.githubusercontent.com/versaoDeluxe18/vinhadinho/main/arquivos/especial.mp3'
   };
 
-  const COOLDOWN_MS = 900; // cooldown entre reproduções do mesmo url
-  const LOG = false; // desligado: não gerar mensagens no console
+  const COOLDOWN_MS = 900;
+  const LOG = false;
 
 
   function log() { /* intencionalmente vazio para evitar console */ }
@@ -3085,9 +3085,9 @@ window.addEventListener('DOMContentLoaded', () => {
         return !!window.soundEnabled;
       }
     } catch (e) {
-      // ignore
+
     }
-    return true; // fallback: permitir som
+    return true;
   }
 
   
@@ -3186,7 +3186,7 @@ window.addEventListener('DOMContentLoaded', () => {
           }
           prev = cloneObj(cur);
         } catch (e) {
-          // ignore
+
         }
         return res;
       };
@@ -3264,7 +3264,7 @@ window.addEventListener('DOMContentLoaded', () => {
     function handleNode(node) {
       if (!node || node.nodeType !== 1) return;
 
-      // detecta special (criação)
+
       if (node.classList && node.classList.contains('special')) {
         const key = nodePositionKey(node);
         if (key) {
@@ -3279,7 +3279,7 @@ window.addEventListener('DOMContentLoaded', () => {
           }
         }
       } else {
-        // limpeza quando special sai/é transformada
+
         const key = nodePositionKey(node);
         if (key && specialAnnouncedPositions.has(key) && !node.classList.contains('special')) {
           specialAnnouncedPositions.delete(key);
@@ -3289,12 +3289,12 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // detecta explode -> som de ativação
+
       if (node.classList && node.classList.contains('explode')) {
         playSpecialActivate();
       }
 
-      // checa descendentes também
+
       try {
         const found = node.querySelectorAll && node.querySelectorAll('.special, .explode');
         if (found && found.length) {
@@ -3303,7 +3303,7 @@ window.addEventListener('DOMContentLoaded', () => {
       } catch (e) { /* ignore */ }
     }
 
-    // snapshot inicial: marca specials já existentes para não tocar aplauso ao iniciar
+
     try {
       const existing = grid.querySelectorAll && grid.querySelectorAll('.special');
       if (existing && existing.length) {
@@ -3388,7 +3388,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
           prev = cur;
         } catch (e) {
-          // ignore
+
         }
       }, pollInterval);
 
@@ -3444,7 +3444,7 @@ window.addEventListener('DOMContentLoaded', () => {
           return;
         }
       } catch (e) {
-        // ignore
+
       }
 
       if (Date.now() - start > maxMs) {
@@ -3463,7 +3463,7 @@ window.addEventListener('DOMContentLoaded', () => {
     })();
   }
 
-  // start
+
   initAttempts();
 
 })();
@@ -3678,12 +3678,12 @@ window.addEventListener('DOMContentLoaded', () => {
     el.classList.add('vin-selected');
   }
 
-  // Fecha o painel: remove classe visible para animar para baixo, depois display:none e remove destaque
+
   function closePanel(){
     if (!panel.classList.contains('visible')) return;
     panel.classList.remove('visible');
     closeBtn.classList.add('closing');
-    // remove destaque do cronômetro
+
     el.classList.remove('vin-selected');
 
     const onTransEnd = (ev) => {
@@ -3701,19 +3701,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 700);
   }
 
-  // Toggle ao clicar no cronômetro
+
   el.addEventListener('click', () => {
     if (panel.classList.contains('visible')) closePanel();
     else openPanel();
   });
 
-  // fechar via botão com pequena animação
+
   closeBtn.addEventListener('click', () => {
     closeBtn.classList.add('closing');
     setTimeout(() => closePanel(), 120);
   });
 
-  // === funções ACUÉ ===
+
   function readAcue(){
     if (typeof window.score === 'number') return window.score;
     const el = document.getElementById('score');
@@ -3731,7 +3731,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (el) el.textContent = String(n);
   }
 
-  // === modal detido ===
+
   function showArrestModal(){
     const overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -3759,7 +3759,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(overlay);
   }
 
-  // === feedback visual ===
+
   function playVisualFeedback(){
     el.classList.remove('vin-feedback');
     void el.offsetWidth;
@@ -3767,7 +3767,7 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => el.classList.remove('vin-feedback'), 900);
   }
 
-  // === cobrança ===
+
   async function onTimerEnd(){
     const acue = readAcue();
     if (acue >= currentCharge){
@@ -3811,11 +3811,11 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   function stopInterval(){ if (intervalId) { clearInterval(intervalId); intervalId = null; } }
 
-  // inicia
+
   updateUI();
   startInterval();
 
-  // expor controle
+
   window.VIN_COBRANCA = {
     getCharge: () => currentCharge,
     setCharge: (v) => { currentCharge = Number(v) || currentCharge; updateUI(); },
@@ -3872,7 +3872,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (BG_MAP[val]) {
         applyBackgroundImage(BG_MAP[val]);
       } else {
-        // tenta detecção por substring (mais permissiva)
+
         for (const key of Object.keys(BG_MAP)) {
           if (val.includes(key)) {
             applyBackgroundImage(BG_MAP[key]);
@@ -3930,7 +3930,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   
   specialButton.addEventListener('click', () => {
-    // Lê o valor atual de acué (score)
+
     const scoreElement = document.getElementById('score');
     if (!scoreElement) return;
 
