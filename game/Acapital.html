@@ -321,17 +321,26 @@ notice.addEventListener('click', () => {
       }
     }
 
-    // 3️⃣ Volta no histórico
+    // 3️⃣ Se URL atual tiver #mundogamer → volta mantendo a hash
+    const manterMundoGamer = window.location.hash === '#mundogamer';
+    if (manterMundoGamer && document.referrer) {
+      const destino = new URL(document.referrer, window.location.origin);
+      destino.hash = 'mundogamer';
+      location.href = destino.toString();
+      return;
+    }
+
+    // 4️⃣ Volta no histórico
     if (window.history.length > 1) {
       history.back();
       return;
     }
 
-    // 4️⃣ Fallback final
+    // 5️⃣ Fallback final
     if (document.referrer) {
-      location.href = document.referrer;
+      location.href = manterMundoGamer ? `${document.referrer}#mundogamer` : document.referrer;
     } else {
-      location.href = '/';
+      location.href = manterMundoGamer ? '/#mundogamer' : '/';
     }
   }
 
