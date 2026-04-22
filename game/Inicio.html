@@ -976,9 +976,81 @@
     
     <script>
   /* ================= IDIOMA (dinâmico) ================= */
-  function getLang() {
-    return localStorage.getItem('idioma') || 'pt';
+  const VD_IDIOMA_DB_NAME = 'vd_preferences_db';
+  const VD_IDIOMA_DB_VERSION = 1;
+  const VD_IDIOMA_STORE = 'settings';
+  const VD_IDIOMA_KEY = 'idioma';
+  let vdIdiomaCache = 'pt';
+
+  function openIdiomaDB() {
+    return new Promise((resolve, reject) => {
+      if (!('indexedDB' in window)) {
+        reject(new Error('IndexedDB não suportado'));
+        return;
+      }
+
+      const request = indexedDB.open(VD_IDIOMA_DB_NAME, VD_IDIOMA_DB_VERSION);
+
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(VD_IDIOMA_STORE)) {
+          db.createObjectStore(VD_IDIOMA_STORE);
+        }
+      };
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('Falha ao abrir DB de idioma'));
+    });
   }
+
+  async function readIdiomaFromIndexedDB() {
+    try {
+      const db = await openIdiomaDB();
+      return await new Promise((resolve) => {
+        const tx = db.transaction(VD_IDIOMA_STORE, 'readonly');
+        const store = tx.objectStore(VD_IDIOMA_STORE);
+        const req = store.get(VD_IDIOMA_KEY);
+
+        req.onsuccess = () => resolve(req.result || 'pt');
+        req.onerror = () => resolve('pt');
+        tx.oncomplete = () => db.close();
+        tx.onabort = () => db.close();
+      });
+    } catch {
+      return 'pt';
+    }
+  }
+
+  async function writeIdiomaToIndexedDB(lang) {
+    try {
+      const db = await openIdiomaDB();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(VD_IDIOMA_STORE, 'readwrite');
+        tx.objectStore(VD_IDIOMA_STORE).put(lang, VD_IDIOMA_KEY);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error || new Error('Falha ao salvar idioma'));
+      });
+      db.close();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  window.vdIdiomaStorage = {
+    read: readIdiomaFromIndexedDB,
+    write: writeIdiomaToIndexedDB,
+  };
+
+  function getLang() {
+    return vdIdiomaCache;
+  }
+
+  (async function initIdiomaCache() {
+    vdIdiomaCache = await readIdiomaFromIndexedDB();
+    window.dispatchEvent(new CustomEvent('idioma:change', { detail: { lang: vdIdiomaCache } }));
+  })();
 
   /* ================= TEXTOS I18N ================= */
   const TEXTOS_I18N = {
@@ -2524,6 +2596,11 @@ background-repeat: no-repeat;
 
   const STORAGE_KEY = 'idioma';
 
+  const idiomaStorage = window.vdIdiomaStorage || {
+    read: async () => 'pt',
+    write: async () => false,
+  };
+
   /* ======================================================
      DICIONÁRIOS (EN / HI)
      ====================================================== */
@@ -2589,13 +2666,15 @@ background-repeat: no-repeat;
      IDIOMA ATUAL
      ====================================================== */
   function getLang() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return saved;
-
-    return 'pt';
+    return currentLang;
   }
 
-  let currentLang = getLang();
+  let currentLang = 'pt';
+
+  async function loadLangFromIndexedDB() {
+    const saved = await idiomaStorage.read();
+    if (saved) currentLang = saved;
+  }
 
   /* ======================================================
      UTILITÁRIOS
@@ -2769,10 +2848,10 @@ balloon.innerHTML = `
   btn.onclick = () => balloon.classList.toggle('open');
 
   balloon.querySelectorAll('.lang-flag').forEach(flag => {
-    flag.onclick = () => {
+    flag.onclick = async () => {
       currentLang = flag.dataset.lang;
-      localStorage.setItem(STORAGE_KEY, currentLang);
-      window.dispatchEvent(new Event('idioma:change'));
+      await idiomaStorage.write(currentLang);
+      window.dispatchEvent(new CustomEvent('idioma:change', { detail: { lang: currentLang } }));
       applyLanguage();
       balloon.classList.remove('open');
     };
@@ -2784,7 +2863,17 @@ balloon.innerHTML = `
     }
   });
 
-  document.addEventListener('DOMContentLoaded', applyLanguage);
+  window.addEventListener('idioma:change', (event) => {
+    const lang = event?.detail?.lang;
+    if (!lang) return;
+    currentLang = lang;
+    applyLanguage();
+  });
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadLangFromIndexedDB();
+    applyLanguage();
+  });
 
 })();
 </script>
