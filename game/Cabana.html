@@ -937,7 +937,8 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const MUNDOGAMER_HASH_REGEX = /#mundogamer$/i;
+    const MUNDOGAMER_HASH_FRAGMENT = "#mundogamer";
+    const MUNDOGAMER_HASH_REGEX = /(^|#)mundogamer(?:$|&)/i;
     const GAME_NAME = "vinhadinho";
     const GAME_MODE = "cabana";
     const MUNDOGAMER_FAKE_USER = {
@@ -947,12 +948,12 @@
     };
 
     function isMundoGamerMode() {
-      return MUNDOGAMER_HASH_REGEX.test(window.location.href);
+      return MUNDOGAMER_HASH_REGEX.test(window.location.hash);
     }
 
     function appendMundoGamerHash(url) {
       if (!isMundoGamerMode()) return url;
-      return MUNDOGAMER_HASH_REGEX.test(url) ? url : `${url}#mundogamer`;
+      return MUNDOGAMER_HASH_REGEX.test(url) ? url : `${url}${MUNDOGAMER_HASH_FRAGMENT}`;
     }
 
     function getSessionUser() {

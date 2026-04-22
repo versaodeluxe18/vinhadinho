@@ -4079,9 +4079,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const inicioUrl = (window.location.hostname.endsWith('.github.io')
       ? 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html'
       : 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game');
-    location.href = (typeof window.AppendMundoGamerHash === 'function')
+    const hasMundoGamerHash = /(^|#)mundogamer(?:$|&)/i.test(window.location.hash);
+    const destino = (typeof window.AppendMundoGamerHash === 'function')
       ? window.AppendMundoGamerHash(inicioUrl)
-      : inicioUrl;
+      : (hasMundoGamerHash ? `${inicioUrl}#mundogamer` : inicioUrl);
+    location.href = destino;
   };
 
 })();
