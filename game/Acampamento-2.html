@@ -1941,7 +1941,7 @@ if (laiserBtn) addLaiserHook(laiserBtn);
 (function () {
   const exitBtn = document.createElement('button');
   exitBtn.className = 'lava-float-btn';
-  exitBtn.innerHTML = '✖';
+  exitBtn.innerHTML = '&times;';
   exitBtn.title = 'Sair';
 
   /* === POSIÇÃO IGUAL AOS OUTROS === */
@@ -1949,6 +1949,23 @@ if (laiserBtn) addLaiserHook(laiserBtn);
     position: 'fixed',
     bottom: '20px',
     right: '150px',
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '28px',
+    lineHeight: '1',
+    fontWeight: '700',
+    fontFamily: 'Arial, Helvetica, sans-serif',
+    color: '#000',
+    background: 'linear-gradient(-45deg,#ff00ff,#00ffff,#ffff00)',
+    backgroundSize: '600% 600%',
+    animation: '8s lava infinite',
+    boxShadow: '0 6px 18px rgba(0,0,0,.35)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     zIndex: 9999
   });
 
@@ -1986,8 +2003,11 @@ if (laiserBtn) addLaiserHook(laiserBtn);
   exitBtn.onclick = () => overlay.style.display = 'flex';
   overlay.querySelector('#exit-no').onclick = () => overlay.style.display = 'none';
   overlay.querySelector('#exit-yes').onclick = () => {
-    location.href =
-      (window.location.hostname.endsWith('.github.io') ? 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html' : 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game');
+    const inicioUrl = (window.location.hostname.endsWith('.github.io')
+      ? 'https://versaodeluxe18.github.io/vinhadinho/game/Inicio.html'
+      : 'https://versaodeluxe.directorioforuns.com/h143-vinhadinho-mobile-game');
+    const hasMundoGamerHash = /(^|#)mundogamer(?:$|&)/i.test(window.location.hash);
+    location.href = hasMundoGamerHash ? `${inicioUrl}#mundogamer` : inicioUrl;
   };
 })();
 </script>
