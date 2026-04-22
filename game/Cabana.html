@@ -1042,6 +1042,46 @@
       });
     }
 
+
+    const sharedKvState = { db: null };
+    function openSharedKV() {
+      if (sharedKvState.db) return Promise.resolve(sharedKvState.db);
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open("vinhadinho-shared-db", 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains("kv")) {
+            db.createObjectStore("kv", { keyPath: "key" });
+          }
+        };
+        req.onsuccess = () => {
+          sharedKvState.db = req.result;
+          resolve(sharedKvState.db);
+        };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function sharedKVGet(key) {
+      const db = await openSharedKV();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("kv", "readonly");
+        const req = tx.objectStore("kv").get(key);
+        req.onsuccess = () => resolve(req.result ? req.result.value : null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function sharedKVSet(key, value) {
+      const db = await openSharedKV();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("kv", "readwrite");
+        tx.objectStore("kv").put({ key, value, updatedAt: Date.now() });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
     // ========== DOM Refs ==========
     const loginContainer    = document.getElementById("login-container");
     const loginButton       = document.getElementById("login-button");
@@ -1159,12 +1199,24 @@
     }
 
     // ========== Handler btn-cell (Celular + Curtida) ==========
-    btnCell.addEventListener("click", () => {
+    btnCell.addEventListener("click", async () => {
       celularOverlay.style.display = "flex";
-      const raw = localStorage.getItem("curtida");
+      let raw = null;
+      try {
+        raw = await sharedKVGet("curtida");
+      } catch {
+        raw = null;
+      }
       if (!raw) return;
-      const last = localStorage.getItem("lastCurtidaShown");
+
+      let last = null;
+      try {
+        last = await sharedKVGet("lastCurtidaShown");
+      } catch {
+        last = null;
+      }
       if (last === raw) return;
+
       let d;
       try { d = parseSaved(raw); } catch { return; }
       const user = getSessionUser();
@@ -1172,7 +1224,9 @@
       notifPhoto.src = user.photoURL;
       notifText.textContent = `O usuário ${user.displayName} curtiu o seu blog Vinhadinho às ${formatDate(d)}.`;
       notifOverlay.style.display = "flex";
-      localStorage.setItem("lastCurtidaShown", raw);
+      try {
+        await sharedKVSet("lastCurtidaShown", raw);
+      } catch {}
     });
 
     closeNotif.addEventListener("click", () => notifOverlay.style.display = "none");
