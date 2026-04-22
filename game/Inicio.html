@@ -1200,7 +1200,7 @@ Peace is built on trust.
     if (!window.location.hostname.endsWith('.github.io')) return url;
     return DEV_REDIRECT_MAP[normalizeUrl(url)] || url;
   };
-  const hasMundoGamerHash = () => /#mundogamer$/i.test(window.location.href);
+  const hasMundoGamerHash = () => /(^|#)mundogamer(?:$|&)/i.test(window.location.hash);
   const appendMundoGamerHash = (url) => {
     if (!url || !hasMundoGamerHash()) return url;
     return /#mundogamer$/i.test(url) ? url : `${url}#mundogamer`;
@@ -1472,7 +1472,7 @@ Peace is built on trust.
   const existing = Array.from(nav.querySelectorAll('a')).find(a => (a.textContent||'').trim().toUpperCase() === 'SUPORTE');
   if (existing) existing.remove();
 
-  const isMundoGamerMode = () => /#mundogamer$/i.test(window.location.href);
+  const isMundoGamerMode = () => /(^|#)mundogamer(?:$|&)/i.test(window.location.hash);
 
   const suporteLink = document.createElement('a');
   suporteLink.setAttribute('href', '#suporte');
@@ -1776,7 +1776,7 @@ Peace is built on trust.
     if (!window.location.hostname.endsWith('.github.io')) return url;
     return DEV_REDIRECT_MAP[normalizeUrl(url)] || url;
   };
-  const hasMundoGamerHash = () => /#mundogamer$/i.test(window.location.href);
+  const hasMundoGamerHash = () => /(^|#)mundogamer(?:$|&)/i.test(window.location.hash);
   const appendMundoGamerHash = (url) => {
     if (!url || !hasMundoGamerHash()) return url;
     return /#mundogamer$/i.test(url) ? url : `${url}#mundogamer`;
@@ -2797,7 +2797,7 @@ balloon.innerHTML = `
  <!-- Esconde botão dev no mundogamer  -->
 <script>
 (function () {
-  const hasMundoGamerHash = () => /#mundogamer$/i.test(window.location.href);
+  const hasMundoGamerHash = () => /(^|#)mundogamer(?:$|&)/i.test(window.location.hash);
   if (!hasMundoGamerHash()) return;
 
   const hideIfExists = () => {
