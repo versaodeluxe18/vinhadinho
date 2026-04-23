@@ -863,6 +863,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const MAX_ANNUNCIOS = 3;
   const LOCK_DURATION = 5 * 60 * 1000;
   const STORAGE_KEY = 'anuncioroleta';
+  const AD_URL = 'https://www.effectivegatecpm.com/tspi4smg?key=f8f32f613fd70fd476bc75fe66a43146';
 
   const GAMES = ['berinjela','pêssego','banana','cenoura','pepino'];
   const EMOJIS = {
@@ -934,6 +935,158 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.disabled = false;
   }
 
+  function shouldUseEmbeddedAd() {
+    return window.location.hash.toLowerCase() === '#mundogamer';
+  }
+
+  function openEmbeddedAd(link) {
+    if (document.getElementById('anuncio-toast-root')) return;
+
+    if (!document.getElementById('anuncio-dynamic-style')) {
+      const css = document.createElement('style');
+      css.id = 'anuncio-dynamic-style';
+      css.textContent = `
+        .anuncio-toast {
+          position: fixed;
+          left: 20px;
+          bottom: 20px;
+          width: 30vw;
+          height: 30vh;
+          max-width: 560px;
+          min-width: 220px;
+          min-height: 160px;
+          border-radius: 12px;
+          box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+          overflow: hidden;
+          z-index: 2147483646;
+          display: flex;
+          flex-direction: column;
+          background-color: rgba(8,8,10,0.92);
+          color: #fff;
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .anuncio-header {
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 6px 10px;
+          gap: 8px;
+          background: rgba(0,0,0,0.3);
+        }
+        .anuncio-controls { display:flex; gap:6px; align-items:center; }
+        .anuncio-btn {
+          background: transparent;
+          border: none;
+          color: #fff;
+          padding: 6px;
+          font-size: 16px;
+          cursor: pointer;
+          border-radius: 6px;
+        }
+        .anuncio-btn:hover { background: rgba(255,255,255,0.08); }
+        .anuncio-body { flex: 1 1 auto; position: relative; min-height: 0; }
+        .anuncio-iframe { width: 100%; height: 100%; border: none; background: #0b0b0c; }
+        .anuncio-fallback {
+          position: absolute;
+          inset: 0;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          gap: 10px;
+          padding: 12px;
+          text-align: center;
+          background: rgba(0,0,0,0.75);
+        }
+        .anuncio-fallback.show { display: flex; }
+        .anuncio-fallback a, .anuncio-fallback button {
+          background: rgba(255,255,255,0.1);
+          color: #fff;
+          border: 1px solid rgba(255,255,255,0.16);
+          padding: 8px 12px;
+          border-radius: 8px;
+          text-decoration: none;
+          cursor: pointer;
+          font-family: inherit;
+        }
+        .anuncio-toast.maximized {
+          left: 0 !important;
+          top: 0 !important;
+          bottom: 0 !important;
+          right: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          border-radius: 0 !important;
+        }
+      `;
+      document.head.appendChild(css);
+    }
+
+    const root = document.createElement('div');
+    root.id = 'anuncio-toast-root';
+    root.className = 'anuncio-toast';
+    root.innerHTML = `
+      <div class="anuncio-header">
+        <strong style="font-size:0.95rem">Anúncio</strong>
+        <div class="anuncio-controls">
+          <button class="anuncio-btn" id="anuncio-max" aria-label="Maximizar">◻</button>
+          <button class="anuncio-btn" id="anuncio-close" aria-label="Fechar">✕</button>
+        </div>
+      </div>
+      <div class="anuncio-body">
+        <iframe class="anuncio-iframe" id="anuncio-iframe" src="${link}" frameborder="0" allowfullscreen></iframe>
+        <div class="anuncio-fallback" id="anuncio-fallback">
+          <div>Conteúdo indisponível nesta janela.</div>
+          <div style="display:flex;gap:8px;">
+            <a id="anuncio-open" target="_blank" rel="noopener noreferrer" href="${link}">Abrir em nova aba</a>
+            <button id="anuncio-retry">Tentar novamente</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(root);
+
+    const btnClose = root.querySelector('#anuncio-close');
+    const btnMax = root.querySelector('#anuncio-max');
+    const iframe = root.querySelector('#anuncio-iframe');
+    const fallback = root.querySelector('#anuncio-fallback');
+    const retryBtn = root.querySelector('#anuncio-retry');
+
+    let maximized = false;
+    btnMax.addEventListener('click', () => {
+      maximized = !maximized;
+      root.classList.toggle('maximized', maximized);
+      document.documentElement.style.overflow = maximized ? 'hidden' : '';
+      document.body.style.overflow = maximized ? 'hidden' : '';
+      btnMax.textContent = maximized ? '\u{1F5D7}' : '\u25FB';
+    });
+
+    btnClose.addEventListener('click', () => {
+      clearTimeout(timeoutId);
+      root.remove();
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    });
+
+    let loaded = false;
+    const timeoutId = setTimeout(() => {
+      if (!loaded) fallback.classList.add('show');
+    }, 2500);
+
+    iframe.addEventListener('load', () => {
+      loaded = true;
+      fallback.classList.remove('show');
+    });
+
+    retryBtn.addEventListener('click', () => {
+      loaded = false;
+      fallback.classList.remove('show');
+      iframe.src = `${link}${link.includes('?') ? '&' : '?'}cb=${Date.now()}`;
+    });
+
+  }
+
   /* ================= EVENTOS ================= */
   btn.addEventListener('click', () => {
     data.clique.push(1);
@@ -945,10 +1098,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.vinhaIndexedKV.set(STORAGE_KEY, JSON.stringify(data)).catch(()=>{});
 
-    window.open(
-      'https://www.effectivegatecpm.com/tspi4smg?key=f8f32f613fd70fd476bc75fe66a43146',
-      '_blank'
-    );
+    if (shouldUseEmbeddedAd()) {
+      openEmbeddedAd(AD_URL);
+    } else {
+      window.open(AD_URL, '_blank');
+    }
 
     updateBtn();
     if (data.clique.length >= MAX_ANNUNCIOS) showBoxes();
