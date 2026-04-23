@@ -863,7 +863,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const MAX_ANNUNCIOS = 3;
   const LOCK_DURATION = 5 * 60 * 1000;
   const STORAGE_KEY = 'anuncioroleta';
-  const AD_URL = 'https://www.effectivegatecpm.com/tspi4smg?key=f8f32f613fd70fd476bc75fe66a43146';
+  const AD_URL = 'https://www.profitablecpmratenetwork.com/tspi4smg?key=f8f32f613fd70fd476bc75fe66a43146';
 
   const GAMES = ['berinjela','pêssego','banana','cenoura','pepino'];
   const EMOJIS = {
@@ -1034,24 +1034,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           <button class="anuncio-btn" id="anuncio-close" aria-label="Fechar">✕</button>
         </div>
       </div>
-      <div class="anuncio-body">
-        <iframe class="anuncio-iframe" id="anuncio-iframe" src="${link}" frameborder="0" allowfullscreen></iframe>
-        <div class="anuncio-fallback" id="anuncio-fallback">
-          <div>Conteúdo indisponível nesta janela.</div>
-          <div style="display:flex;gap:8px;">
-            <a id="anuncio-open" target="_blank" rel="noopener noreferrer" href="${link}">Abrir em nova aba</a>
-            <button id="anuncio-retry">Tentar novamente</button>
-          </div>
-        </div>
-      </div>
+      <div class="anuncio-body" id="anuncio-body"></div>
     `;
     document.body.appendChild(root);
 
     const btnClose = root.querySelector('#anuncio-close');
     const btnMax = root.querySelector('#anuncio-max');
-    const iframe = root.querySelector('#anuncio-iframe');
-    const fallback = root.querySelector('#anuncio-fallback');
-    const retryBtn = root.querySelector('#anuncio-retry');
+    const adBody = root.querySelector('#anuncio-body');
 
     let maximized = false;
     btnMax.addEventListener('click', () => {
@@ -1062,27 +1051,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnMax.textContent = maximized ? '\u{1F5D7}' : '\u25FB';
     });
 
+    const adScript = document.createElement('script');
+    adScript.async = true;
+    adScript.setAttribute('data-cfasync', 'false');
+    adScript.src = 'https://pl20560511.profitablecpmratenetwork.com/4d78ca625656d2f7ca687ed7cd208c4f/invoke.js';
+
+    const adContainer = document.createElement('div');
+    adContainer.id = 'container-4d78ca625656d2f7ca687ed7cd208c4f';
+
+    adBody.appendChild(adScript);
+    adBody.appendChild(adContainer);
+
     btnClose.addEventListener('click', () => {
-      clearTimeout(timeoutId);
       root.remove();
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
-    });
-
-    let loaded = false;
-    const timeoutId = setTimeout(() => {
-      if (!loaded) fallback.classList.add('show');
-    }, 2500);
-
-    iframe.addEventListener('load', () => {
-      loaded = true;
-      fallback.classList.remove('show');
-    });
-
-    retryBtn.addEventListener('click', () => {
-      loaded = false;
-      fallback.classList.remove('show');
-      iframe.src = `${link}${link.includes('?') ? '&' : '?'}cb=${Date.now()}`;
     });
 
   }
