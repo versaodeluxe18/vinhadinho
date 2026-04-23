@@ -935,8 +935,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.disabled = false;
   }
 
+  function isMobileDevice() {
+    return window.matchMedia('(max-width: 900px)').matches
+      || /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
   function shouldUseEmbeddedAd() {
-    return window.location.hash.toLowerCase() === '#mundogamer';
+    return isMobileDevice() && window.location.hash.toLowerCase() === '#mundogamer';
+  }
+
+  function ensureNativeBarScript() {
+    return new Promise((resolve, reject) => {
+      const src = 'https://pl20560511.profitablecpmratenetwork.com/4d78ca625656d2f7ca687ed7cd208c4f/invoke.js';
+      const previous = document.querySelector('script[data-adsterra-native="true"]');
+
+      if (previous) previous.remove();
+
+      const adScript = document.createElement('script');
+      adScript.async = true;
+      adScript.setAttribute('data-cfasync', 'false');
+      adScript.setAttribute('data-adsterra-native', 'true');
+      adScript.src = src;
+      adScript.onload = resolve;
+      adScript.onerror = reject;
+      document.body.appendChild(adScript);
+    });
   }
 
   function openEmbeddedAd(link) {
@@ -1051,16 +1074,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnMax.textContent = maximized ? '\u{1F5D7}' : '\u25FB';
     });
 
-    const adScript = document.createElement('script');
-    adScript.async = true;
-    adScript.setAttribute('data-cfasync', 'false');
-    adScript.src = 'https://pl20560511.profitablecpmratenetwork.com/4d78ca625656d2f7ca687ed7cd208c4f/invoke.js';
-
     const adContainer = document.createElement('div');
     adContainer.id = 'container-4d78ca625656d2f7ca687ed7cd208c4f';
-
-    adBody.appendChild(adScript);
     adBody.appendChild(adContainer);
+
+    ensureNativeBarScript().catch(() => {
+      adBody.insertAdjacentHTML('beforeend', '<p style="padding:12px;text-align:center">Não foi possível carregar o anúncio agora.</p>');
+    });
 
     btnClose.addEventListener('click', () => {
       root.remove();
