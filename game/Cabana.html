@@ -1662,6 +1662,18 @@ document.addEventListener('DOMContentLoaded', () => {
   secondScreen.id = 'second-screen';
   document.getElementById('app').appendChild(secondScreen);
 
+  const SCREEN2_DAY_BG = 'url("https://i.servimg.com/u/f22/19/80/77/63/chatgp12.jpg") no-repeat center/cover';
+  const SCREEN2_NIGHT_BG = 'url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJm8pShHCGthQU8Vy44PnR2Ba_X0mXQ2_-q68FYhVWzqozCHiW3yXit2juSQ9yoedj-bX-mnweOqGNwmQr_CV1_orA_B2LuvYSKszJDRVahWbQj-qPRfBBp7_UFzUdn9I1IDMBt7g4XWglFOOI7-nW2rz59w5h0hO_UW1I6pBCdMWtekwdfHVt0GfvzwU/s1248/salanoite.png") no-repeat center/cover';
+  const SECOND_SCREEN_DAY_BG = 'url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrw6F03JXkLmzyoVbF77aJJVrfTErmbWhAmiva6iZ-f4dL51BJpp5XtGvzBkXdD3iqF0Afu0eSUXE_ia2LwZ6stZx7FSUv5bS8VYq-nQcMs3855x6HxjRLU7gCxiWG3RhhrwGSHaqfWKZhs14gotzel4nSJWEI5cYL4iMWC7qVYGb1jaEGvleSnd12Jds/s1600/pcdedia.png") no-repeat center/cover';
+  const SECOND_SCREEN_NIGHT_BG = 'url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhaiuWZM2Ls81AgWWDnn2DZn7MOfkFvL7Zv1q8SDiBoZK2kU4yqFrd9PbiVLBWRglddYDp3IHMmP1PO2SBloIRW114hDFd0ck8LU0RhDO7LiLhEOZovDH_pO1PKnDWnddItQfxa62FW2763i11oRQihNe5HPlYdakFjkh_pdc6CyD8vvL4T2US5RpsjZq4/s1600/Gemini_Generated_Image_tb77dttb77dttb77.png") no-repeat center/cover';
+
+  function applyTimeBasedScreenBackgrounds() {
+    const hour = new Date().getHours();
+    const isNight = hour >= 18 || hour < 6;
+    firstScreen.style.background = isNight ? SCREEN2_NIGHT_BG : SCREEN2_DAY_BG;
+    secondScreen.style.background = isNight ? SECOND_SCREEN_NIGHT_BG : SECOND_SCREEN_DAY_BG;
+  }
+
   // rótulos
   const firstLabel = document.createElement('div');
   firstLabel.className = 'area-label';
@@ -1689,8 +1701,9 @@ document.addEventListener('DOMContentLoaded', () => {
     transition: 'transform 1s cubic-bezier(0.4,0,0.2,1), filter 1s cubic-bezier(0.4,0,0.2,1)',
     zIndex: '90',
     visibility: 'hidden',
-    background: 'url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrw6F03JXkLmzyoVbF77aJJVrfTErmbWhAmiva6iZ-f4dL51BJpp5XtGvzBkXdD3iqF0Afu0eSUXE_ia2LwZ6stZx7FSUv5bS8VYq-nQcMs3855x6HxjRLU7gCxiWG3RhhrwGSHaqfWKZhs14gotzel4nSJWEI5cYL4iMWC7qVYGb1jaEGvleSnd12Jds/s1600/pcdedia.png") no-repeat center/cover'
+    background: SECOND_SCREEN_DAY_BG
   });
+  applyTimeBasedScreenBackgrounds();
 
  // criar botões: live, pc, ajudar (Opção A)
 const liveBtn = document.createElement('button');
