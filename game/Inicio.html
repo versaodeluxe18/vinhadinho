@@ -134,14 +134,26 @@
 .dev-card {
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
 }
-.dev-card:hover {
+  .dev-card:hover {
   transform: translateY(-2px);
   border-color: rgba(196, 155, 70, 0.9) !important;
   background: rgba(196, 155, 70, 0.08) !important;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.32);
 }
+
+  /* evita "flash" do conteúdo por baixo durante o carregamento */
+  body.fed-intro-lock > *:not(.fed-loader):not(.fed-intro) {
+    visibility: hidden !important;
+  }
  
 </style>
+
+<script>
+  document.documentElement.classList.add('fed-intro-lock');
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('fed-intro-lock');
+  });
+</script>
 
 
  <style>
@@ -920,6 +932,8 @@
     try {
       await preloadImages([IMAGE_1, IMAGE_2, IMAGE_WELCOME]);
     } catch {
+      document.documentElement.classList.remove('fed-intro-lock');
+      document.body.classList.remove('fed-intro-lock');
       return;
     }
 
@@ -951,12 +965,18 @@
 
     intro.remove();
     document.body.style.overflow = '';
+    document.documentElement.classList.remove('fed-intro-lock');
+    document.body.classList.remove('fed-intro-lock');
 
     await saveIntroTimestamp();
   }
 
   (async function initIntro() {
-    if (await shouldSkipIntro()) return;
+    if (await shouldSkipIntro()) {
+      document.documentElement.classList.remove('fed-intro-lock');
+      document.body.classList.remove('fed-intro-lock');
+      return;
+    }
     document.body.appendChild(loader);
     startIntro();
   })();
