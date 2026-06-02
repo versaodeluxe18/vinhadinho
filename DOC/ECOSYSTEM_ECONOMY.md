@@ -1,4 +1,21 @@
-## SISTEMA DE APOIO E DOAÇÕES
+<div align="center">
+  
+# APOIO E DOAÇÃO
+Você pode apoiar e ajudar financeiramente o projeto através da loja
+<br>
+
+<a href="https://sites.google.com/view/vinhadinho/loja">
+  <img src="https://img.shields.io/badge/ACESSAR_A_LOJA-2ea44f?style=for-the-badge" alt="VISUALIZAR" width="300">
+</a>
+</div>
+
+<br><br>
+
+
+
+
+
+## CONHEÇA AS FORMAS DE APOIAR
 
 Todas as formas de monetização do VINHADINHO seguem o mesmo princípio:
 
@@ -39,6 +56,4 @@ e contribui diretamente para a evolução estrutural do projeto.
  ┃      Todos os jogadores podem ver essa contribuição através dos créditos no jogo disponível no "salão dos dev".
 
 
-<br>
-<br>
-<br>
+
