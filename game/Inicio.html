@@ -2076,6 +2076,7 @@ Peace is built on trust.
   /* VÉRTICES */
   .vd-vertex{
     position:absolute;
+    transform:translate(-50%,-50%);
     width:140px; height:64px;
     border-radius:12px;
     display:flex; align-items:center; justify-content:center;
@@ -2099,6 +2100,9 @@ Peace is built on trust.
   /* IMAGEM CENTRAL */
   #vd-center-image{
     position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
     width:220px; height:220px;
     border-radius:14px;
     background-size:contain;
@@ -2324,10 +2328,10 @@ background-repeat: no-repeat;
     setTimeout(()=>{
       const pos = computePositions();
       [v1,v2,v3].forEach((el,i)=>{
-        el.style.left = (pos[i].x - el.offsetWidth/2) + "px";
-        el.style.top  = (pos[i].y - el.offsetHeight/2) + "px";
+        el.style.left = pos[i].x + "px";
+        el.style.top  = pos[i].y + "px";
         el.style.opacity="1";
-        el.style.transform="scale(.92)";
+        el.style.transform="translate(-50%,-50%) scale(.92)";
         setTimeout(()=> el.style.transform="",120+i*40);
       });
       drawLines();
