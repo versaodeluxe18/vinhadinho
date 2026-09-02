@@ -390,34 +390,33 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background: rgba(0, 0, 0, 0.9);
-  width: 0;
-  max-width: 0;
+  /* Keep a stable layout box. Animating from zero width can leave text with a
+     cached zero-height layout in Android WebViews. */
+  width: 90vw;
+  max-width: 560px;
   /* Não use `min()` aqui: WebViews Android mais antigos descartam toda a
      declaração, deixando o modal com altura automática (e sem conteúdo
      visível). `height` + `max-height` tem o mesmo resultado e é compatível. */
   height: 85vh;
   max-height: 420px;
-  transition: width 0.4s ease-out, max-width 0.4s ease-out, opacity 0.3s;
-  z-index: 10000;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  z-index: 20000;
   border-radius: 8px;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
 }
 .custom-modal.open {
-  width: 90vw;
-  max-width: 560px;
   opacity: 1;
   pointer-events: auto;
 }
 
 @media (max-height:480px) and (orientation:landscape) {
   .custom-modal {
-    width: 0;
+    width: 94vw;
     height: 82vh;
     max-height: 360px;
   }
-  .custom-modal.open { width: 94vw; }
   .custom-modal-header { padding: 0.35rem; }
   .custom-modal-close { padding: 0.45rem 0.55rem; font-size: 10px; }
   .custom-modal-content { padding: 0.7rem; font-size: 11px; line-height: 1.45; }
@@ -437,6 +436,7 @@
     }
     .custom-modal-content {
   height: calc(100% - 3rem);
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;            /* esconde a barra horizontal */
   padding: 1rem;
@@ -1339,7 +1339,11 @@ Peace is built on trust.
     const lang = getLang();
     const textos = TEXTOS_I18N[lang] || TEXTOS_I18N.pt;
     const content = document.getElementById('modal-content');
-    content.textContent = textos[idx] || '';
+    content.replaceChildren();
+    const message = document.createElement('p');
+    message.className = 'modal-message';
+    message.textContent = textos[idx] || '';
+    content.appendChild(message);
   }
 
   function abrirModal(idx) {
@@ -1431,14 +1435,12 @@ Peace is built on trust.
       #custom-modal { box-sizing: border-box; }
 
       /* IMPORTANT: removido overflow: hidden para permitir rolagem interna */
-      #custom-modal .modal-inner,
-      #modal-content {
+      #custom-modal .modal-inner {
         box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        max-height: 72vh; /* limita a altura do modal para caber na tela */
-        /* NOTA: não colocar overflow:hidden aqui - queremos que o conteúdo interno role */
+      }
+      #modal-content .modal-message {
+        margin: 0;
+        white-space: pre-wrap;
       }
 
       /* Área que contém o texto principal dentro do modal
@@ -1485,7 +1487,7 @@ Peace is built on trust.
         align-items: center;
         justify-content: center;
         background: rgba(0,0,0,0.6);
-        z-index: 12000;
+        z-index: 21000;
         padding: 1.25rem;
       }
       #external-overlay.open { display:flex; }
@@ -1922,10 +1924,6 @@ Peace is built on trust.
   const PARTICLE_COUNT = 160;
   const BURST_DURATION = 900;
   const CANVAS_Z = 15990;
-  // O painel já usa vmin; aplicar uma escala extra o fazia sair da área útil
-  // em WebViews Android baixos (modo paisagem).
-  const PANEL_SCALE = 1;
-
   if (document.getElementById('vd-drone-ui-root')) return;
 
   const css = document.createElement('style');
@@ -2086,17 +2084,15 @@ Peace is built on trust.
   #vd-drone-panel{
     position:fixed;
     left:50%; top:50%;
-    transform:translate(-50%,-50%) scale(0.001);
-    /* A função CSS min() não é aceita por algumas versões de Android System WebView.
-       Quando era descartado, o painel ficava sem largura/altura e os três
-       destinos eram calculados no mesmo ponto, aparentando apenas "CABANA".
-       vmin + max-* preserva o mesmo limite de 720px sem CSS moderno. */
-    width:74vmin;
-    height:74vmin;
-    max-width:720px;
-    max-height:720px;
+    transform:translate(-50%,-50%);
+    /* Portrait screens need more room than 74vmin: the center image and the
+       three touch targets otherwise overlap. */
+    width:96vw;
+    height:96vw;
+    max-width:600px;
+    max-height:600px;
     pointer-events:none;
-    transition:transform 760ms cubic-bezier(.2,.9,.2,1), opacity 520ms;
+    transition:opacity 180ms ease-out;
     opacity:0;
     display:flex;
     align-items:center;
@@ -2104,7 +2100,6 @@ Peace is built on trust.
     z-index:16020;
   }
   #vd-drone-panel.open{
-    transform:translate(-50%,-50%) scale(${PANEL_SCALE});
     opacity:1;
     pointer-events:auto;
   }
@@ -2113,6 +2108,8 @@ Peace is built on trust.
   .vd-vertex{
     position:absolute;
     transform:translate(-50%,-50%);
+    left:50%; top:50%;
+    opacity:0;
     width:140px; height:64px;
     border-radius:12px;
     display:flex; align-items:center; justify-content:center;
@@ -2165,7 +2162,7 @@ background-repeat: no-repeat;
     #vd-drone-footer{ bottom:12px; }
     #vd-drone-diamond{ width:180px; height:56px; padding:8px 12px; }
     #vd-drone-title{ font-size:12px; }
-    #vd-drone-panel{ width:64vmin; height:64vmin; }
+    #vd-drone-panel{ width:80vh; height:80vh; max-width:600px; max-height:600px; }
     .vd-vertex{ width:108px; height:50px; border-width:4px; font-size:11px; }
     .vd-vertex span{ font-size:10px; }
     #vd-center-image{ width:142px; height:142px; border-width:4px; }
@@ -2317,20 +2314,23 @@ background-repeat: no-repeat;
   function computePositions(){
     const w = panel.offsetWidth;
     const h = panel.offsetHeight;
-    const cx = w/2, cy = h/2;
-    const r = Math.min(w,h)*0.48;
-    const deg = [-90,150,30];
-    return deg.map(a=>{
-      const rad=a*Math.PI/180;
-      return{ x:cx+Math.cos(rad)*r, y:cy+Math.sin(rad)*r };
+    const cx = w / 2, cy = h / 2;
+    // Keep touch targets outside the center image on narrow portrait screens.
+    const r = Math.min(w, h) * 0.40;
+    const deg = [-90, 130, 50];
+    return deg.map(a => {
+      const rad = a * Math.PI / 180;
+      return { x: cx + Math.cos(rad) * r, y: cy + Math.sin(rad) * r };
     });
   }
 
   function drawLines(){
-    svg.innerHTML="";
+    svg.innerHTML = "";
     const pos = computePositions();
-    const cx = panel.offsetWidth/2;
-    const cy = panel.offsetHeight/2;
+    const cx = panel.offsetWidth / 2;
+    const cy = panel.offsetHeight / 2;
+    svg.setAttribute('viewBox', `0 0 ${panel.offsetWidth} ${panel.offsetHeight}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
 
     function L(x1,y1,x2,y2,w){
       const l=document.createElementNS("http://www.w3.org/2000/svg","line");
@@ -2372,55 +2372,34 @@ background-repeat: no-repeat;
     const pr = panel.getBoundingClientRect();
     spawnBurst(sx,sy,pr);
 
-    setTimeout(()=>{
+    // The panel no longer scales, so its dimensions are stable on the next
+    // frame in desktop browsers and Android WebViews alike.
+    requestAnimationFrame(() => {
       const pos = computePositions();
-      [v1,v2,v3].forEach((el,i)=>{
+      [v1, v2, v3].forEach((el, i) => {
         el.style.left = pos[i].x + "px";
-        el.style.top  = pos[i].y + "px";
-        el.style.opacity="1";
-        el.style.transform="translate(-50%,-50%) scale(.92)";
-        setTimeout(()=> el.style.transform="",120+i*40);
+        el.style.top = pos[i].y + "px";
+        el.style.opacity = "1";
+        el.style.transform = "translate(-50%,-50%)";
       });
       drawLines();
-    },250);
+    });
   }
 
   function closePanel(){
     if(!panel.classList.contains('open')) return;
 
     panel.classList.remove('open');
-    diamond.setAttribute('aria-pressed','false');
+    panel.setAttribute('aria-hidden', 'true');
+    diamond.setAttribute('aria-pressed', 'false');
 
-    const rect = diamond.getBoundingClientRect();
-    const tx = rect.left+rect.width/2;
-    const ty = rect.top+rect.height/2;
-
-    const pr = panel.getBoundingClientRect();
-    spawnBurst(tx,ty,pr);
-
-    const lines=[...svg.querySelectorAll('line')];
-    lines.forEach((l,i)=>{
-      const cx=panel.offsetWidth/2, cy=panel.offsetHeight/2;
-      l.setAttribute("x1",cx); l.setAttribute("y1",cy);
-      l.setAttribute("x2",cx); l.setAttribute("y2",cy);
-      l.style.transition=`all 420ms ease ${i*16}ms`;
+    [v1, v2, v3].forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translate(-50%,-50%)';
+      el.style.left = '50%';
+      el.style.top = '50%';
     });
-
-    [v1,v2,v3].forEach((el,i)=>{
-      const r=el.getBoundingClientRect();
-      const dx=tx-(r.left+r.width/2);
-      const dy=ty-(r.top+r.height/2);
-      el.style.transition=`transform 640ms cubic-bezier(.2,.9,.2,1) ${i*16}ms, opacity 420ms`;
-      el.style.transform=`translate(${dx}px,${dy}px) scale(.26)`;
-      el.style.opacity="0";
-      setTimeout(()=>{
-        el.style.transform="";
-        el.style.opacity="";
-        el.style.left="0"; el.style.top="0";
-      },780);
-    });
-
-    setTimeout(()=> svg.innerHTML="",900);
+    svg.innerHTML = '';
   }
 
   function wait(ms){
@@ -2594,6 +2573,16 @@ background-repeat: no-repeat;
   v1.addEventListener('click',e=> handleDroneDestination(e, LINKS.COLETA));
   v2.addEventListener('click',e=> handleDroneDestination(e, LINKS.ACAMPAMENTO));
   v3.addEventListener('click',e=> handleDroneDestination(e, LINKS.CABANA));
+
+  window.addEventListener('resize', () => {
+    if (!panel.classList.contains('open')) return;
+    const pos = computePositions();
+    [v1, v2, v3].forEach((el, i) => {
+      el.style.left = pos[i].x + 'px';
+      el.style.top = pos[i].y + 'px';
+    });
+    drawLines();
+  });
 
   centerImg.addEventListener('click',(e)=>{ e.stopPropagation(); if(openState){ closePanel(); openState=false; } });
 
@@ -2839,24 +2828,8 @@ background-repeat: no-repeat;
       if (base.includes('69')) setText(el, T.YEAR_69);
     });
 
-    /* MODAL */
-    const modal = document.querySelector('.custom-modal, .fed-modal, #modal');
-    if (modal) {
-
-      modal.querySelectorAll('h1,h2,h3')
-        .forEach(el => setText(el, T.MODAL_TITLE));
-
-      const ps = modal.querySelectorAll('p');
-      if (ps[0]) setText(ps[0], T.MODAL_TEXT_1);
-      if (ps[1]) setText(ps[1], T.MODAL_TEXT_2);
-
-      /* CONFIRMAR / CANCELAR */
-      modal.querySelectorAll('[data-confirm]')
-        .forEach(el => setText(el, T.MODAL_CONFIRM));
-
-      modal.querySelectorAll('[data-cancel]')
-        .forEach(el => setText(el, T.MODAL_CANCEL));
-    }
+    /* Modal content is rendered by its own i18n-aware controller. Keeping
+       it out of this generic pass prevents support content from being reset. */
 
     /* ACESSAR PORTAL */
     setText(
