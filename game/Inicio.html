@@ -392,7 +392,11 @@
   background: rgba(0, 0, 0, 0.9);
   width: 0;
   max-width: 0;
-  height: min(85vh, 420px);
+  /* Não use `min()` aqui: WebViews Android mais antigos descartam toda a
+     declaração, deixando o modal com altura automática (e sem conteúdo
+     visível). `height` + `max-height` tem o mesmo resultado e é compatível. */
+  height: 85vh;
+  max-height: 420px;
   transition: width 0.4s ease-out, max-width 0.4s ease-out, opacity 0.3s;
   z-index: 10000;
   border-radius: 8px;
@@ -410,7 +414,8 @@
 @media (max-height:480px) and (orientation:landscape) {
   .custom-modal {
     width: 0;
-    height: min(82vh, 360px);
+    height: 82vh;
+    max-height: 360px;
   }
   .custom-modal.open { width: 94vw; }
   .custom-modal-header { padding: 0.35rem; }
@@ -1485,8 +1490,11 @@ Peace is built on trust.
       }
       #external-overlay.open { display:flex; }
       #external-overlay .external-frame-wrap{
-        width: min(1100px, 96%);
-        height: min(720px, 92%);
+        /* Limite compatível com WebViews que não suportam CSS math functions. */
+        width: 96%;
+        max-width: 1100px;
+        height: 92%;
+        max-height: 720px;
         background: #0f1720;
         border-radius: 8px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.6);
@@ -2079,8 +2087,14 @@ Peace is built on trust.
     position:fixed;
     left:50%; top:50%;
     transform:translate(-50%,-50%) scale(0.001);
-    width:min(74vmin,720px);
-    height:min(74vmin,720px);
+    /* A função CSS min() não é aceita por algumas versões de Android System WebView.
+       Quando era descartado, o painel ficava sem largura/altura e os três
+       destinos eram calculados no mesmo ponto, aparentando apenas "CABANA".
+       vmin + max-* preserva o mesmo limite de 720px sem CSS moderno. */
+    width:74vmin;
+    height:74vmin;
+    max-width:720px;
+    max-height:720px;
     pointer-events:none;
     transition:transform 760ms cubic-bezier(.2,.9,.2,1), opacity 520ms;
     opacity:0;
